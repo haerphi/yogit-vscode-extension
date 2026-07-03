@@ -1,0 +1,6 @@
+allowBuilds:
+    '@vscode/vsce-sign': set this to true or false
+    esbuild: true
+    keytar: set this to true or false
+minimumReleaseAgeExclude:
+    - '@haerphi/vscode-git-api-types@1.0.0 || 1.0.2'

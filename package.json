@@ -1,0 +1,450 @@
+{
+    "name": "haerphi-yogit",
+    "displayName": "YoGit",
+    "description": "A extension to help you using Git and have a clear visualisation of what you're doing!",
+    "version": "1.0.0",
+    "repository": {
+        "url": "https://github.com/haerphi/yogit-vscode-extension"
+    },
+    "engines": {
+        "vscode": "^1.125.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:commit",
+        "onView:branches",
+        "onView:changes",
+        "onView:stash"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "haerphi-yogit.create-branch",
+                "title": "Créer une branche",
+                "icon": "$(add)"
+            },
+            {
+                "command": "haerphi-yogit.create-branch-from",
+                "title": "Créer une branche depuis celle-ci"
+            },
+            {
+                "command": "haerphi-yogit.switch",
+                "title": "Basculer sur cette branche",
+                "icon": "$(arrow-right)"
+            },
+            {
+                "command": "haerphi-yogit.switch-force",
+                "title": "Basculer sur cette branche (forcer)"
+            },
+            {
+                "command": "haerphi-yogit.delete-branch",
+                "title": "Supprimer la branche",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "haerphi-yogit.delete-branch-remote",
+                "title": "Supprimer la branche distante",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "haerphi-yogit.stage-file",
+                "title": "Indexer ce fichier",
+                "icon": "$(add)"
+            },
+            {
+                "command": "haerphi-yogit.unstage-file",
+                "title": "Désindexer ce fichier",
+                "icon": "$(remove)"
+            },
+            {
+                "command": "haerphi-yogit.stage-all",
+                "title": "Indexer tous les fichiers",
+                "icon": "$(add)"
+            },
+            {
+                "command": "haerphi-yogit.unstage-all",
+                "title": "Désindexer tous les fichiers",
+                "icon": "$(remove)"
+            },
+            {
+                "command": "haerphi-yogit.stage-hunks",
+                "title": "Indexer par hunks/lignes…",
+                "icon": "$(list-selection)"
+            },
+            {
+                "command": "haerphi-yogit.unstage-hunks",
+                "title": "Désindexer par hunks/lignes…",
+                "icon": "$(list-selection)"
+            },
+            {
+                "command": "haerphi-yogit.stash",
+                "title": "Mettre de côté…",
+                "icon": "$(archive)"
+            },
+            {
+                "command": "haerphi-yogit.show-log",
+                "title": "Historique",
+                "icon": "$(history)"
+            },
+            {
+                "command": "haerphi-yogit.fetch",
+                "title": "Fetch",
+                "icon": "$(sync)"
+            },
+            {
+                "command": "haerphi-yogit.pull",
+                "title": "Pull",
+                "icon": "$(arrow-down)"
+            },
+            {
+                "command": "haerphi-yogit.push",
+                "title": "Push",
+                "icon": "$(arrow-up)"
+            },
+            {
+                "command": "haerphi-yogit.stash-pop",
+                "title": "Appliquer et supprimer",
+                "icon": "$(run)"
+            },
+            {
+                "command": "haerphi-yogit.stash-apply",
+                "title": "Appliquer (garder le stash)"
+            },
+            {
+                "command": "haerphi-yogit.stash-drop",
+                "title": "Supprimer le stash",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "haerphi-yogit.merge",
+                "title": "Merger dans la branche courante",
+                "icon": "$(git-merge)"
+            },
+            {
+                "command": "haerphi-yogit.rebase-onto",
+                "title": "Rebaser la branche courante sur celle-ci",
+                "icon": "$(git-commit)"
+            },
+            {
+                "command": "haerphi-yogit.rebase-interactive",
+                "title": "Rebase interactif sur cette branche…",
+                "icon": "$(git-commit)"
+            },
+            {
+                "command": "haerphi-yogit.resolve-conflict",
+                "title": "Résoudre le conflit…",
+                "icon": "$(diff)"
+            },
+            {
+                "command": "haerphi-yogit.abort-rebase",
+                "title": "Annuler le rebase",
+                "icon": "$(discard)"
+            },
+            {
+                "command": "haerphi-yogit.continue-rebase",
+                "title": "Continuer le rebase",
+                "icon": "$(play)"
+            },
+            {
+                "command": "haerphi-yogit.discard-file",
+                "title": "Annuler les modifications",
+                "icon": "$(discard)"
+            },
+            {
+                "command": "haerphi-yogit.discard-all",
+                "title": "Annuler toutes les modifications",
+                "icon": "$(discard)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "haerphi-yogit.show-log",
+                    "when": "view == branches",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "haerphi-yogit.fetch",
+                    "when": "view == branches",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "haerphi-yogit.pull",
+                    "when": "view == branches",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "haerphi-yogit.push",
+                    "when": "view == branches",
+                    "group": "navigation@4"
+                },
+                {
+                    "command": "haerphi-yogit.create-branch",
+                    "when": "view == branches",
+                    "group": "navigation@5"
+                },
+                {
+                    "command": "haerphi-yogit.stash",
+                    "when": "view == changes",
+                    "group": "navigation"
+                },
+                {
+                    "command": "haerphi-yogit.abort-rebase",
+                    "when": "view == changes && haerphi-yogit.rebaseInProgress",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "haerphi-yogit.switch",
+                    "when": "view == branches && viewItem =~ /^branch/",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.switch",
+                    "when": "view == branches && viewItem =~ /^branch/",
+                    "group": "1_switch@1"
+                },
+                {
+                    "command": "haerphi-yogit.switch-force",
+                    "when": "view == branches && viewItem =~ /^branch/",
+                    "group": "1_switch@2"
+                },
+                {
+                    "command": "haerphi-yogit.create-branch-from",
+                    "when": "view == branches && viewItem =~ /^branch/",
+                    "group": "2_branch"
+                },
+                {
+                    "command": "haerphi-yogit.merge",
+                    "when": "view == branches && viewItem =~ /^branch/ && viewItem != branch-local-current",
+                    "group": "3_rebase@1"
+                },
+                {
+                    "command": "haerphi-yogit.rebase-onto",
+                    "when": "view == branches && viewItem =~ /^branch/ && viewItem != branch-local-current",
+                    "group": "3_rebase@2"
+                },
+                {
+                    "command": "haerphi-yogit.rebase-interactive",
+                    "when": "view == branches && viewItem =~ /^branch/ && viewItem != branch-local-current",
+                    "group": "3_rebase@3"
+                },
+                {
+                    "command": "haerphi-yogit.pull",
+                    "when": "view == branches && viewItem == branch-local-current",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.push",
+                    "when": "view == branches && viewItem == branch-local-current",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.pull",
+                    "when": "view == branches && viewItem == branch-local-current",
+                    "group": "1_sync@1"
+                },
+                {
+                    "command": "haerphi-yogit.push",
+                    "when": "view == branches && viewItem == branch-local-current",
+                    "group": "1_sync@2"
+                },
+                {
+                    "command": "haerphi-yogit.delete-branch",
+                    "when": "view == branches && viewItem =~ /^branch-local/",
+                    "group": "4_delete"
+                },
+                {
+                    "command": "haerphi-yogit.delete-branch-remote",
+                    "when": "view == branches && viewItem == branch-remote",
+                    "group": "4_delete"
+                },
+                {
+                    "command": "haerphi-yogit.stage-file",
+                    "when": "view == changes && viewItem == change-unstaged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.stage-hunks",
+                    "when": "view == changes && viewItem == change-unstaged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.stage-file",
+                    "when": "view == changes && viewItem == change-unstaged",
+                    "group": "1_stage@1"
+                },
+                {
+                    "command": "haerphi-yogit.stage-hunks",
+                    "when": "view == changes && viewItem == change-unstaged",
+                    "group": "1_stage@2"
+                },
+                {
+                    "command": "haerphi-yogit.unstage-file",
+                    "when": "view == changes && viewItem == change-staged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.unstage-hunks",
+                    "when": "view == changes && viewItem == change-staged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.unstage-file",
+                    "when": "view == changes && viewItem == change-staged",
+                    "group": "1_stage@1"
+                },
+                {
+                    "command": "haerphi-yogit.unstage-hunks",
+                    "when": "view == changes && viewItem == change-staged",
+                    "group": "1_stage@2"
+                },
+                {
+                    "command": "haerphi-yogit.resolve-conflict",
+                    "when": "view == changes && viewItem == change-conflict",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.resolve-conflict",
+                    "when": "view == changes && viewItem == change-conflict",
+                    "group": "1_resolve"
+                },
+                {
+                    "command": "haerphi-yogit.stage-all",
+                    "when": "view == changes && viewItem == group-unstaged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.discard-all",
+                    "when": "view == changes && viewItem == group-unstaged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.discard-all",
+                    "when": "view == changes && viewItem == group-unstaged",
+                    "group": "1_discard"
+                },
+                {
+                    "command": "haerphi-yogit.unstage-all",
+                    "when": "view == changes && viewItem == group-staged",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.discard-file",
+                    "when": "view == changes && viewItem == change-unstaged",
+                    "group": "2_discard"
+                },
+                {
+                    "command": "haerphi-yogit.stash-pop",
+                    "when": "view == stash && viewItem == stash-entry",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.stash-drop",
+                    "when": "view == stash && viewItem == stash-entry",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.stash-pop",
+                    "when": "view == stash && viewItem == stash-entry",
+                    "group": "1_apply@1"
+                },
+                {
+                    "command": "haerphi-yogit.stash-apply",
+                    "when": "view == stash && viewItem == stash-entry",
+                    "group": "1_apply@2"
+                },
+                {
+                    "command": "haerphi-yogit.stash-drop",
+                    "when": "view == stash && viewItem == stash-entry",
+                    "group": "2_delete"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "yogit-side-panel",
+                    "title": "YoGit",
+                    "icon": "media/yogit.svg"
+                }
+            ]
+        },
+        "views": {
+            "yogit-side-panel": [
+                {
+                    "id": "commit",
+                    "name": "Commit",
+                    "type": "webview"
+                },
+                {
+                    "id": "changes",
+                    "name": "Modifications"
+                },
+                {
+                    "id": "stash",
+                    "name": "Stash"
+                },
+                {
+                    "id": "branches",
+                    "name": "Branches"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "changes",
+                "contents": "Aucune modification locale."
+            },
+            {
+                "view": "stash",
+                "contents": "Aucun stash."
+            }
+        ]
+    },
+    "extensionDependencies": [
+        "vscode.git"
+    ],
+    "scripts": {
+        "vscode:prepublish": "pnpm run compile",
+        "compile": "tsc -p ./ && esbuild src/webview/modal/index.ts --bundle --outfile=out/webview/modal.js --format=iife --platform=browser --tsconfig=tsconfig.webview.json && esbuild src/webview/diff/index.ts --bundle --outfile=out/webview/diff.js --format=iife --platform=browser --tsconfig=tsconfig.webview.json && esbuild src/webview/commit/index.ts --bundle --outfile=out/webview/commit.js --format=iife --platform=browser --tsconfig=tsconfig.webview.json && esbuild src/webview/log/index.ts --bundle --outfile=out/webview/log.js --format=iife --platform=browser --tsconfig=tsconfig.webview.json && esbuild src/webview/rebase/index.ts --bundle --outfile=out/webview/rebase.js --format=iife --platform=browser --tsconfig=tsconfig.webview.json && esbuild src/webview/conflict/index.ts --bundle --outfile=out/webview/conflict.js --format=iife --platform=browser --tsconfig=tsconfig.webview.json",
+        "watch:ext": "tsc -watch -p ./",
+        "watch:webview": "esbuild src/webview/modal/index.ts --bundle --outfile=out/webview/modal.js --format=iife --platform=browser --watch & esbuild src/webview/diff/index.ts --bundle --outfile=out/webview/diff.js --format=iife --platform=browser --watch & esbuild src/webview/commit/index.ts --bundle --outfile=out/webview/commit.js --format=iife --platform=browser --watch & esbuild src/webview/log/index.ts --bundle --outfile=out/webview/log.js --format=iife --platform=browser --watch & esbuild src/webview/rebase/index.ts --bundle --outfile=out/webview/rebase.js --format=iife --platform=browser --watch & esbuild src/webview/conflict/index.ts --bundle --outfile=out/webview/conflict.js --format=iife --platform=browser --watch",
+        "pretest": "pnpm run compile && pnpm run lint",
+        "lint": "eslint src --ignore-pattern src/webview",
+        "format": "prettier --write **/*.{ts,js,json,md,css,yml,yaml}",
+        "test": "vscode-test",
+        "prepare": "husky"
+    },
+    "lint-staged": {
+        "**/*.{ts,js}": [
+            "prettier --write",
+            "eslint --fix"
+        ],
+        "**/*.{json,md,css,yml,yaml}": [
+            "prettier --write"
+        ]
+    },
+    "dependencies": {
+        "@haerphi/vscode-git-api-types": "^1.0.2",
+        "lit": "^3.3.3"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.10",
+        "@types/node": "~22.19.21",
+        "@types/vscode": "^1.125.0",
+        "@vscode/test-cli": "^0.0.12",
+        "@vscode/test-electron": "^2.5.2",
+        "esbuild": "^0.28.1",
+        "eslint": "^9.39.3",
+        "husky": "^9.1.7",
+        "lint-staged": "^17.0.7",
+        "prettier": "^3.8.4",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.56.1"
+    }
+}

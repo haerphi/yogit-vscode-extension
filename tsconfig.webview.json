@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM"],
+        "strict": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "noEmit": true
+    },
+    "include": ["src/webview/**/*", "src/types/**/*"]
+}
