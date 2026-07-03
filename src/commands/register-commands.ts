@@ -18,6 +18,7 @@ import { registerDiscard } from './changes/discard';
 import { registerContinueRebase } from './changes/continue-rebase';
 import { registerResolveConflict } from './changes/resolve-conflict';
 import { registerShowLog } from './log/show-log';
+import { registerAddRemote } from './repo/add-remote';
 import { registerRepoSetup } from './repo/init-repo';
 
 /**
@@ -60,5 +61,6 @@ export function registerCommands(
         registerAbortRebase(gitApi),
         registerContinueRebase(gitApi),
         ...registerRepoSetup(gitApi),
+        registerAddRemote(gitApi, context),
     ];
 }

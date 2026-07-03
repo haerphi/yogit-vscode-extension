@@ -174,6 +174,11 @@
                 "command": "haerphi-yogit.link-repo",
                 "title": "Lier à un dépôt distant existant",
                 "icon": "$(link)"
+            },
+            {
+                "command": "haerphi-yogit.add-remote",
+                "title": "Ajouter un remote",
+                "icon": "$(add)"
             }
         ],
         "menus": {
@@ -229,6 +234,16 @@
                 }
             ],
             "view/item/context": [
+                {
+                    "command": "haerphi-yogit.add-remote",
+                    "when": "view == branches && viewItem == group-remote",
+                    "group": "inline"
+                },
+                {
+                    "command": "haerphi-yogit.add-remote",
+                    "when": "view == branches && viewItem == group-remote",
+                    "group": "1_remote"
+                },
                 {
                     "command": "haerphi-yogit.switch",
                     "when": "view == branches && viewItem =~ /^branch/",

@@ -109,7 +109,7 @@ Le code sous `src/` (hors `webview/`) est compilé par **tsc** et tourne dans No
 
 Les nœuds de la TreeView sont typés avec un discriminant `kind` :
 
-- `kind: 'group'` — nœud groupe (Local / Distant), pas de `contextValue`, pas de menu clic droit.
+- `kind: 'group'` — nœud groupe (Local / Distant). Local : pas de `contextValue`, pas de menu. Distant : `contextValue = 'group-remote'` pour le bouton inline "Ajouter un remote".
 - `kind: 'branch'` — nœud feuille, `contextValue = 'branch-local'` ou `'branch-remote'`, menus ciblés via `when: "viewItem =~ /^branch/"`.
 
 Pour ajouter un sous-type (ex : branche avec remote tracking vs sans), créer un nouveau `contextValue` (ex: `'branch-tracked'`) et adapter le `when` dans `package.json`.

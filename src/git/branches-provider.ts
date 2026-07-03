@@ -78,7 +78,13 @@ export class BranchesProvider implements TreeDataProvider<BranchNode> {
 
     getTreeItem(node: BranchNode): TreeItem {
         if (node.kind === 'group') {
-            return new TreeItem(node.label, TreeItemCollapsibleState.Expanded);
+            const item = new TreeItem(node.label, TreeItemCollapsibleState.Expanded);
+            // 'group-remote' permet de cibler le bouton inline "Ajouter un remote"
+            // sur le groupe Distant uniquement. Le groupe Local reste sans menu.
+            if (node.remote) {
+                item.contextValue = 'group-remote';
+            }
+            return item;
         }
 
         const branch = node.branch;

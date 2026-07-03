@@ -67,6 +67,7 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [x] Supprimer un tag (depuis l'historique, avec suppression distante optionnelle)
 - [X]? Résolution visuelle des conflits (Current / Theirs / Final)
 - [x] Détection de si le dossier est repository git, sinon proposé de l'initialisé ou le lié à un repository existant
+- [x] Ajouter un remote depuis le groupe « Distant » de la vue branches
 - [ ] Reflog (via `git reflog`, commande directe)
 
 ---
