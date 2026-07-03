@@ -66,7 +66,7 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [x] Ajouter un tag sur un commit (depuis l'historique, avec push optionnel)
 - [x] Supprimer un tag (depuis l'historique, avec suppression distante optionnelle)
 - [X]? Résolution visuelle des conflits (Current / Theirs / Final)
-- [ ] Détection de si le dossier est repository git, sinon proposé de l'initialisé ou le lié à un repository existant
+- [x] Détection de si le dossier est repository git, sinon proposé de l'initialisé ou le lié à un repository existant
 - [ ] Reflog (via `git reflog`, commande directe)
 
 ---

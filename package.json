@@ -159,9 +159,29 @@
                 "command": "haerphi-yogit.discard-all",
                 "title": "Annuler toutes les modifications",
                 "icon": "$(discard)"
+            },
+            {
+                "command": "haerphi-yogit.init-repo",
+                "title": "Initialiser un dépôt git",
+                "icon": "$(repo-create)"
+            },
+            {
+                "command": "haerphi-yogit.link-repo",
+                "title": "Lier à un dépôt distant existant",
+                "icon": "$(repo-clone)"
             }
         ],
         "menus": {
+            "commandPalette": [
+                {
+                    "command": "haerphi-yogit.init-repo",
+                    "when": "haerphi-yogit.noRepo"
+                },
+                {
+                    "command": "haerphi-yogit.link-repo",
+                    "when": "haerphi-yogit.noRepo"
+                }
+            ],
             "view/title": [
                 {
                     "command": "haerphi-yogit.show-log",
@@ -399,12 +419,29 @@
         },
         "viewsWelcome": [
             {
+                "view": "branches",
+                "contents": "Ce dossier n'est pas un dépôt git.\n[Initialiser un dépôt](command:haerphi-yogit.init-repo)\n[Lier à un dépôt distant existant](command:haerphi-yogit.link-repo)",
+                "when": "haerphi-yogit.noRepo"
+            },
+            {
                 "view": "changes",
-                "contents": "Aucune modification locale."
+                "contents": "Aucune modification locale.",
+                "when": "!haerphi-yogit.noRepo"
+            },
+            {
+                "view": "changes",
+                "contents": "Ce dossier n'est pas un dépôt git.",
+                "when": "haerphi-yogit.noRepo"
             },
             {
                 "view": "stash",
-                "contents": "Aucun stash."
+                "contents": "Aucun stash.",
+                "when": "!haerphi-yogit.noRepo"
+            },
+            {
+                "view": "stash",
+                "contents": "Ce dossier n'est pas un dépôt git.",
+                "when": "haerphi-yogit.noRepo"
             }
         ]
     },

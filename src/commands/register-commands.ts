@@ -18,6 +18,7 @@ import { registerDiscard } from './changes/discard';
 import { registerContinueRebase } from './changes/continue-rebase';
 import { registerResolveConflict } from './changes/resolve-conflict';
 import { registerShowLog } from './log/show-log';
+import { registerRepoSetup } from './repo/init-repo';
 
 /**
  * Point d'entrée unique pour l'enregistrement de toutes les commandes de l'extension.
@@ -58,5 +59,6 @@ export function registerCommands(
         ...registerDiscard(gitApi),
         registerAbortRebase(gitApi),
         registerContinueRebase(gitApi),
+        ...registerRepoSetup(gitApi),
     ];
 }
