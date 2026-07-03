@@ -1,5 +1,21 @@
 import { API } from '@haerphi/vscode-git-api-types';
+import { spawn } from 'child_process';
 import * as vscode from 'vscode';
+
+function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const proc = spawn(gitPath, args, { cwd });
+        const err: string[] = [];
+        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
+        proc.on('close', code => {
+            if (code !== 0) {
+                reject(new Error(err.join('').trim()));
+                return;
+            }
+            resolve();
+        });
+    });
+}
 
 /**
  * Détection de l'absence de dépôt git + commandes d'initialisation.
@@ -47,9 +63,19 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         if (!folder) {
             return;
         }
+        // git clone refuse un dossier de destination non vide — vérifier avant
+        // de demander l'URL pour donner un message clair immédiatement.
+        const entries = await vscode.workspace.fs.readDirectory(folder.uri);
+        if (entries.length > 0) {
+            vscode.window.showErrorMessage(
+                `Impossible de cloner : le dossier « ${folder.name} » n'est pas vide. ` +
+                    'Ouvrez un dossier vide, ou utilisez « Initialiser un dépôt » pour versionner les fichiers existants.',
+            );
+            return;
+        }
         const url = await vscode.window.showInputBox({
             title: 'Lier à un dépôt distant existant',
-            prompt: 'URL du dépôt distant (https ou ssh)',
+            prompt: 'URL du dépôt à cloner (https ou ssh)',
             placeHolder: 'ex : https://github.com/user/repo.git',
             validateInput: value => (value.trim() ? undefined : "L'URL ne peut pas être vide"),
         });
@@ -58,24 +84,18 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         }
         try {
             await vscode.window.withProgress(
-                { location: vscode.ProgressLocation.Notification, title: 'Liaison au dépôt distant…' },
+                { location: vscode.ProgressLocation.Notification, title: 'Clonage du dépôt…' },
                 async () => {
-                    // Si le dossier n'est pas encore un dépôt, on l'initialise d'abord.
-                    const repo = gitApi.repositories[0] ?? (await gitApi.init(folder.uri));
-                    if (!repo) {
-                        throw new Error("L'initialisation du dépôt a échoué.");
-                    }
-                    await repo.addRemote('origin', url.trim());
-                    await repo.fetch();
+                    await runGit(gitApi.git.path, ['clone', url.trim(), '.'], folder.uri.fsPath);
+                    // Le clone est fait hors API vscode.git — on enregistre explicitement
+                    // le dépôt pour que les providers se branchent sans recharger la fenêtre.
+                    await gitApi.openRepository(folder.uri);
                 },
             );
-            vscode.window.showInformationMessage(
-                'Dépôt lié à « origin » et références distantes récupérées. ' +
-                    'Basculez sur une branche distante pour récupérer les fichiers.',
-            );
+            vscode.window.showInformationMessage(`Dépôt cloné dans « ${folder.name} ».`);
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
-            vscode.window.showErrorMessage(`Liaison au dépôt distant échouée : ${errMsg}`);
+            vscode.window.showErrorMessage(`Clonage du dépôt échoué : ${errMsg}`);
         }
     });
 
