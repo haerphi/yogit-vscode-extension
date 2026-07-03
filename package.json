@@ -17,6 +17,7 @@
     "activationEvents": [
         "onView:commit",
         "onView:branches",
+        "onView:remotes",
         "onView:changes",
         "onView:stash"
     ],
@@ -223,6 +224,16 @@
                     "group": "navigation@5"
                 },
                 {
+                    "command": "haerphi-yogit.fetch",
+                    "when": "view == remotes",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "haerphi-yogit.add-remote",
+                    "when": "view == remotes",
+                    "group": "navigation@2"
+                },
+                {
                     "command": "haerphi-yogit.stash",
                     "when": "view == changes",
                     "group": "navigation"
@@ -235,48 +246,38 @@
             ],
             "view/item/context": [
                 {
-                    "command": "haerphi-yogit.add-remote",
-                    "when": "view == branches && viewItem == group-remote",
-                    "group": "inline"
-                },
-                {
-                    "command": "haerphi-yogit.add-remote",
-                    "when": "view == branches && viewItem == group-remote",
-                    "group": "1_remote"
-                },
-                {
                     "command": "haerphi-yogit.switch",
-                    "when": "view == branches && viewItem =~ /^branch/",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "inline"
                 },
                 {
                     "command": "haerphi-yogit.switch",
-                    "when": "view == branches && viewItem =~ /^branch/",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "1_switch@1"
                 },
                 {
                     "command": "haerphi-yogit.switch-force",
-                    "when": "view == branches && viewItem =~ /^branch/",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "1_switch@2"
                 },
                 {
                     "command": "haerphi-yogit.create-branch-from",
-                    "when": "view == branches && viewItem =~ /^branch/",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "2_branch"
                 },
                 {
                     "command": "haerphi-yogit.merge",
-                    "when": "view == branches && viewItem =~ /^branch/ && viewItem != branch-local-current",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/ && viewItem != branch-local-current",
                     "group": "3_rebase@1"
                 },
                 {
                     "command": "haerphi-yogit.rebase-onto",
-                    "when": "view == branches && viewItem =~ /^branch/ && viewItem != branch-local-current",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/ && viewItem != branch-local-current",
                     "group": "3_rebase@2"
                 },
                 {
                     "command": "haerphi-yogit.rebase-interactive",
-                    "when": "view == branches && viewItem =~ /^branch/ && viewItem != branch-local-current",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/ && viewItem != branch-local-current",
                     "group": "3_rebase@3"
                 },
                 {
@@ -306,7 +307,7 @@
                 },
                 {
                     "command": "haerphi-yogit.delete-branch-remote",
-                    "when": "view == branches && viewItem == branch-remote",
+                    "when": "view == remotes && viewItem == branch-remote",
                     "group": "4_delete"
                 },
                 {
@@ -438,6 +439,10 @@
                 {
                     "id": "branches",
                     "name": "Branches"
+                },
+                {
+                    "id": "remotes",
+                    "name": "Remotes"
                 }
             ]
         },
@@ -445,6 +450,16 @@
             {
                 "view": "branches",
                 "contents": "Ce dossier n'est pas un dépôt git.\n[Initialiser un dépôt](command:haerphi-yogit.init-repo)\n[Cloner un dépôt distant](command:haerphi-yogit.clone-repo)\n[Lier à un dépôt distant existant](command:haerphi-yogit.link-repo)",
+                "when": "haerphi-yogit.noRepo"
+            },
+            {
+                "view": "remotes",
+                "contents": "Aucun remote configuré.\n[Ajouter un remote](command:haerphi-yogit.add-remote)",
+                "when": "!haerphi-yogit.noRepo"
+            },
+            {
+                "view": "remotes",
+                "contents": "Ce dossier n'est pas un dépôt git.",
                 "when": "haerphi-yogit.noRepo"
             },
             {

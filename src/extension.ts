@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { registerCommands } from './commands/register-commands';
 import { BranchesProvider } from './git/branches-provider';
 import { ChangesProvider } from './git/changes-provider';
+import { RemotesProvider } from './git/remotes-provider';
 import { checkSafeDirectory } from './git/safe-directory';
 import { StashProvider } from './git/stash-provider';
 import { CommitView } from './ui/CommitView';
@@ -22,6 +23,7 @@ import { CommitView } from './ui/CommitView';
  */
 export async function activate(context: vscode.ExtensionContext) {
     const branchesProvider = new BranchesProvider();
+    const remotesProvider = new RemotesProvider();
     const changesProvider = new ChangesProvider();
     const stashProvider = new StashProvider();
     // CommitView est un WebviewViewProvider (sidebar) — résolu lazily à la première révélation
@@ -30,6 +32,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // Les TreeViews sont enregistrées immédiatement — si on attendait la résolution de
     // l'API git, VS Code afficherait "no data provider registered" pendant ce délai.
     const branchesView = vscode.window.createTreeView('branches', { treeDataProvider: branchesProvider });
+    const remotesView = vscode.window.createTreeView('remotes', { treeDataProvider: remotesProvider });
     const changesView = vscode.window.createTreeView('changes', { treeDataProvider: changesProvider });
     const stashView = vscode.window.createTreeView('stash', { treeDataProvider: stashProvider });
     const commitViewDisposable = vscode.window.registerWebviewViewProvider('commit', commitView, {
@@ -39,7 +42,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git');
     if (!gitExtension) {
         vscode.window.showErrorMessage('Git is not installed');
-        context.subscriptions.push(branchesView, changesView, stashView, commitViewDisposable);
+        context.subscriptions.push(branchesView, remotesView, changesView, stashView, commitViewDisposable);
         return;
     }
 
@@ -55,6 +58,7 @@ export async function activate(context: vscode.ExtensionContext) {
         if (gitApi.repositories.length > 0) {
             const repo = gitApi.repositories[0];
             branchesProvider.setRepository(repo);
+            remotesProvider.setRepository(repo);
             changesProvider.setRepository(repo);
             stashProvider.setRepository(repo, gitApi.git.path);
             commitView.setRepository(repo);
@@ -95,6 +99,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         branchesView,
+        remotesView,
         changesView,
         stashView,
         commitViewDisposable,

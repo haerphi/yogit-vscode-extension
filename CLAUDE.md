@@ -58,7 +58,8 @@ src/
 │   ├── register-commands.ts  ← point d'entrée unique, importe et enregistre tout
 │   └── utils.ts              ← getRepo(), validateBranchName(), helpers partagés
 ├── git/
-│   └── branches-provider.ts  ← TreeDataProvider, gère le cycle de vie du repo
+│   ├── branches-provider.ts  ← TreeDataProvider branches locales, gère le cycle de vie du repo
+│   └── remotes-provider.ts   ← TreeDataProvider remotes + branches distantes
 ├── types/
 │   └── modal.ts              ← interfaces partagées extension host ↔ webview (sans import vscode)
 ├── ui/
@@ -107,10 +108,11 @@ Le code sous `src/` (hors `webview/`) est compilé par **tsc** et tourne dans No
 
 ### TreeView et `contextValue`
 
-Les nœuds de la TreeView sont typés avec un discriminant `kind` :
+Les nœuds des TreeViews sont typés avec un discriminant `kind` :
 
-- `kind: 'group'` — nœud groupe (Local / Distant). Local : pas de `contextValue`, pas de menu. Distant : `contextValue = 'group-remote'` pour le bouton inline "Ajouter un remote".
-- `kind: 'branch'` — nœud feuille, `contextValue = 'branch-local'` ou `'branch-remote'`, menus ciblés via `when: "viewItem =~ /^branch/"`.
+- Vue **branches** : liste plate des branches locales — `kind: 'branch'`, `contextValue = 'branch-local'` ou `'branch-local-current'`.
+- Vue **remotes** : un groupe par remote configuré (`kind: 'remote'`, `contextValue = 'remote'`), contenant ses branches distantes — `kind: 'branch'`, `contextValue = 'branch-remote'`. Les feuilles ont la même forme (`BranchLeaf`) que dans la vue branches pour que les commandes soient partagées entre les deux vues.
+- Menus ciblés via `when: "(view == branches || view == remotes) && viewItem =~ /^branch/"`.
 
 Pour ajouter un sous-type (ex : branche avec remote tracking vs sans), créer un nouveau `contextValue` (ex: `'branch-tracked'`) et adapter le `when` dans `package.json`.
 

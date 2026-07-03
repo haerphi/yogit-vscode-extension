@@ -8,27 +8,18 @@ import {
     ThemeIcon,
     TreeDataProvider,
     TreeItem,
-    TreeItemCollapsibleState,
 } from 'vscode';
 
 /**
- * Structure discriminée représentant un nœud de la TreeView.
- *
- * - BranchGroup : nœud parent "Local" ou "Distant" (non cliquable, pas de menu contextuel).
- * - BranchLeaf  : nœud feuille correspondant à une branche git réelle.
- *
- * Le champ `kind` permet de distinguer les deux sans instanceof ni cast.
- * BranchLeaf est exporté car les commandes le reçoivent en argument via item.command.
+ * Nœud feuille de la TreeView "branches" : une branche locale git réelle.
+ * Exporté car les commandes le reçoivent en argument via item.command.
+ * Les branches distantes sont affichées par la vue "remotes" (RemotesProvider),
+ * qui produit des feuilles de même forme pour partager les commandes.
  */
-type BranchGroup = { kind: 'group'; label: string; remote: boolean };
 export type BranchLeaf = { kind: 'branch'; branch: Branch };
-type BranchNode = BranchGroup | BranchLeaf;
-
-const LOCAL_GROUP: BranchGroup = { kind: 'group', label: 'Local', remote: false };
-const REMOTE_GROUP: BranchGroup = { kind: 'group', label: 'Distant', remote: true };
 
 /**
- * Provider de données pour la TreeView "branches".
+ * Provider de données pour la TreeView "branches" — liste plate des branches locales.
  *
  * Cycle de vie :
  *   - extension.ts appelle setRepository() dès qu'un dépôt git est détecté.
@@ -39,7 +30,7 @@ const REMOTE_GROUP: BranchGroup = { kind: 'group', label: 'Distant', remote: tru
  *   - Les commandes qui opèrent via child_process (hors API) doivent appeler refresh()
  *     explicitement car elles ne passent pas par le cycle d'état de vscode.git.
  */
-export class BranchesProvider implements TreeDataProvider<BranchNode> {
+export class BranchesProvider implements TreeDataProvider<BranchLeaf> {
     private readonly _onDidChangeTreeData = new EventEmitter<void>();
     readonly onDidChangeTreeData: Event<void> = this._onDidChangeTreeData.event;
 
@@ -76,17 +67,7 @@ export class BranchesProvider implements TreeDataProvider<BranchNode> {
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(node: BranchNode): TreeItem {
-        if (node.kind === 'group') {
-            const item = new TreeItem(node.label, TreeItemCollapsibleState.Expanded);
-            // 'group-remote' permet de cibler le bouton inline "Ajouter un remote"
-            // sur le groupe Distant uniquement. Le groupe Local reste sans menu.
-            if (node.remote) {
-                item.contextValue = 'group-remote';
-            }
-            return item;
-        }
-
+    getTreeItem(node: BranchLeaf): TreeItem {
         const branch = node.branch;
         if (!branch.name) {
             throw new Error('Branch name is undefined');
@@ -98,9 +79,8 @@ export class BranchesProvider implements TreeDataProvider<BranchNode> {
         const item = new TreeItem(branch.name);
 
         // 'branch-local-current' permet de cibler Pull/Push uniquement sur la branche active.
-        // 'branch-remote' et 'branch-local' pour les autres cas.
-        // Les when =~ /^branch-local/ et =~ /^branch/ matchent les deux variantes locales.
-        item.contextValue = branch.remote ? 'branch-remote' : isCurrent ? 'branch-local-current' : 'branch-local';
+        // Les when =~ /^branch-local/ et =~ /^branch/ matchent les deux variantes.
+        item.contextValue = isCurrent ? 'branch-local-current' : 'branch-local';
 
         if (isCurrent) {
             // $(pass-filled) : cercle coloré plein, clairement distinct de la flèche de repliage $(chevron-right).
@@ -111,27 +91,16 @@ export class BranchesProvider implements TreeDataProvider<BranchNode> {
         return item;
     }
 
-    getChildren(element?: BranchNode): ProviderResult<BranchNode[]> {
+    getChildren(element?: BranchLeaf): ProviderResult<BranchLeaf[]> {
         if (!this.gitRepository) {
             return [];
         }
 
-        // Racine de l'arbre : on retourne les deux groupes fixes.
+        // Racine de l'arbre : les branches locales, à plat.
         if (!element) {
-            return [LOCAL_GROUP, REMOTE_GROUP];
-        }
-
-        // Enfants d'un groupe : on récupère les branches via l'API et on les enveloppe
-        // dans un BranchLeaf pour que getTreeItem() puisse les discriminer.
-        if (element.kind === 'group') {
-            return this.gitRepository.getBranches({ remote: element.remote }).then(branches =>
-                branches
-                    // Les vraies branches distantes ont toujours un "/" dans leur nom
-                    // (ex: "origin/main"). Sans ce filtre, l'API retourne aussi les
-                    // branches locales qui ont un remote tracking configuré.
-                    .filter(b => !element.remote || (b.name?.includes('/') ?? false))
-                    .map(branch => ({ kind: 'branch' as const, branch })),
-            );
+            return this.gitRepository
+                .getBranches({ remote: false })
+                .then(branches => branches.map(branch => ({ kind: 'branch' as const, branch })));
         }
 
         // Les feuilles (branches) n'ont pas d'enfants.
