@@ -77,6 +77,13 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 
 ---
 
+## Infrastructure
+
+- [x] CI GitHub Actions : lint + compile + packaging `.vsix` sur chaque push/PR vers `main`
+- [x] Release automatique : push d'un tag `vX.Y.Z` → build + release GitHub avec le `.vsix` en pièce jointe
+
+---
+
 ## Stack technique
 
 | Couche                               | Outil                                         |

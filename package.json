@@ -3,6 +3,8 @@
     "displayName": "YoGit",
     "description": "A extension to help you using Git and have a clear visualisation of what you're doing!",
     "version": "1.0.0",
+    "publisher": "haerphi",
+    "packageManager": "pnpm@11.7.0",
     "repository": {
         "url": "https://github.com/haerphi/yogit-vscode-extension"
     },
@@ -370,7 +372,7 @@
                 {
                     "id": "yogit-side-panel",
                     "title": "YoGit",
-                    "icon": "media/yogit.svg"
+                    "icon": "media/yogit.png"
                 }
             ]
         },

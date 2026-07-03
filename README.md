@@ -47,3 +47,24 @@ code --install-extension haerphi-yogit-*.vsix
 ```
 
 Ou depuis VS Code : **Extensions → ⋯ → Installer depuis un fichier VSIX…** et sélectionner le `.vsix` généré.
+
+## Déploiement
+
+Le build et la release sont automatisés via GitHub Actions ([`.github/workflows/build-release.yml`](.github/workflows/build-release.yml)) :
+
+- **À chaque tag `vX.Y.Z`** : mêmes étapes, puis création d'une release GitHub avec le `.vsix` en pièce jointe et des notes de version générées automatiquement.
+
+Pour publier une nouvelle version :
+
+```bash
+# 1. Mettre à jour le champ "version" dans package.json (ex: 1.1.0), puis commiter
+git add package.json
+git commit -m "release: v1.1.0"
+git push
+
+# 2. Créer et pousser le tag correspondant
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+Le workflow vérifie que le tag correspond à la version du `package.json` : en cas de différence, le build échoue et aucune release n'est créée.
