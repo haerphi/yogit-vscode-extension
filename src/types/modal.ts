@@ -17,6 +17,14 @@ export interface ModalCheckbox {
     checked?: boolean;
 }
 
+export interface ModalInput {
+    id: string;
+    label: string;
+    placeholder?: string;
+    /** Valeur pré-remplie du champ. */
+    value?: string;
+}
+
 export interface ModalOptions {
     title: string;
     /** Message principal affiché en haut du corps. */
@@ -27,6 +35,8 @@ export interface ModalOptions {
     warning?: string;
     buttons: ModalButton[];
     checkboxes?: ModalCheckbox[];
+    /** Champs texte affichés au-dessus des checkboxes. */
+    inputs?: ModalInput[];
 }
 
 export interface ModalResult {
@@ -34,4 +44,6 @@ export interface ModalResult {
     button: string;
     /** État de chaque checkbox au moment du clic, indexé par leur id. */
     checkboxes: Record<string, boolean>;
+    /** Valeur de chaque champ texte au moment du clic, indexée par leur id. */
+    inputs: Record<string, string>;
 }

@@ -102,6 +102,42 @@ class YogitModal extends LitElement {
             margin-top: 1px;
         }
 
+        .inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            color: var(--vscode-foreground);
+            font-size: 0.9em;
+        }
+
+        .input-field input[type='text'] {
+            padding: 5px 8px;
+            background: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border, transparent);
+            border-radius: 3px;
+            font-size: var(--vscode-font-size);
+            font-family: var(--vscode-font-family);
+            outline: none;
+        }
+
+        .input-field input[type='text']:focus {
+            border-color: var(--vscode-focusBorder);
+        }
+
+        .input-field input[type='text']::placeholder {
+            color: var(--vscode-input-placeholderForeground);
+        }
+
         .checkboxes {
             display: flex;
             flex-direction: column;
@@ -197,6 +233,26 @@ class YogitModal extends LitElement {
                           `
                         : ''}
                     ${o.detail ? html`<p class="detail">${o.detail}</p>` : ''}
+                    ${o.inputs?.length
+                        ? html`
+                              <div class="inputs">
+                                  ${o.inputs.map(
+                                      input => html`
+                                          <div class="input-field">
+                                              <label for=${input.id}>${input.label}</label>
+                                              <input
+                                                  type="text"
+                                                  id=${input.id}
+                                                  placeholder=${input.placeholder ?? ''}
+                                                  .value=${input.value ?? ''}
+                                                  @keydown=${this.handleInputKeydown}
+                                              />
+                                          </div>
+                                      `,
+                                  )}
+                              </div>
+                          `
+                        : ''}
                     ${o.checkboxes?.length
                         ? html`
                               <div class="checkboxes">
@@ -225,25 +281,47 @@ class YogitModal extends LitElement {
         `;
     }
 
+    firstUpdated() {
+        this.renderRoot.querySelector<HTMLInputElement>('input[type="text"]')?.focus();
+    }
+
+    private handleInputKeydown(e: KeyboardEvent) {
+        if (e.key !== 'Enter') {
+            return;
+        }
+        // Entrée dans un champ texte = clic sur le bouton primaire (s'il existe).
+        const primary = this.options?.buttons.find(b => b.variant === 'primary');
+        if (primary) {
+            this.submit(primary.value);
+        }
+    }
+
     private handleFooterClick(e: Event) {
         const btn = (e.target as Element).closest<HTMLElement>('[data-value]');
         if (!btn?.dataset['value']) {
             return;
         }
+        this.submit(btn.dataset['value']);
+    }
 
-        if (btn.dataset['value'] === 'cancel') {
+    private submit(buttonValue: string) {
+        if (buttonValue === 'cancel') {
             vscode.postMessage({ cancel: true });
             return;
         }
 
         // Lit expose le shadow root via this.renderRoot.
-        // On collecte l'état de toutes les checkboxes au moment du clic.
+        // On collecte l'état de toutes les checkboxes et champs texte au moment du clic.
         const checkboxes: Record<string, boolean> = {};
         this.renderRoot.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach(cb => {
             checkboxes[cb.id] = cb.checked;
         });
+        const inputs: Record<string, string> = {};
+        this.renderRoot.querySelectorAll<HTMLInputElement>('input[type="text"]').forEach(input => {
+            inputs[input.id] = input.value;
+        });
 
-        vscode.postMessage({ button: btn.dataset['value'], checkboxes });
+        vscode.postMessage({ button: buttonValue, checkboxes, inputs });
     }
 }
 

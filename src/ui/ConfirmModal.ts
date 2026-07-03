@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import type { ModalOptions, ModalResult } from '../types/modal';
 
 // Re-export pour que les appelants n'aient pas besoin de connaître types/modal.ts
-export type { ModalButton, ModalCheckbox, ModalOptions, ModalResult } from '../types/modal';
+export type { ModalButton, ModalCheckbox, ModalInput, ModalOptions, ModalResult } from '../types/modal';
 
 /**
  * Modale de confirmation custom basée sur un WebviewPanel chargé via Lit.

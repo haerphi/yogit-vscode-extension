@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 import { randomBytes } from 'crypto';
 import * as vscode from 'vscode';
 import { CommitEntry, LogRef } from '../types/log';
+import { ConfirmModal } from './ConfirmModal';
 import { RebasePanel } from './RebasePanel';
 
 const MAX_COMMITS = 500;
@@ -48,7 +49,13 @@ export class LogPanel {
         panel.webview.html = LogPanel._buildHtml(panel.webview, context);
 
         panel.webview.onDidReceiveMessage(
-            async (msg: { type: string; hash?: string; parentHashes?: string[]; shortHash?: string }) => {
+            async (msg: {
+                type: string;
+                hash?: string;
+                parentHashes?: string[];
+                shortHash?: string;
+                tagName?: string;
+            }) => {
                 if (msg.type === 'ready') {
                     try {
                         const commits = await LogPanel._loadCommits(gitApi.git.path, repo.rootUri.fsPath);
@@ -163,6 +170,94 @@ export class LogPanel {
                         const errMsg = err instanceof Error ? err.message : String(err);
                         vscode.window.showErrorMessage(`Reset échoué : ${errMsg}`);
                     }
+                } else if (msg.type === 'add-tag' && msg.hash && msg.shortHash) {
+                    const result = await ConfirmModal.show(context, {
+                        title: 'Ajouter un tag',
+                        message: `Créer un tag sur le commit ${msg.shortHash} ?`,
+                        inputs: [{ id: 'name', label: 'Nom du tag', placeholder: 'ex : v1.2.0' }],
+                        checkboxes: [{ id: 'push', label: 'Pousser le tag sur le remote', checked: false }],
+                        buttons: [
+                            { label: 'Annuler', value: 'cancel', variant: 'secondary' },
+                            { label: 'Créer le tag', value: 'confirm', variant: 'primary' },
+                        ],
+                    });
+                    if (!result || result.button !== 'confirm') {
+                        return;
+                    }
+                    const tagName = result.inputs['name']?.trim() ?? '';
+                    if (!tagName) {
+                        vscode.window.showErrorMessage('Le nom du tag ne peut pas être vide.');
+                        return;
+                    }
+                    if (/\s/.test(tagName)) {
+                        vscode.window.showErrorMessage("Le nom du tag ne doit pas contenir d'espaces.");
+                        return;
+                    }
+                    try {
+                        await LogPanel._spawnGit(gitApi.git.path, ['tag', tagName, msg.hash], repo.rootUri.fsPath);
+                        if (result.checkboxes['push']) {
+                            const remote = repo.state.remotes[0]?.name ?? 'origin';
+                            await LogPanel._spawnGit(gitApi.git.path, ['push', remote, tagName], repo.rootUri.fsPath);
+                            vscode.window.showInformationMessage(
+                                `Tag ${tagName} créé sur ${msg.shortHash} et poussé sur ${remote}.`,
+                            );
+                        } else {
+                            vscode.window.showInformationMessage(`Tag ${tagName} créé sur ${msg.shortHash}.`);
+                        }
+                        // La création d'un tag hors API vscode.git ne déclenche pas
+                        // repo.state.onDidChange — recharger l'historique manuellement.
+                        await reloadCommits();
+                    } catch (err) {
+                        const errMsg = err instanceof Error ? err.message : String(err);
+                        vscode.window.showErrorMessage(`Création du tag échouée : ${errMsg}`);
+                    }
+                } else if (msg.type === 'delete-tag' && msg.tagName) {
+                    const remote = repo.state.remotes[0]?.name ?? 'origin';
+                    const result = await ConfirmModal.show(context, {
+                        title: 'Supprimer un tag',
+                        message: `Supprimer le tag « ${msg.tagName} » ?`,
+                        warning: 'Le tag sera supprimé du dépôt local. Cette action est irréversible.',
+                        checkboxes: [
+                            { id: 'remote', label: `Supprimer aussi le tag sur le remote (${remote})`, checked: false },
+                        ],
+                        buttons: [
+                            { label: 'Annuler', value: 'cancel', variant: 'secondary' },
+                            { label: 'Supprimer', value: 'confirm', variant: 'danger' },
+                        ],
+                    });
+                    if (!result || result.button !== 'confirm') {
+                        return;
+                    }
+                    try {
+                        await LogPanel._spawnGit(gitApi.git.path, ['tag', '-d', msg.tagName], repo.rootUri.fsPath);
+                    } catch (err) {
+                        const errMsg = err instanceof Error ? err.message : String(err);
+                        vscode.window.showErrorMessage(`Suppression du tag échouée : ${errMsg}`);
+                        return;
+                    }
+                    if (result.checkboxes['remote']) {
+                        try {
+                            // refs/tags/ évite toute ambiguïté avec une branche du même nom
+                            await LogPanel._spawnGit(
+                                gitApi.git.path,
+                                ['push', remote, '--delete', `refs/tags/${msg.tagName}`],
+                                repo.rootUri.fsPath,
+                            );
+                            vscode.window.showInformationMessage(
+                                `Tag ${msg.tagName} supprimé localement et sur ${remote}.`,
+                            );
+                        } catch (err) {
+                            const errMsg = err instanceof Error ? err.message : String(err);
+                            vscode.window.showWarningMessage(
+                                `Tag ${msg.tagName} supprimé localement, mais échec sur ${remote} : ${errMsg}`,
+                            );
+                        }
+                    } else {
+                        vscode.window.showInformationMessage(`Tag ${msg.tagName} supprimé localement.`);
+                    }
+                    // La suppression d'un tag hors API vscode.git ne déclenche pas
+                    // repo.state.onDidChange — recharger l'historique manuellement.
+                    await reloadCommits();
                 } else if (msg.type === 'switch-to-commit' && msg.hash && msg.shortHash) {
                     const confirm = await vscode.window.showWarningMessage(
                         `Basculer sur le commit ${msg.shortHash} ?`,

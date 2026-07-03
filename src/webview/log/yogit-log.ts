@@ -306,6 +306,8 @@ type ProviderMessage =
 interface CtxMenu {
     hash: string;
     shortHash: string;
+    /** Tags pointant sur ce commit — un item de suppression par tag. */
+    tags: string[];
     x: number;
     y: number;
 }
@@ -1074,6 +1076,7 @@ export class YogitLog extends LitElement {
         this._ctxMenu = {
             hash: commit.hash,
             shortHash: commit.shortHash,
+            tags: commit.refs.filter(r => r.type === 'tag').map(r => r.name),
             x: rowRect.left - hostRect.left,
             y: rowRect.bottom - hostRect.top,
         };
@@ -1128,6 +1131,29 @@ export class YogitLog extends LitElement {
         this._ctxMenu = null;
     }
 
+    private _addTag(e: MouseEvent) {
+        e.stopPropagation();
+        if (!this._ctxMenu) {
+            return;
+        }
+        vscode.postMessage({ type: 'add-tag', hash: this._ctxMenu.hash, shortHash: this._ctxMenu.shortHash });
+        this._ctxMenu = null;
+    }
+
+    private _deleteTag(e: MouseEvent, tagName: string) {
+        e.stopPropagation();
+        if (!this._ctxMenu) {
+            return;
+        }
+        vscode.postMessage({
+            type: 'delete-tag',
+            hash: this._ctxMenu.hash,
+            shortHash: this._ctxMenu.shortHash,
+            tagName,
+        });
+        this._ctxMenu = null;
+    }
+
     private renderCtxMenu() {
         const open = this._ctxMenu !== null;
         const x = this._ctxMenu?.x ?? 0;
@@ -1152,6 +1178,19 @@ export class YogitLog extends LitElement {
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._rebaseInteractive(e)}>
                     <span>⤴</span> Rebase interactif depuis ici
                 </div>
+                <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._addTag(e)}>
+                    <span>🏷</span> Ajouter un tag…
+                </div>
+                ${(this._ctxMenu?.tags ?? []).map(
+                    tag => html`
+                        <div
+                            class="ctx-menu-item ctx-menu-item--danger"
+                            @click=${(e: MouseEvent) => this._deleteTag(e, tag)}
+                        >
+                            <span>🏷</span> Supprimer le tag « ${tag} »…
+                        </div>
+                    `,
+                )}
                 <div class="ctx-menu-separator"></div>
                 <div class="ctx-menu-item ctx-menu-item--danger" @click=${(e: MouseEvent) => this._resetToCommit(e)}>
                     <span>↺</span> Reset ici…
