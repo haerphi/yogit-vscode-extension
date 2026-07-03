@@ -166,15 +166,24 @@
                 "icon": "$(repo-create)"
             },
             {
+                "command": "haerphi-yogit.clone-repo",
+                "title": "Cloner un dépôt distant",
+                "icon": "$(repo-clone)"
+            },
+            {
                 "command": "haerphi-yogit.link-repo",
                 "title": "Lier à un dépôt distant existant",
-                "icon": "$(repo-clone)"
+                "icon": "$(link)"
             }
         ],
         "menus": {
             "commandPalette": [
                 {
                     "command": "haerphi-yogit.init-repo",
+                    "when": "haerphi-yogit.noRepo"
+                },
+                {
+                    "command": "haerphi-yogit.clone-repo",
                     "when": "haerphi-yogit.noRepo"
                 },
                 {
@@ -420,7 +429,7 @@
         "viewsWelcome": [
             {
                 "view": "branches",
-                "contents": "Ce dossier n'est pas un dépôt git.\n[Initialiser un dépôt](command:haerphi-yogit.init-repo)\n[Lier à un dépôt distant existant](command:haerphi-yogit.link-repo)",
+                "contents": "Ce dossier n'est pas un dépôt git.\n[Initialiser un dépôt](command:haerphi-yogit.init-repo)\n[Cloner un dépôt distant](command:haerphi-yogit.clone-repo)\n[Lier à un dépôt distant existant](command:haerphi-yogit.link-repo)",
                 "when": "haerphi-yogit.noRepo"
             },
             {
