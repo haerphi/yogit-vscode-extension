@@ -15,28 +15,26 @@ export function registerAddRemote(gitApi: API, context: vscode.ExtensionContext)
         }
 
         const result = await ConfirmModal.show(context, {
-            title: 'Ajouter un remote',
-            message: 'Ajouter un dépôt distant au dépôt courant ?',
+            title: vscode.l10n.t('Add Remote'),
+            message: vscode.l10n.t('Add a remote to the current repository?'),
             inputs: [
                 {
                     id: 'name',
-                    label: 'Nom du remote',
-                    placeholder: 'ex : origin, upstream',
+                    label: vscode.l10n.t('Remote name'),
+                    placeholder: vscode.l10n.t('e.g. origin, upstream'),
                     // "origin" est le nom conventionnel du premier remote uniquement.
                     value: repo.state.remotes.length === 0 ? 'origin' : '',
                 },
                 {
                     id: 'url',
-                    label: 'URL du dépôt distant (https ou ssh)',
-                    placeholder: 'ex : https://github.com/user/repo.git',
+                    label: vscode.l10n.t('Remote repository URL (https or ssh)'),
+                    placeholder: vscode.l10n.t('e.g. https://github.com/user/repo.git'),
                 },
             ],
-            checkboxes: [
-                { id: 'fetch', label: "Récupérer les branches distantes après l'ajout (fetch)", checked: true },
-            ],
+            checkboxes: [{ id: 'fetch', label: vscode.l10n.t('Fetch remote branches after adding'), checked: true }],
             buttons: [
-                { label: 'Annuler', value: 'cancel', variant: 'secondary' },
-                { label: 'Ajouter', value: 'confirm', variant: 'primary' },
+                { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                { label: vscode.l10n.t('Add'), value: 'confirm', variant: 'primary' },
             ],
         });
         if (!result || result.button !== 'confirm') {
@@ -46,15 +44,15 @@ export function registerAddRemote(gitApi: API, context: vscode.ExtensionContext)
         const name = result.inputs['name']?.trim() ?? '';
         const url = result.inputs['url']?.trim() ?? '';
         if (!name || /\s/.test(name)) {
-            vscode.window.showErrorMessage('Le nom du remote ne peut pas être vide ni contenir d’espaces.');
+            vscode.window.showErrorMessage(vscode.l10n.t('The remote name cannot be empty or contain spaces.'));
             return;
         }
         if (!url) {
-            vscode.window.showErrorMessage("L'URL du remote ne peut pas être vide.");
+            vscode.window.showErrorMessage(vscode.l10n.t('The remote URL cannot be empty.'));
             return;
         }
         if (repo.state.remotes.some(r => r.name === name)) {
-            vscode.window.showErrorMessage(`Le remote « ${name} » existe déjà.`);
+            vscode.window.showErrorMessage(vscode.l10n.t('The remote "{0}" already exists.', name));
             return;
         }
 
@@ -62,14 +60,17 @@ export function registerAddRemote(gitApi: API, context: vscode.ExtensionContext)
             await repo.addRemote(name, url);
             if (result.checkboxes['fetch']) {
                 await vscode.window.withProgress(
-                    { location: vscode.ProgressLocation.Notification, title: `Fetch de « ${name} »…` },
+                    {
+                        location: vscode.ProgressLocation.Notification,
+                        title: vscode.l10n.t('Fetching "{0}"…', name),
+                    },
                     () => repo.fetch(name),
                 );
             }
-            vscode.window.showInformationMessage(`Remote « ${name} » ajouté.`);
+            vscode.window.showInformationMessage(vscode.l10n.t('Remote "{0}" added.', name));
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
-            vscode.window.showErrorMessage(`Ajout du remote échoué : ${errMsg}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('Adding remote failed: {0}', errMsg));
         }
     });
 }

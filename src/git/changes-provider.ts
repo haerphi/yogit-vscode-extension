@@ -6,6 +6,7 @@ import {
     Disposable,
     Event,
     EventEmitter,
+    l10n,
     ProviderResult,
     ThemeIcon,
     TreeDataProvider,
@@ -26,8 +27,8 @@ type ChangeGroup = { kind: 'group'; label: string; resourceGroup: 'staged' | 'un
 export type ChangeLeaf = { kind: 'change'; change: Change; resourceGroup: 'staged' | 'unstaged' };
 type ChangeNode = ChangeGroup | ChangeLeaf;
 
-const STAGED_GROUP: ChangeGroup = { kind: 'group', label: 'Staged', resourceGroup: 'staged' };
-const UNSTAGED_GROUP: ChangeGroup = { kind: 'group', label: 'Modifications', resourceGroup: 'unstaged' };
+const STAGED_GROUP: ChangeGroup = { kind: 'group', label: l10n.t('Staged'), resourceGroup: 'staged' };
+const UNSTAGED_GROUP: ChangeGroup = { kind: 'group', label: l10n.t('Changes'), resourceGroup: 'unstaged' };
 
 /**
  * Provider de données pour la TreeView "changes".
@@ -102,13 +103,13 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         if (resourceGroup === 'unstaged') {
             item.command = {
                 command: 'haerphi-yogit.stage-hunks',
-                title: 'Indexer par hunks/lignes…',
+                title: l10n.t('Stage by Hunks/Lines…'),
                 arguments: [node],
             };
         } else if (resourceGroup === 'staged') {
             item.command = {
                 command: 'haerphi-yogit.unstage-hunks',
-                title: 'Désindexer par hunks/lignes…',
+                title: l10n.t('Unstage by Hunks/Lines…'),
                 arguments: [node],
             };
         }

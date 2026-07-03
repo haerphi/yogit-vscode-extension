@@ -137,6 +137,14 @@ Pour ajouter un sous-type (ex : branche avec remote tracking vs sans), créer un
 - **Actions destructrices** : toujours une modale de confirmation (`ConfirmModal`) avec un bandeau `warning` orange.
 - **Nommage** : termes git francophones dans l'UI ("Basculer", "Créer", "Supprimer"), termes anglais dans le code.
 
+## Internationalisation (i18n)
+
+L'extension est multi-langue (anglais par défaut, français). La langue suit celle de VS Code. Trois mécanismes selon la couche :
+
+- **`package.json` (contributes)** : jamais de texte en dur — utiliser des clés `%cmd.<id>.title%`, `%view.<id>.name%`, `%welcome.<vue>.<contexte>%`. Anglais dans `package.nls.json` (défaut), français dans `package.nls.fr.json`. Toute nouvelle commande/vue doit ajouter ses clés dans les DEUX fichiers.
+- **Extension host** (`src/` hors webview) : `vscode.l10n.t('English source string', arg0, …)` avec placeholders `{0}`. La chaîne source est en **anglais** ; la traduction française va dans `l10n/bundle.l10n.fr.json` (clé = chaîne anglaise exacte). Pour comparer le bouton cliqué d'un `showWarningMessage`, stocker le label dans une variable (`const label = vscode.l10n.t(…)`) — jamais de comparaison avec un littéral.
+- **Webviews** (`src/webview/`) : `vscode.l10n` n'y est pas disponible. L'extension host injecte `window.__YOGIT_LOCALE__` (script inline nonce dans le shell HTML — obligatoire pour tout nouveau panel). Chaque composant définit `const L = pick({ …en… }, { …fr… })` via `src/webview/shared/i18n.ts` et utilise `${L.clé}` dans les templates. Les pluriels/interpolations sont des fonctions dans le dictionnaire.
+
 ## Règles de code
 
 - **Commentaires** : commenter le _pourquoi_ uniquement (contournement bug API, invariant non-obvie). Jamais le _quoi_.

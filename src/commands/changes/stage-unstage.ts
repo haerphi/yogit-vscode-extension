@@ -31,7 +31,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
             await repo.status();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de stager le fichier : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not stage file: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
@@ -49,7 +49,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
             await repo.status();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de désindexer le fichier : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not unstage file: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
@@ -71,7 +71,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
             await repo.status();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de stager tous les fichiers : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not stage all files: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
@@ -92,7 +92,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
             await repo.status();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de désindexer tous les fichiers : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not unstage all files: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });

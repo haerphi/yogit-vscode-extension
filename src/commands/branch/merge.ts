@@ -17,34 +17,34 @@ export function registerMerge(gitApi: API, context: vscode.ExtensionContext): vs
             return;
         }
 
-        const currentBranch = repo.state.HEAD?.name ?? '(HEAD détachée)';
+        const currentBranch = repo.state.HEAD?.name ?? vscode.l10n.t('(detached HEAD)');
 
         const option = await vscode.window.showQuickPick(
             [
                 {
                     label: 'Default',
-                    description: 'Fast-forward si possible',
+                    description: vscode.l10n.t('Fast-forward when possible'),
                     args: [] as string[],
                 },
                 {
                     label: 'No Fast-Forward',
-                    description: 'Toujours créer un commit de merge',
+                    description: vscode.l10n.t('Always create a merge commit'),
                     args: ['--no-ff'],
                 },
                 {
                     label: 'Squash',
-                    description: 'Squash des commits — sans commit automatique',
+                    description: vscode.l10n.t('Squash commits — no automatic commit'),
                     args: ['--squash'],
                 },
                 {
                     label: "Don't Commit",
-                    description: 'Merge sans commit automatique',
+                    description: vscode.l10n.t('Merge without automatic commit'),
                     args: ['--no-commit'],
                 },
             ],
             {
-                title: `Merger « ${targetBranch} » dans « ${currentBranch} »`,
-                placeHolder: 'Choisir le mode de merge…',
+                title: vscode.l10n.t('Merge "{0}" into "{1}"', targetBranch, currentBranch),
+                placeHolder: vscode.l10n.t('Choose merge mode…'),
             },
         );
         if (!option) {
@@ -55,23 +55,31 @@ export function registerMerge(gitApi: API, context: vscode.ExtensionContext): vs
             await _spawnGit(gitApi.git.path, ['merge', ...option.args, targetBranch], repo.rootUri.fsPath);
             await repo.status();
             const needsCommit = option.args.includes('--squash') || option.args.includes('--no-commit');
-            const suffix = needsCommit ? ' — pensez à commiter les changements indexés.' : '.';
             vscode.window.showInformationMessage(
-                `Merge de « ${targetBranch} » dans « ${currentBranch} » terminé${suffix}`,
+                needsCommit
+                    ? vscode.l10n.t(
+                          'Merge of "{0}" into "{1}" completed — remember to commit the staged changes.',
+                          targetBranch,
+                          currentBranch,
+                      )
+                    : vscode.l10n.t('Merge of "{0}" into "{1}" completed.', targetBranch, currentBranch),
             );
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
             await offerConflictResolution(repo, gitApi, context);
+            const abortLabel = vscode.l10n.t('Abort Merge');
             const action = await vscode.window.showErrorMessage(
-                `Le merge a échoué (conflits probables).`,
+                vscode.l10n.t('Merge failed (likely conflicts).'),
                 { detail: errMsg, modal: false },
-                'Annuler le merge',
+                abortLabel,
             );
-            if (action === 'Annuler le merge') {
+            if (action === abortLabel) {
                 try {
                     await _spawnGit(gitApi.git.path, ['merge', '--abort'], repo.rootUri.fsPath);
                     await repo.status();
-                    vscode.window.showInformationMessage('Merge annulé — branche revenue à son état initial.');
+                    vscode.window.showInformationMessage(
+                        vscode.l10n.t('Merge aborted — branch restored to its initial state.'),
+                    );
                 } catch {
                     /* ignore */
                 }

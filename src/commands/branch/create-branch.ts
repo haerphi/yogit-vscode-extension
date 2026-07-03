@@ -18,8 +18,8 @@ export function registerCreateBranch(gitApi: API, provider: BranchesProvider): v
         }
 
         const name = await vscode.window.showInputBox({
-            prompt: 'Nom de la nouvelle branche',
-            placeHolder: 'ex: feature/ma-fonctionnalite',
+            prompt: vscode.l10n.t('New branch name'),
+            placeHolder: vscode.l10n.t('e.g. feature/my-feature'),
             validateInput: validateBranchName,
         });
         if (!name) {
@@ -32,7 +32,7 @@ export function registerCreateBranch(gitApi: API, provider: BranchesProvider): v
             provider.refresh();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de créer la branche : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not create branch: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });

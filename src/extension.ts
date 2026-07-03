@@ -41,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git');
     if (!gitExtension) {
-        vscode.window.showErrorMessage('Git is not installed');
+        vscode.window.showErrorMessage(vscode.l10n.t('Git is not installed'));
         context.subscriptions.push(branchesView, remotesView, changesView, stashView, commitViewDisposable);
         return;
     }
@@ -80,9 +80,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const updateBadge = () => {
         const count = changesProvider.totalChangesCount();
         changesView.badge =
-            count > 0
-                ? { value: count, tooltip: `${count} fichier${count > 1 ? 's' : ''} modifié${count > 1 ? 's' : ''}` }
-                : undefined;
+            count > 0 ? { value: count, tooltip: vscode.l10n.t('{0} modified file(s)', count) } : undefined;
     };
     const disposableBadge = changesProvider.onDidChangeTreeData(updateBadge);
     updateBadge();

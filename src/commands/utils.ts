@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 export function getRepo(gitApi: API): Repository | undefined {
     const repo = gitApi.repositories[0];
     if (!repo) {
-        vscode.window.showErrorMessage('Aucun dépôt git trouvé');
+        vscode.window.showErrorMessage(vscode.l10n.t('No git repository found'));
         return undefined;
     }
     return repo;
@@ -26,10 +26,10 @@ export function getRepo(gitApi: API): Repository | undefined {
  */
 export function validateBranchName(value: string): string | undefined {
     if (!value.trim()) {
-        return 'Le nom ne peut pas être vide';
+        return vscode.l10n.t('The name cannot be empty');
     }
     if (/\s/.test(value)) {
-        return "Le nom ne doit pas contenir d'espaces";
+        return vscode.l10n.t('The name must not contain spaces');
     }
     return undefined;
 }

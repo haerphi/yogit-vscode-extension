@@ -11,14 +11,14 @@ export class ConflictPanel {
     static show(context: vscode.ExtensionContext, gitApi: API, fsPath: string): void {
         const repo = gitApi.repositories[0];
         if (!repo) {
-            vscode.window.showErrorMessage('Aucun dépôt git détecté.');
+            vscode.window.showErrorMessage(vscode.l10n.t('No git repository detected.'));
             return;
         }
 
         const fileName = path.basename(fsPath);
 
         if (ConflictPanel._panel) {
-            ConflictPanel._panel.title = `Conflits — ${fileName}`;
+            ConflictPanel._panel.title = vscode.l10n.t('Conflicts — {0}', fileName);
             ConflictPanel._panel.reveal(vscode.ViewColumn.One);
             ConflictPanel._panel.webview.postMessage({ type: 'file', file: ConflictPanel._parse(fsPath) });
             return;
@@ -26,7 +26,7 @@ export class ConflictPanel {
 
         const panel = vscode.window.createWebviewPanel(
             'yogit-conflict',
-            `Conflits — ${fileName}`,
+            vscode.l10n.t('Conflicts — {0}', fileName),
             vscode.ViewColumn.One,
             {
                 enableScripts: true,
@@ -59,11 +59,11 @@ export class ConflictPanel {
                     await repo.add([fsPath]);
                     await repo.status();
                     panel.webview.postMessage({ type: 'saved' });
-                    vscode.window.showInformationMessage(`${fileName} sauvegardé et indexé.`);
+                    vscode.window.showInformationMessage(vscode.l10n.t('{0} saved and staged.', fileName));
                 } catch (err) {
                     const errMsg = err instanceof Error ? err.message : String(err);
                     panel.webview.postMessage({ type: 'error', message: errMsg });
-                    vscode.window.showErrorMessage(`Sauvegarde échouée : ${errMsg}`);
+                    vscode.window.showErrorMessage(vscode.l10n.t('Save failed: {0}', errMsg));
                 }
             }
         });
@@ -149,6 +149,7 @@ export class ConflictPanel {
 </head>
 <body>
     <yogit-conflict></yogit-conflict>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

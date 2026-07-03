@@ -10,21 +10,26 @@ export function registerAbortRebase(gitApi: API): vscode.Disposable {
             return;
         }
 
+        const abortLabel = vscode.l10n.t('Abort Rebase');
         const confirm = await vscode.window.showWarningMessage(
-            'Annuler le rebase en cours ?',
-            { modal: true, detail: 'La branche reviendra à son état avant le rebase.' },
-            'Annuler le rebase',
+            vscode.l10n.t('Abort the rebase in progress?'),
+            { modal: true, detail: vscode.l10n.t('The branch will return to its state before the rebase.') },
+            abortLabel,
         );
-        if (confirm !== 'Annuler le rebase') {
+        if (confirm !== abortLabel) {
             return;
         }
 
         try {
             await _spawnGit(gitApi.git.path, ['rebase', '--abort'], repo.rootUri.fsPath);
             await repo.status();
-            vscode.window.showInformationMessage('Rebase annulé — branche revenue à son état initial.');
+            vscode.window.showInformationMessage(
+                vscode.l10n.t('Rebase aborted. The branch is back to its initial state.'),
+            );
         } catch (err) {
-            vscode.window.showErrorMessage(`Échec de git rebase --abort : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('git rebase --abort failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 }

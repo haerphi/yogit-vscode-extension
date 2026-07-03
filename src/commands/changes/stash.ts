@@ -43,7 +43,7 @@ export function registerStash(
         });
 
         if (allChanges.length === 0) {
-            vscode.window.showInformationMessage('Aucun changement à mettre de côté.');
+            vscode.window.showInformationMessage(vscode.l10n.t('No changes to stash.'));
             return;
         }
 
@@ -61,8 +61,8 @@ export function registerStash(
 
         const selected = await vscode.window.showQuickPick(items, {
             canPickMany: true,
-            placeHolder: 'Sélectionner les fichiers à mettre de côté',
-            title: 'Stash partiel',
+            placeHolder: vscode.l10n.t('Select the files to stash'),
+            title: vscode.l10n.t('Partial Stash'),
         });
 
         // undefined = Échap, [] = désélectionné tout puis validé
@@ -71,8 +71,8 @@ export function registerStash(
         }
 
         const message = await vscode.window.showInputBox({
-            prompt: 'Message du stash (optionnel)',
-            placeHolder: 'WIP: description des changements',
+            prompt: vscode.l10n.t('Stash message (optional)'),
+            placeHolder: vscode.l10n.t('WIP: description of the changes'),
         });
 
         if (message === undefined) {
@@ -96,7 +96,9 @@ export function registerStash(
             await repo.status();
             stashProvider.refresh();
         } catch (err) {
-            vscode.window.showErrorMessage(`Impossible de stasher : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('Could not stash: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 
@@ -111,7 +113,7 @@ export function registerStash(
             stashProvider.refresh();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible d'appliquer le stash : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not apply stash: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
@@ -126,7 +128,7 @@ export function registerStash(
             await repo.status();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible d'appliquer le stash : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not apply stash: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
@@ -138,12 +140,12 @@ export function registerStash(
         }
 
         const result = await ConfirmModal.show(context, {
-            title: 'Supprimer le stash',
-            message: `Supprimer définitivement « ${entry.message} » ?`,
-            warning: 'Cette action est irréversible.',
+            title: vscode.l10n.t('Drop Stash'),
+            message: vscode.l10n.t('Permanently delete "{0}"?', entry.message),
+            warning: vscode.l10n.t('This action is irreversible.'),
             buttons: [
-                { label: 'Supprimer', value: 'confirm', variant: 'danger' },
-                { label: 'Annuler', value: 'cancel', variant: 'secondary' },
+                { label: vscode.l10n.t('Delete'), value: 'confirm', variant: 'danger' },
+                { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
             ],
         });
 
@@ -156,7 +158,7 @@ export function registerStash(
             stashProvider.refresh();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de supprimer le stash : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not drop stash: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });

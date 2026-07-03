@@ -1,5 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { FileDiff, Hunk, HunkSelection } from '../../types/diff';
+import { pick } from '../shared/i18n';
 
 declare global {
     interface Window {
@@ -9,6 +10,21 @@ declare global {
 }
 
 const vscode = window.acquireVsCodeApi();
+
+const L = pick(
+    {
+        loading: 'Loading…',
+        cancel: 'Cancel',
+        stage: 'Stage',
+        lineCount: (n: number) => `${n} line${n > 1 ? 's' : ''}`,
+    },
+    {
+        loading: 'Chargement…',
+        cancel: 'Annuler',
+        stage: 'Indexer',
+        lineCount: (n: number) => `${n} ligne${n > 1 ? 's' : ''}`,
+    },
+);
 
 /**
  * Composant Lit pour la sélection de hunks/lignes avant staging.
@@ -313,7 +329,7 @@ export class YogitDiff extends LitElement {
 
     render() {
         if (!this.diff) {
-            return html`<div>Chargement…</div>`;
+            return html`<div>${L.loading}</div>`;
         }
 
         const selected = this.countSelected();
@@ -321,9 +337,9 @@ export class YogitDiff extends LitElement {
         return html`
             <div class="toolbar">
                 <span class="filename">${this.diff.filePath}</span>
-                <button class="btn-cancel" @click=${this.cancel}>Annuler</button>
+                <button class="btn-cancel" @click=${this.cancel}>${L.cancel}</button>
                 <button class="btn-stage" ?disabled=${selected === 0} @click=${this.stage}>
-                    ${this.diff.actionLabel ?? 'Indexer'} (${selected} ligne${selected > 1 ? 's' : ''})
+                    ${this.diff.actionLabel ?? L.stage} (${L.lineCount(selected)})
                 </button>
             </div>
             <div class="hunks">${this.diff.hunks.map(hunk => this.renderHunk(hunk))}</div>

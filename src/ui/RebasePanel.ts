@@ -26,7 +26,7 @@ export class RebasePanel {
     ): Promise<void> {
         const repo = gitApi.repositories[0];
         if (!repo) {
-            vscode.window.showErrorMessage('Aucun dépôt git détecté.');
+            vscode.window.showErrorMessage(vscode.l10n.t('No git repository detected.'));
             return;
         }
 
@@ -37,7 +37,7 @@ export class RebasePanel {
 
         const panel = vscode.window.createWebviewPanel(
             'yogit-rebase',
-            `Rebase interactif → ${upstreamLabel}`,
+            vscode.l10n.t('Interactive Rebase → {0}', upstreamLabel),
             vscode.ViewColumn.One,
             {
                 enableScripts: true,
@@ -71,27 +71,32 @@ export class RebasePanel {
                     await RebasePanel._executeRebase(gitApi.git.path, repo.rootUri.fsPath, msg.entries, upstream);
                     await repo.status();
                     panel.webview.postMessage({ type: 'done' });
-                    vscode.window.showInformationMessage(`Rebase interactif sur « ${upstreamLabel} » terminé.`);
+                    vscode.window.showInformationMessage(
+                        vscode.l10n.t('Interactive rebase onto "{0}" completed.', upstreamLabel),
+                    );
                 } catch (err) {
                     const errMsg = err instanceof Error ? err.message : String(err);
 
                     await offerConflictResolution(repo, gitApi, context);
 
                     // Proposer d'annuler le rebase si git est en état REBASE_MERGE
+                    const abortLabel = vscode.l10n.t('Abort Rebase');
                     const action = await vscode.window.showErrorMessage(
-                        'Le rebase interactif a échoué (conflits probables).',
+                        vscode.l10n.t('Interactive rebase failed (likely conflicts).'),
                         { detail: errMsg },
-                        'Annuler le rebase',
+                        abortLabel,
                     );
 
-                    if (action === 'Annuler le rebase') {
+                    if (action === abortLabel) {
                         try {
                             await RebasePanel._spawnGit(gitApi.git.path, ['rebase', '--abort'], repo.rootUri.fsPath);
                             await repo.status();
-                            vscode.window.showInformationMessage('Rebase annulé — branche revenue à son état initial.');
+                            vscode.window.showInformationMessage(
+                                vscode.l10n.t('Rebase aborted. The branch is back to its initial state.'),
+                            );
                             panel.webview.postMessage({
                                 type: 'rebase-error',
-                                message: errMsg + '\n\n→ Rebase annulé.',
+                                message: errMsg + '\n\n→ ' + vscode.l10n.t('Rebase aborted.'),
                             });
                         } catch {
                             panel.webview.postMessage({ type: 'rebase-error', message: errMsg });
@@ -261,6 +266,7 @@ export class RebasePanel {
 </head>
 <body>
     <yogit-rebase></yogit-rebase>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

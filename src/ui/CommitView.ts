@@ -161,6 +161,7 @@ export class CommitView implements vscode.WebviewViewProvider {
 </head>
 <body>
     <yogit-commit></yogit-commit>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

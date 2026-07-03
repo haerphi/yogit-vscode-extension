@@ -1,5 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { RebaseAction, RebaseEntry } from '../../types/rebase';
+import { pick } from '../shared/i18n';
 
 declare global {
     interface Window {
@@ -8,6 +9,51 @@ declare global {
 }
 
 const vscode = window.acquireVsCodeApi();
+
+const L = pick(
+    {
+        moveUp: 'Move up',
+        moveDown: 'Move down',
+        loading: 'Loading commits…',
+        nothingToRebase: (label: string) => `No commit to rebase onto "${label}".`,
+        close: 'Close',
+        headerTitle: (label: string) => `Interactive rebase onto "${label}"`,
+        headerSub: (n: number) => `${n} commit${n > 1 ? 's' : ''} — from oldest (top) to newest (bottom)`,
+        done: '✓ Rebase completed successfully.',
+        colOrder: 'Order',
+        colAction: 'Action',
+        colHash: 'Hash',
+        colDate: 'Date',
+        colMessage: 'Message',
+        allDropped: 'All commits will be dropped.',
+        activeCount: (n: number) => `${n} active commit${n > 1 ? 's' : ''}.`,
+        restart: 'Restart',
+        cancel: 'Cancel',
+        running: 'Rebase in progress…',
+        start: 'Start rebase',
+    },
+    {
+        moveUp: 'Monter',
+        moveDown: 'Descendre',
+        loading: 'Chargement des commits…',
+        nothingToRebase: (label: string) => `Aucun commit à rebaser sur « ${label} ».`,
+        close: 'Fermer',
+        headerTitle: (label: string) => `Rebase interactif sur « ${label} »`,
+        headerSub: (n: number) => `${n} commit${n > 1 ? 's' : ''} — du plus ancien (haut) au plus récent (bas)`,
+        done: '✓ Rebase terminé avec succès.',
+        colOrder: 'Ordre',
+        colAction: 'Action',
+        colHash: 'Hash',
+        colDate: 'Date',
+        colMessage: 'Message',
+        allDropped: 'Tous les commits seront supprimés.',
+        activeCount: (n: number) => `${n} commit${n > 1 ? 's' : ''} actif${n > 1 ? 's' : ''}.`,
+        restart: 'Recommencer',
+        cancel: 'Annuler',
+        running: 'Rebase en cours…',
+        start: 'Lancer le rebase',
+    },
+);
 
 type HostMessage =
     | { type: 'entries'; entries: RebaseEntry[]; upstreamLabel: string }
@@ -419,14 +465,14 @@ export class YogitRebase extends LitElement {
                 <div class="move-btns">
                     <div
                         class="move-btn ${isFirst ? 'disabled' : ''}"
-                        title="Monter"
+                        title=${L.moveUp}
                         @click=${() => !isFirst && this._moveUp(idx)}
                     >
                         ▲
                     </div>
                     <div
                         class="move-btn ${isLast ? 'disabled' : ''}"
-                        title="Descendre"
+                        title=${L.moveDown}
                         @click=${() => !isLast && this._moveDown(idx)}
                     >
                         ▼
@@ -458,7 +504,7 @@ export class YogitRebase extends LitElement {
 
     render() {
         if (this._loading) {
-            return html`<div class="state-msg">Chargement des commits…</div>`;
+            return html`<div class="state-msg">${L.loading}</div>`;
         }
         if (this._error) {
             return html`<div class="state-msg state-error">${this._error}</div>`;
@@ -466,8 +512,8 @@ export class YogitRebase extends LitElement {
         if (this._entries.length === 0) {
             return html`
                 <div class="state-msg">
-                    <span>Aucun commit à rebaser sur « ${this._upstreamLabel} ».</span>
-                    <button class="btn btn-secondary" @click=${this._cancel}>Fermer</button>
+                    <span>${L.nothingToRebase(this._upstreamLabel)}</span>
+                    <button class="btn btn-secondary" @click=${this._cancel}>${L.close}</button>
                 </div>
             `;
         }
@@ -476,34 +522,27 @@ export class YogitRebase extends LitElement {
 
         return html`
             <div class="header">
-                <div class="header-title">Rebase interactif sur « ${this._upstreamLabel} »</div>
-                <div class="header-sub">
-                    ${this._entries.length} commit${this._entries.length > 1 ? 's' : ''} — du plus ancien (haut) au plus
-                    récent (bas)
-                </div>
+                <div class="header-title">${L.headerTitle(this._upstreamLabel)}</div>
+                <div class="header-sub">${L.headerSub(this._entries.length)}</div>
             </div>
             ${this._rebaseError ? html`<div class="error-banner">${this._rebaseError}</div>` : ''}
-            ${this._done ? html`<div class="done-banner">✓ Rebase terminé avec succès.</div>` : ''}
+            ${this._done ? html`<div class="done-banner">${L.done}</div>` : ''}
             <div class="entry-list">
                 <div class="col-header">
-                    <div class="col-order">Ordre</div>
-                    <div class="col-action">Action</div>
-                    <div class="col-hash">Hash</div>
-                    <div class="col-date">Date</div>
-                    <div>Message</div>
+                    <div class="col-order">${L.colOrder}</div>
+                    <div class="col-action">${L.colAction}</div>
+                    <div class="col-hash">${L.colHash}</div>
+                    <div class="col-date">${L.colDate}</div>
+                    <div>${L.colMessage}</div>
                 </div>
                 ${this._entries.map((e, i) => this.renderEntry(e, i, this._entries.length))}
             </div>
             <div class="footer">
-                <span class="hint">
-                    ${activeCount === 0
-                        ? 'Tous les commits seront supprimés.'
-                        : `${activeCount} commit${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}.`}
-                </span>
-                <button class="btn btn-secondary" @click=${this._reset} ?disabled=${this._running}>Recommencer</button>
-                <button class="btn btn-secondary" @click=${this._cancel} ?disabled=${this._running}>Annuler</button>
+                <span class="hint"> ${activeCount === 0 ? L.allDropped : L.activeCount(activeCount)} </span>
+                <button class="btn btn-secondary" @click=${this._reset} ?disabled=${this._running}>${L.restart}</button>
+                <button class="btn btn-secondary" @click=${this._cancel} ?disabled=${this._running}>${L.cancel}</button>
                 <button class="btn btn-primary" @click=${this._start} ?disabled=${this._running || this._done}>
-                    ${this._running ? 'Rebase en cours…' : 'Lancer le rebase'}
+                    ${this._running ? L.running : L.start}
                 </button>
             </div>
         `;

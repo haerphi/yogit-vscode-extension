@@ -17,7 +17,9 @@ export function registerSync(gitApi: API, provider: BranchesProvider): vscode.Di
             await withProgress('Fetch…', () => repo.fetch());
             provider.refresh();
         } catch (err) {
-            vscode.window.showErrorMessage(`Fetch échoué : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('Fetch failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 
@@ -27,13 +29,15 @@ export function registerSync(gitApi: API, provider: BranchesProvider): vscode.Di
             return;
         }
         if (!repo.state.HEAD?.upstream) {
-            vscode.window.showErrorMessage("La branche courante n'a pas de branche distante configurée.");
+            vscode.window.showErrorMessage(vscode.l10n.t('The current branch has no configured upstream branch.'));
             return;
         }
         try {
             await withProgress('Pull…', () => repo.pull());
         } catch (err) {
-            vscode.window.showErrorMessage(`Pull échoué : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('Pull failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 
@@ -44,7 +48,7 @@ export function registerSync(gitApi: API, provider: BranchesProvider): vscode.Di
         }
         const head = repo.state.HEAD;
         if (!head?.name) {
-            vscode.window.showErrorMessage('Aucune branche active.');
+            vscode.window.showErrorMessage(vscode.l10n.t('No active branch.'));
             return;
         }
         try {
@@ -52,7 +56,7 @@ export function registerSync(gitApi: API, provider: BranchesProvider): vscode.Di
                 // Pas d'upstream : déterminer le remote cible
                 const remotes = repo.state.remotes;
                 if (remotes.length === 0) {
-                    vscode.window.showErrorMessage('Aucun dépôt distant configuré.');
+                    vscode.window.showErrorMessage(vscode.l10n.t('No remote repository configured.'));
                     return;
                 }
                 let remoteName: string;
@@ -63,7 +67,7 @@ export function registerSync(gitApi: API, provider: BranchesProvider): vscode.Di
                 } else {
                     const picked = await vscode.window.showQuickPick(
                         remotes.map(r => r.name),
-                        { placeHolder: 'Choisir le dépôt distant' },
+                        { placeHolder: vscode.l10n.t('Choose the remote repository') },
                     );
                     if (!picked) {
                         return;
@@ -76,7 +80,9 @@ export function registerSync(gitApi: API, provider: BranchesProvider): vscode.Di
             }
             provider.refresh();
         } catch (err) {
-            vscode.window.showErrorMessage(`Push échoué : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('Push failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 

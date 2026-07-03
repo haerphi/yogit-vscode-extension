@@ -71,7 +71,7 @@ export function registerSwitch(gitApi: API): vscode.Disposable[] {
             await repo.status();
         } catch (err) {
             vscode.window.showErrorMessage(
-                `Impossible de basculer sur la branche : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('Could not switch branch: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
@@ -94,12 +94,13 @@ export function registerSwitch(gitApi: API): vscode.Disposable[] {
             return;
         }
 
+        const forceLabel = vscode.l10n.t('Force');
         const confirm = await vscode.window.showWarningMessage(
-            `Basculer en force sur « ${branchName} » ? Les modifications locales non commitées seront perdues.`,
+            vscode.l10n.t('Force switch to "{0}"? Uncommitted local changes will be lost.', branchName),
             { modal: true },
-            'Forcer',
+            forceLabel,
         );
-        if (confirm !== 'Forcer') {
+        if (confirm !== forceLabel) {
             return;
         }
 
@@ -107,7 +108,9 @@ export function registerSwitch(gitApi: API): vscode.Disposable[] {
             await gitSwitchForce(gitApi.git.path, branchName, repo.rootUri.fsPath);
             await repo.status();
         } catch (err) {
-            vscode.window.showErrorMessage(`git switch -f a échoué : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('git switch -f failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 

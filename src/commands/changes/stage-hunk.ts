@@ -265,16 +265,18 @@ async function runHunkCommand(
     try {
         rawDiff = await gitDiff(gitApi.git.path, relPath, cwd, unstage);
     } catch (err) {
-        vscode.window.showErrorMessage(`Impossible d'obtenir le diff : ${err instanceof Error ? err.message : err}`);
+        vscode.window.showErrorMessage(
+            vscode.l10n.t('Could not get the diff: {0}', err instanceof Error ? err.message : String(err)),
+        );
         return;
     }
 
     const fileDiff = parseDiff(rawDiff, relPath);
     if (!fileDiff) {
-        vscode.window.showInformationMessage('Aucun changement textuel détecté (fichier binaire ?).');
+        vscode.window.showInformationMessage(vscode.l10n.t('No textual change detected (binary file?).'));
         return;
     }
-    fileDiff.actionLabel = unstage ? 'Désindexer' : 'Indexer';
+    fileDiff.actionLabel = unstage ? vscode.l10n.t('Unstage') : vscode.l10n.t('Stage');
 
     const selection = await DiffPanel.show(context, fileDiff);
     if (!selection || Object.keys(selection).length === 0) {
@@ -289,8 +291,11 @@ async function runHunkCommand(
         await gitUpdateIndex(gitApi.git.path, mode, hash, relPath, cwd);
         await repo.status();
     } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
         vscode.window.showErrorMessage(
-            `Impossible de ${unstage ? 'désindexer' : 'indexer'} la sélection : ${err instanceof Error ? err.message : err}`,
+            unstage
+                ? vscode.l10n.t('Could not unstage the selection: {0}', errMsg)
+                : vscode.l10n.t('Could not stage the selection: {0}', errMsg),
         );
     }
 }

@@ -105,7 +105,7 @@ export class DiffPanel {
     </style>
 </head>
 <body>
-    <script nonce="${nonce}">window.__YOGIT_DIFF__ = ${diffJson};</script>
+    <script nonce="${nonce}">window.__YOGIT_DIFF__ = ${diffJson}; window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
     <script src="${scriptUri}"></script>
 </body>
 </html>`;

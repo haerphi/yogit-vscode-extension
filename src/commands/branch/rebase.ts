@@ -40,7 +40,7 @@ export function registerRebase(gitApi: API, context: vscode.ExtensionContext): v
 
         const currentBranch = repo.state.HEAD?.name;
         if (!currentBranch) {
-            vscode.window.showErrorMessage('Impossible de déterminer la branche courante (HEAD détaché ?)');
+            vscode.window.showErrorMessage(vscode.l10n.t('Could not determine the current branch (detached HEAD?)'));
             return;
         }
 
@@ -50,28 +50,32 @@ export function registerRebase(gitApi: API, context: vscode.ExtensionContext): v
         }
 
         if (targetBranch === currentBranch) {
-            vscode.window.showWarningMessage('Impossible de rebaser une branche sur elle-même.');
+            vscode.window.showWarningMessage(vscode.l10n.t('Cannot rebase a branch onto itself.'));
             return;
         }
 
+        const rebaseLabel = vscode.l10n.t('Rebase');
         const confirm = await vscode.window.showWarningMessage(
-            `Rebaser « ${currentBranch} » sur « ${targetBranch} » ?`,
+            vscode.l10n.t('Rebase "{0}" onto "{1}"?', currentBranch, targetBranch),
             {
                 modal: true,
-                detail:
-                    'Les commits de la branche courante seront réappliqués par-dessus la cible. ' +
-                    'En cas de conflits, le rebase sera interrompu et vous devrez les résoudre manuellement.',
+                detail: vscode.l10n.t(
+                    'The commits of the current branch will be replayed on top of the target. ' +
+                        'If conflicts occur, the rebase will stop and you will have to resolve them manually.',
+                ),
             },
-            'Rebaser',
+            rebaseLabel,
         );
-        if (confirm !== 'Rebaser') {
+        if (confirm !== rebaseLabel) {
             return;
         }
 
         try {
             await gitRebase(gitApi.git.path, targetBranch, repo.rootUri.fsPath);
             await repo.status();
-            vscode.window.showInformationMessage(`Rebase de « ${currentBranch} » sur « ${targetBranch} » terminé.`);
+            vscode.window.showInformationMessage(
+                vscode.l10n.t('Rebase of "{0}" onto "{1}" completed.', currentBranch, targetBranch),
+            );
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
 
@@ -79,20 +83,26 @@ export function registerRebase(gitApi: API, context: vscode.ExtensionContext): v
             // On propose d'abandonner pour remettre le dépôt dans un état propre.
             await offerConflictResolution(repo, gitApi, context);
 
+            const abortLabel = vscode.l10n.t('Abort Rebase');
             const action = await vscode.window.showErrorMessage(
-                `Le rebase a échoué (probablement des conflits). Voulez-vous annuler le rebase ?`,
+                vscode.l10n.t('Rebase failed (likely conflicts). Do you want to abort the rebase?'),
                 { detail: message },
-                'Annuler le rebase',
+                abortLabel,
             );
 
-            if (action === 'Annuler le rebase') {
+            if (action === abortLabel) {
                 try {
                     await gitRebaseAbort(gitApi.git.path, repo.rootUri.fsPath);
                     await repo.status();
-                    vscode.window.showInformationMessage('Rebase annulé. La branche est revenue à son état initial.');
+                    vscode.window.showInformationMessage(
+                        vscode.l10n.t('Rebase aborted. The branch is back to its initial state.'),
+                    );
                 } catch (abortErr) {
                     vscode.window.showErrorMessage(
-                        `Échec de git rebase --abort : ${abortErr instanceof Error ? abortErr.message : abortErr}`,
+                        vscode.l10n.t(
+                            'git rebase --abort failed: {0}',
+                            abortErr instanceof Error ? abortErr.message : String(abortErr),
+                        ),
                     );
                 }
             }

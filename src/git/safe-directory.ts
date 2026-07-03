@@ -26,24 +26,32 @@ export async function checkSafeDirectory(gitPath: string): Promise<void> {
     const match = stderr.match(/git config --global --add safe\.directory '?([^'\n]+)'?/);
     const safePath = match?.[1] ?? '%(prefix)//' + cwd.replace(/\\/g, '/');
 
+    const markSafeLabel = vscode.l10n.t('Mark as Safe');
     const action = await vscode.window.showErrorMessage(
-        `Git refuse d'accéder à ce dépôt (propriétaire du dossier suspect).`,
+        vscode.l10n.t('Git refuses to access this repository (dubious folder ownership).'),
         {
-            detail: `Le chemin "${cwd}" n'est pas considéré comme sûr par git.\n\nCela arrive sur les dépôts WSL ouverts depuis Windows via \\\\wsl.localhost\\...`,
+            detail: vscode.l10n.t(
+                'The path "{0}" is not considered safe by git.\n\nThis happens with WSL repositories opened from Windows via \\\\wsl.localhost\\...',
+                cwd,
+            ),
             modal: true,
         },
-        'Marquer comme sûr',
+        markSafeLabel,
     );
 
-    if (action !== 'Marquer comme sûr') {
+    if (action !== markSafeLabel) {
         return;
     }
 
     await _addSafeDirectory(gitPath, safePath);
+    const reloadLabel = vscode.l10n.t('Reload');
     vscode.window
-        .showInformationMessage(`Dépôt marqué comme sûr. Rechargez la fenêtre pour activer YoGit.`, 'Recharger')
+        .showInformationMessage(
+            vscode.l10n.t('Repository marked as safe. Reload the window to activate YoGit.'),
+            reloadLabel,
+        )
         .then(btn => {
-            if (btn === 'Recharger') {
+            if (btn === reloadLabel) {
                 vscode.commands.executeCommand('workbench.action.reloadWindow');
             }
         });

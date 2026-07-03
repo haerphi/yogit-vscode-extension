@@ -83,6 +83,8 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 
 ## Infrastructure
 
+- [x] Internationalisation : anglais (défaut) + français — `package.nls*.json` pour le manifest, `vscode.l10n` + `l10n/bundle.l10n.fr.json` pour l'extension host, dictionnaires `pick(en, fr)` pour les webviews
+
 - [x] CI GitHub Actions : lint + compile + packaging `.vsix` sur chaque push/PR vers `main`
 - [x] Release automatique : push d'un tag `vX.Y.Z` → build + release GitHub avec le `.vsix` en pièce jointe
 

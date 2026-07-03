@@ -19,14 +19,13 @@ export async function offerConflictResolution(
         return;
     }
 
-    const label = conflicted.length === 1 ? `1 fichier en conflit` : `${conflicted.length} fichiers en conflit`;
-
+    const resolveLabel = vscode.l10n.t('Resolve Conflicts');
     const action = await vscode.window.showWarningMessage(
-        `${label} — résolvez-les avant de continuer.`,
-        'Résoudre les conflits',
+        vscode.l10n.t('{0} file(s) in conflict — resolve them before continuing.', conflicted.length),
+        resolveLabel,
     );
 
-    if (action === 'Résoudre les conflits') {
+    if (action === resolveLabel) {
         ConflictPanel.show(context, gitApi, conflicted[0].uri.fsPath);
     }
 }

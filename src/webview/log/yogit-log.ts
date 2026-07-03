@@ -10,6 +10,49 @@ declare global {
 
 const vscode = window.acquireVsCodeApi();
 
+import { pick } from '../shared/i18n';
+
+const L = pick(
+    {
+        selectCommit: 'Select a commit to see the details',
+        loadingDiff: 'Loading diff…',
+        loadingHistory: 'Loading history…',
+        commits: 'commits',
+        filterPlaceholder: 'Filter by message, author, SHA, date…',
+        clearFilter: 'Clear filter',
+        colMessage: 'Message',
+        colAuthor: 'Author',
+        colDate: 'Date',
+        colHash: 'Hash',
+        ctxSwitch: 'Switch to this commit',
+        ctxCherryPick: 'Cherry-pick this commit',
+        ctxRevert: 'Revert this commit',
+        ctxRebase: 'Interactive rebase from here',
+        ctxAddTag: 'Add tag…',
+        ctxDeleteTag: (tag: string) => `Delete tag "${tag}"…`,
+        ctxReset: 'Reset here…',
+    },
+    {
+        selectCommit: 'Sélectionnez un commit pour voir le détail',
+        loadingDiff: 'Chargement du diff…',
+        loadingHistory: "Chargement de l'historique…",
+        commits: 'commits',
+        filterPlaceholder: 'Filtrer par message, auteur, SHA, date…',
+        clearFilter: 'Effacer le filtre',
+        colMessage: 'Message',
+        colAuthor: 'Auteur',
+        colDate: 'Date',
+        colHash: 'Hash',
+        ctxSwitch: 'Basculer sur ce commit',
+        ctxCherryPick: 'Cherry-pick ce commit',
+        ctxRevert: 'Revert ce commit',
+        ctxRebase: 'Rebase interactif depuis ici',
+        ctxAddTag: 'Ajouter un tag…',
+        ctxDeleteTag: (tag: string) => `Supprimer le tag « ${tag} »…`,
+        ctxReset: 'Reset ici…',
+    },
+);
+
 // ── Graph layout constants ────────────────────────────────────────────────────
 const LANE_W = 12;
 const ROW_H = 24;
@@ -1167,19 +1210,19 @@ export class YogitLog extends LitElement {
             >
                 <div class="ctx-menu-header">${shortHash}</div>
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._switchToCommit(e)}>
-                    <span>⎇</span> Basculer sur ce commit
+                    <span>⎇</span> ${L.ctxSwitch}
                 </div>
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._cherryPick(e)}>
-                    <span>🍒</span> Cherry-pick ce commit
+                    <span>🍒</span> ${L.ctxCherryPick}
                 </div>
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._revert(e)}>
-                    <span>↩</span> Revert ce commit
+                    <span>↩</span> ${L.ctxRevert}
                 </div>
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._rebaseInteractive(e)}>
-                    <span>⤴</span> Rebase interactif depuis ici
+                    <span>⤴</span> ${L.ctxRebase}
                 </div>
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._addTag(e)}>
-                    <span>🏷</span> Ajouter un tag…
+                    <span>🏷</span> ${L.ctxAddTag}
                 </div>
                 ${(this._ctxMenu?.tags ?? []).map(
                     tag => html`
@@ -1187,13 +1230,13 @@ export class YogitLog extends LitElement {
                             class="ctx-menu-item ctx-menu-item--danger"
                             @click=${(e: MouseEvent) => this._deleteTag(e, tag)}
                         >
-                            <span>🏷</span> Supprimer le tag « ${tag} »…
+                            <span>🏷</span> ${L.ctxDeleteTag(tag)}
                         </div>
                     `,
                 )}
                 <div class="ctx-menu-separator"></div>
                 <div class="ctx-menu-item ctx-menu-item--danger" @click=${(e: MouseEvent) => this._resetToCommit(e)}>
-                    <span>↺</span> Reset ici…
+                    <span>↺</span> ${L.ctxReset}
                 </div>
             </div>
         `;
@@ -1346,10 +1389,10 @@ export class YogitLog extends LitElement {
 
     private renderDetailPane() {
         if (!this.selectedHash) {
-            return html`<div class="detail-empty">Sélectionnez un commit pour voir le détail</div>`;
+            return html`<div class="detail-empty">${L.selectCommit}</div>`;
         }
         if (this._diffLoading) {
-            return html`<div class="detail-loading">Chargement du diff…</div>`;
+            return html`<div class="detail-loading">${L.loadingDiff}</div>`;
         }
         if (this._diffError) {
             return html`<div class="detail-error">${this._diffError}</div>`;
@@ -1385,7 +1428,7 @@ export class YogitLog extends LitElement {
 
     render() {
         if (this.loading) {
-            return html`<div class="state-msg">Chargement de l'historique…</div>`;
+            return html`<div class="state-msg">${L.loadingHistory}</div>`;
         }
         if (this.error) {
             return html`<div class="state-msg state-error">${this.error}</div>`;
@@ -1395,14 +1438,14 @@ export class YogitLog extends LitElement {
         const filteredCommits = q ? this.commits.filter(c => this._matchesFilter(c, q)) : null;
 
         return html`
-            <div class="toolbar"><span class="toolbar-count">${this.commits.length}</span> commits</div>
+            <div class="toolbar"><span class="toolbar-count">${this.commits.length}</span> ${L.commits}</div>
             <div class="log-container ${this.selectedHash ? '' : 'no-selection'}">
                 <div class="commits-pane">
                     <div class="filter-bar">
                         <input
                             class="filter-input"
                             type="text"
-                            placeholder="Filtrer par message, auteur, SHA, date…"
+                            placeholder=${L.filterPlaceholder}
                             .value=${this._filterText}
                             @input=${(e: InputEvent) => {
                                 this._filterText = (e.target as HTMLInputElement).value;
@@ -1413,7 +1456,7 @@ export class YogitLog extends LitElement {
                                   <span class="filter-count">${filteredCommits!.length} / ${this.commits.length}</span>
                                   <span
                                       class="filter-clear"
-                                      title="Effacer le filtre"
+                                      title=${L.clearFilter}
                                       @click=${() => {
                                           this._filterText = '';
                                       }}
@@ -1428,10 +1471,10 @@ export class YogitLog extends LitElement {
                             : html`
                                   <div class="header-row">
                                       <div class="graph-spacer" style="width:${this._graphWidth}px"></div>
-                                      <div class="commit-message">Message</div>
-                                      <span class="commit-author">Auteur</span>
-                                      <span class="commit-date">Date</span>
-                                      <span class="hash">Hash</span>
+                                      <div class="commit-message">${L.colMessage}</div>
+                                      <span class="commit-author">${L.colAuthor}</span>
+                                      <span class="commit-date">${L.colDate}</span>
+                                      <span class="hash">${L.colHash}</span>
                                   </div>
                                   ${this._graphRows.map(r => this.renderCommitRow(r))}
                               `}

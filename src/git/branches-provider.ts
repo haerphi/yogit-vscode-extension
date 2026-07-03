@@ -3,6 +3,7 @@ import {
     Disposable,
     Event,
     EventEmitter,
+    l10n,
     ProviderResult,
     ThemeColor,
     ThemeIcon,
@@ -85,7 +86,7 @@ export class BranchesProvider implements TreeDataProvider<BranchLeaf> {
         if (isCurrent) {
             // $(pass-filled) : cercle coloré plein, clairement distinct de la flèche de repliage $(chevron-right).
             item.iconPath = new ThemeIcon('pass-filled', new ThemeColor('list.highlightForeground'));
-            item.description = 'actuelle';
+            item.description = l10n.t('current');
         }
 
         return item;

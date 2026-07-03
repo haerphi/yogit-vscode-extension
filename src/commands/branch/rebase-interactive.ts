@@ -18,7 +18,7 @@ export function registerRebaseInteractive(gitApi: API, context: vscode.Extension
 
         const currentBranch = repo.state.HEAD?.name;
         if (targetBranch === currentBranch) {
-            vscode.window.showWarningMessage('Impossible de rebaser une branche sur elle-même.');
+            vscode.window.showWarningMessage(vscode.l10n.t('Cannot rebase a branch onto itself.'));
             return;
         }
 

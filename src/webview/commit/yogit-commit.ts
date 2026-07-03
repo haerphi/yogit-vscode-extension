@@ -1,4 +1,5 @@
 import { LitElement, css, html, nothing } from 'lit';
+import { pick } from '../shared/i18n';
 
 declare global {
     interface Window {
@@ -7,6 +8,47 @@ declare global {
 }
 
 const vscode = window.acquireVsCodeApi();
+
+const L = pick(
+    {
+        rebaseInProgress: 'Rebase in progress',
+        rebaseOf: 'Rebasing',
+        rebaseOnto: 'onto',
+        continueRebase: 'Continue rebase',
+        abortRebase: 'Abort rebase',
+        filesAdded: (n: number) => `${n} file${n > 1 ? 's' : ''} added`,
+        filesStaged: (n: number) => `${n} file${n > 1 ? 's' : ''} staged`,
+        messageOnly: 'Message only',
+        noStagedFiles: 'No staged files',
+        committing: 'Commit…',
+        amendButton: 'Amend',
+        commitButton: 'Commit',
+        detachedWarning: '⚠ Detached HEAD — create a branch to avoid losing your commits.',
+        createBranch: '+ Create branch',
+        titlePlaceholder: 'Commit title',
+        descriptionPlaceholder: 'Description (optional)',
+        amendLabel: 'Amend last commit',
+    },
+    {
+        rebaseInProgress: 'Rebase en cours',
+        rebaseOf: 'Rebasage de',
+        rebaseOnto: 'sur',
+        continueRebase: 'Continuer le rebase',
+        abortRebase: 'Annuler le rebase',
+        filesAdded: (n: number) => `${n} fichier${n > 1 ? 's' : ''} ajouté${n > 1 ? 's' : ''}`,
+        filesStaged: (n: number) => `${n} fichier${n > 1 ? 's' : ''} indexé${n > 1 ? 's' : ''}`,
+        messageOnly: 'Message seulement',
+        noStagedFiles: 'Aucun fichier indexé',
+        committing: 'Commit…',
+        amendButton: 'Amender',
+        commitButton: 'Commit',
+        detachedWarning: '⚠ HEAD détachée — créez une branche pour ne pas perdre vos commits.',
+        createBranch: '+ Créer une branche',
+        titlePlaceholder: 'Titre du commit',
+        descriptionPlaceholder: 'Description (optionnel)',
+        amendLabel: 'Amender le dernier commit',
+    },
+);
 
 interface LastCommit {
     hash: string;
@@ -369,22 +411,22 @@ export class YogitCommit extends LitElement {
             <div class="rebase-panel">
                 <div class="rebase-header">
                     <span class="rebase-icon">⟳</span>
-                    <span class="rebase-title">Rebase en cours</span>
+                    <span class="rebase-title">${L.rebaseInProgress}</span>
                     ${hasProgress ? html`<span class="rebase-progress">${rb.step} / ${rb.total}</span>` : nothing}
                 </div>
                 ${rb.branch || rb.onto
                     ? html`<div class="rebase-info">
-                          Rebasage de <span class="rebase-branch">${rb.branch || '…'}</span> sur
+                          ${L.rebaseOf} <span class="rebase-branch">${rb.branch || '…'}</span> ${L.rebaseOnto}
                           <span class="rebase-branch">${rb.onto || '…'}</span>
                       </div>`
                     : nothing}
                 ${this.errorMessage ? html`<div class="rebase-error">⚠ ${this.errorMessage}</div>` : nothing}
                 <div class="rebase-actions">
                     <button class="btn-continue" @click=${() => vscode.postMessage({ type: 'continue-rebase' })}>
-                        ▶ Continuer le rebase
+                        ▶ ${L.continueRebase}
                     </button>
                     <button class="btn-abort" @click=${() => vscode.postMessage({ type: 'abort-rebase' })}>
-                        ✕ Annuler le rebase
+                        ✕ ${L.abortRebase}
                     </button>
                 </div>
             </div>
@@ -402,28 +444,28 @@ export class YogitCommit extends LitElement {
 
         const stagedLabel = this.amend
             ? this.stagedCount > 0
-                ? `${this.stagedCount} fichier${this.stagedCount > 1 ? 's' : ''} ajouté${this.stagedCount > 1 ? 's' : ''}`
-                : 'Message seulement'
+                ? L.filesAdded(this.stagedCount)
+                : L.messageOnly
             : this.stagedCount === 0
-              ? 'Aucun fichier indexé'
-              : `${this.stagedCount} fichier${this.stagedCount > 1 ? 's' : ''} indexé${this.stagedCount > 1 ? 's' : ''}`;
+              ? L.noStagedFiles
+              : L.filesStaged(this.stagedCount);
 
         const stagedWarn = !this.amend && this.stagedCount === 0;
-        const buttonLabel = this.committing ? 'Commit…' : this.amend ? 'Amender' : 'Commit';
+        const buttonLabel = this.committing ? L.committing : this.amend ? L.amendButton : L.commitButton;
 
         return html`
             ${this.detachedHead
                 ? html`<div class="detached-warning">
-                      <span>⚠ HEAD détachée — créez une branche pour ne pas perdre vos commits.</span>
+                      <span>${L.detachedWarning}</span>
                       <button class="btn-create-branch" @click=${() => vscode.postMessage({ type: 'create-branch' })}>
-                          + Créer une branche
+                          ${L.createBranch}
                       </button>
                   </div>`
                 : ''}
             <input
                 class="title-input"
                 type="text"
-                placeholder="Titre du commit"
+                placeholder=${L.titlePlaceholder}
                 .value=${this.title}
                 @input=${(e: InputEvent) => {
                     this.title = (e.target as HTMLInputElement).value;
@@ -436,7 +478,7 @@ export class YogitCommit extends LitElement {
             />
             <textarea
                 class="description-input"
-                placeholder="Description (optionnel)"
+                placeholder=${L.descriptionPlaceholder}
                 .value=${this.description}
                 @input=${(e: InputEvent) => {
                     this.description = (e.target as HTMLTextAreaElement).value;
@@ -445,7 +487,7 @@ export class YogitCommit extends LitElement {
             ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}
             <div class="amend-row" @click=${this.toggleAmend}>
                 <input type="checkbox" .checked=${this.amend} @click=${(e: Event) => e.stopPropagation()} />
-                <span class="amend-label">Amender le dernier commit</span>
+                <span class="amend-label">${L.amendLabel}</span>
                 ${this.lastCommit ? html`<span class="amend-hash">${this.lastCommit.hash}</span>` : ''}
             </div>
             <div class="footer">

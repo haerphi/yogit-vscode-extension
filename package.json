@@ -22,163 +22,164 @@
         "onView:stash"
     ],
     "main": "./out/extension.js",
+    "l10n": "./l10n",
     "contributes": {
         "commands": [
             {
                 "command": "haerphi-yogit.create-branch",
-                "title": "Créer une branche",
+                "title": "%cmd.create-branch.title%",
                 "icon": "$(add)"
             },
             {
                 "command": "haerphi-yogit.create-branch-from",
-                "title": "Créer une branche depuis celle-ci"
+                "title": "%cmd.create-branch-from.title%"
             },
             {
                 "command": "haerphi-yogit.switch",
-                "title": "Basculer sur cette branche",
+                "title": "%cmd.switch.title%",
                 "icon": "$(arrow-right)"
             },
             {
                 "command": "haerphi-yogit.switch-force",
-                "title": "Basculer sur cette branche (forcer)"
+                "title": "%cmd.switch-force.title%"
             },
             {
                 "command": "haerphi-yogit.delete-branch",
-                "title": "Supprimer la branche",
+                "title": "%cmd.delete-branch.title%",
                 "icon": "$(trash)"
             },
             {
                 "command": "haerphi-yogit.delete-branch-remote",
-                "title": "Supprimer la branche distante",
+                "title": "%cmd.delete-branch-remote.title%",
                 "icon": "$(trash)"
             },
             {
                 "command": "haerphi-yogit.stage-file",
-                "title": "Indexer ce fichier",
+                "title": "%cmd.stage-file.title%",
                 "icon": "$(add)"
             },
             {
                 "command": "haerphi-yogit.unstage-file",
-                "title": "Désindexer ce fichier",
+                "title": "%cmd.unstage-file.title%",
                 "icon": "$(remove)"
             },
             {
                 "command": "haerphi-yogit.stage-all",
-                "title": "Indexer tous les fichiers",
+                "title": "%cmd.stage-all.title%",
                 "icon": "$(add)"
             },
             {
                 "command": "haerphi-yogit.unstage-all",
-                "title": "Désindexer tous les fichiers",
+                "title": "%cmd.unstage-all.title%",
                 "icon": "$(remove)"
             },
             {
                 "command": "haerphi-yogit.stage-hunks",
-                "title": "Indexer par hunks/lignes…",
+                "title": "%cmd.stage-hunks.title%",
                 "icon": "$(list-selection)"
             },
             {
                 "command": "haerphi-yogit.unstage-hunks",
-                "title": "Désindexer par hunks/lignes…",
+                "title": "%cmd.unstage-hunks.title%",
                 "icon": "$(list-selection)"
             },
             {
                 "command": "haerphi-yogit.stash",
-                "title": "Mettre de côté…",
+                "title": "%cmd.stash.title%",
                 "icon": "$(archive)"
             },
             {
                 "command": "haerphi-yogit.show-log",
-                "title": "Historique",
+                "title": "%cmd.show-log.title%",
                 "icon": "$(history)"
             },
             {
                 "command": "haerphi-yogit.fetch",
-                "title": "Fetch",
+                "title": "%cmd.fetch.title%",
                 "icon": "$(sync)"
             },
             {
                 "command": "haerphi-yogit.pull",
-                "title": "Pull",
+                "title": "%cmd.pull.title%",
                 "icon": "$(arrow-down)"
             },
             {
                 "command": "haerphi-yogit.push",
-                "title": "Push",
+                "title": "%cmd.push.title%",
                 "icon": "$(arrow-up)"
             },
             {
                 "command": "haerphi-yogit.stash-pop",
-                "title": "Appliquer et supprimer",
+                "title": "%cmd.stash-pop.title%",
                 "icon": "$(run)"
             },
             {
                 "command": "haerphi-yogit.stash-apply",
-                "title": "Appliquer (garder le stash)"
+                "title": "%cmd.stash-apply.title%"
             },
             {
                 "command": "haerphi-yogit.stash-drop",
-                "title": "Supprimer le stash",
+                "title": "%cmd.stash-drop.title%",
                 "icon": "$(trash)"
             },
             {
                 "command": "haerphi-yogit.merge",
-                "title": "Merger dans la branche courante",
+                "title": "%cmd.merge.title%",
                 "icon": "$(git-merge)"
             },
             {
                 "command": "haerphi-yogit.rebase-onto",
-                "title": "Rebaser la branche courante sur celle-ci",
+                "title": "%cmd.rebase-onto.title%",
                 "icon": "$(git-commit)"
             },
             {
                 "command": "haerphi-yogit.rebase-interactive",
-                "title": "Rebase interactif sur cette branche…",
+                "title": "%cmd.rebase-interactive.title%",
                 "icon": "$(git-commit)"
             },
             {
                 "command": "haerphi-yogit.resolve-conflict",
-                "title": "Résoudre le conflit…",
+                "title": "%cmd.resolve-conflict.title%",
                 "icon": "$(diff)"
             },
             {
                 "command": "haerphi-yogit.abort-rebase",
-                "title": "Annuler le rebase",
+                "title": "%cmd.abort-rebase.title%",
                 "icon": "$(discard)"
             },
             {
                 "command": "haerphi-yogit.continue-rebase",
-                "title": "Continuer le rebase",
+                "title": "%cmd.continue-rebase.title%",
                 "icon": "$(play)"
             },
             {
                 "command": "haerphi-yogit.discard-file",
-                "title": "Annuler les modifications",
+                "title": "%cmd.discard-file.title%",
                 "icon": "$(discard)"
             },
             {
                 "command": "haerphi-yogit.discard-all",
-                "title": "Annuler toutes les modifications",
+                "title": "%cmd.discard-all.title%",
                 "icon": "$(discard)"
             },
             {
                 "command": "haerphi-yogit.init-repo",
-                "title": "Initialiser un dépôt git",
+                "title": "%cmd.init-repo.title%",
                 "icon": "$(repo-create)"
             },
             {
                 "command": "haerphi-yogit.clone-repo",
-                "title": "Cloner un dépôt distant",
+                "title": "%cmd.clone-repo.title%",
                 "icon": "$(repo-clone)"
             },
             {
                 "command": "haerphi-yogit.link-repo",
-                "title": "Lier à un dépôt distant existant",
+                "title": "%cmd.link-repo.title%",
                 "icon": "$(link)"
             },
             {
                 "command": "haerphi-yogit.add-remote",
-                "title": "Ajouter un remote",
+                "title": "%cmd.add-remote.title%",
                 "icon": "$(add)"
             }
         ],
@@ -425,61 +426,61 @@
             "yogit-side-panel": [
                 {
                     "id": "commit",
-                    "name": "Commit",
+                    "name": "%view.commit.name%",
                     "type": "webview"
                 },
                 {
                     "id": "changes",
-                    "name": "Modifications"
+                    "name": "%view.changes.name%"
                 },
                 {
                     "id": "stash",
-                    "name": "Stash"
+                    "name": "%view.stash.name%"
                 },
                 {
                     "id": "branches",
-                    "name": "Branches"
+                    "name": "%view.branches.name%"
                 },
                 {
                     "id": "remotes",
-                    "name": "Remotes"
+                    "name": "%view.remotes.name%"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "branches",
-                "contents": "Ce dossier n'est pas un dépôt git.\n[Initialiser un dépôt](command:haerphi-yogit.init-repo)\n[Cloner un dépôt distant](command:haerphi-yogit.clone-repo)\n[Lier à un dépôt distant existant](command:haerphi-yogit.link-repo)",
+                "contents": "%welcome.branches.noRepo%",
                 "when": "haerphi-yogit.noRepo"
             },
             {
                 "view": "remotes",
-                "contents": "Aucun remote configuré.\n[Ajouter un remote](command:haerphi-yogit.add-remote)",
+                "contents": "%welcome.remotes.default%",
                 "when": "!haerphi-yogit.noRepo"
             },
             {
                 "view": "remotes",
-                "contents": "Ce dossier n'est pas un dépôt git.",
+                "contents": "%welcome.remotes.noRepo%",
                 "when": "haerphi-yogit.noRepo"
             },
             {
                 "view": "changes",
-                "contents": "Aucune modification locale.",
+                "contents": "%welcome.changes.default%",
                 "when": "!haerphi-yogit.noRepo"
             },
             {
                 "view": "changes",
-                "contents": "Ce dossier n'est pas un dépôt git.",
+                "contents": "%welcome.changes.noRepo%",
                 "when": "haerphi-yogit.noRepo"
             },
             {
                 "view": "stash",
-                "contents": "Aucun stash.",
+                "contents": "%welcome.stash.default%",
                 "when": "!haerphi-yogit.noRepo"
             },
             {
                 "view": "stash",
-                "contents": "Ce dossier n'est pas un dépôt git.",
+                "contents": "%welcome.stash.noRepo%",
                 "when": "haerphi-yogit.noRepo"
             }
         ]

@@ -16,15 +16,16 @@ export function registerDiscard(gitApi: API): vscode.Disposable[] {
         }
 
         const fileName = vscode.workspace.asRelativePath(node.change.uri);
+        const discardLabel = vscode.l10n.t('Discard Changes');
         const confirm = await vscode.window.showWarningMessage(
-            `Annuler les modifications de « ${fileName} » ?`,
+            vscode.l10n.t('Discard the changes in "{0}"?', fileName),
             {
                 modal: true,
-                detail: 'Cette action est irréversible — les modifications non sauvegardées seront perdues.',
+                detail: vscode.l10n.t('This action is irreversible — unsaved changes will be lost.'),
             },
-            'Annuler les modifications',
+            discardLabel,
         );
-        if (confirm !== 'Annuler les modifications') {
+        if (confirm !== discardLabel) {
             return;
         }
 
@@ -42,7 +43,9 @@ export function registerDiscard(gitApi: API): vscode.Disposable[] {
             }
             await repo.status();
         } catch (err) {
-            vscode.window.showErrorMessage(`Échec de l'annulation : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('Discard failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 
@@ -57,17 +60,18 @@ export function registerDiscard(gitApi: API): vscode.Disposable[] {
         const untrackedCount = allUnstaged.length - trackedUris.length;
 
         const detail =
-            'Cette action est irréversible — toutes les modifications non sauvegardées seront perdues.' +
+            vscode.l10n.t('This action is irreversible — all unsaved changes will be lost.') +
             (untrackedCount > 0
-                ? `\n\nLes ${untrackedCount} fichier${untrackedCount > 1 ? 's' : ''} non suivis seront aussi supprimés.`
+                ? '\n\n' + vscode.l10n.t('{0} untracked file(s) will also be deleted.', untrackedCount)
                 : '');
 
+        const discardAllLabel = vscode.l10n.t('Discard All');
         const confirm = await vscode.window.showWarningMessage(
-            'Annuler toutes les modifications non indexées ?',
+            vscode.l10n.t('Discard all unstaged changes?'),
             { modal: true, detail },
-            'Tout annuler',
+            discardAllLabel,
         );
-        if (confirm !== 'Tout annuler') {
+        if (confirm !== discardAllLabel) {
             return;
         }
 
@@ -92,7 +96,9 @@ export function registerDiscard(gitApi: API): vscode.Disposable[] {
 
             await repo.status();
         } catch (err) {
-            vscode.window.showErrorMessage(`Échec de l'annulation : ${err instanceof Error ? err.message : err}`);
+            vscode.window.showErrorMessage(
+                vscode.l10n.t('Discard failed: {0}', err instanceof Error ? err.message : String(err)),
+            );
         }
     });
 

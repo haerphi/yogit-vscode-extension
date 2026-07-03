@@ -60,7 +60,7 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
         // Bloquer la suppression de la branche actuellement checkoutée.
         const isCurrent = branchName === repo.state.HEAD?.name;
         if (isCurrent) {
-            vscode.window.showErrorMessage(`Impossible de supprimer la branche actuelle « ${branchName} ».`);
+            vscode.window.showErrorMessage(vscode.l10n.t('Cannot delete the current branch "{0}".', branchName));
             return;
         }
 
@@ -71,19 +71,19 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
         const upstreamLabel = upstream ? `${upstream.remote}/${upstream.name}` : undefined;
 
         const result = await ConfirmModal.show(context, {
-            title: 'Supprimer une branche locale',
-            message: `Supprimer la branche locale « ${branchName} » ?`,
-            detail: 'Cette action supprimera la branche de votre dépôt local.',
+            title: vscode.l10n.t('Delete Local Branch'),
+            message: vscode.l10n.t('Delete local branch "{0}"?', branchName),
+            detail: vscode.l10n.t('This will delete the branch from your local repository.'),
             buttons: [
-                { label: 'Annuler', value: 'cancel', variant: 'secondary' },
-                { label: 'Supprimer', value: 'confirm', variant: 'danger' },
+                { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                { label: vscode.l10n.t('Delete'), value: 'confirm', variant: 'danger' },
             ],
             // La checkbox n'apparaît que si une branche distante de suivi existe.
             checkboxes: upstreamLabel
                 ? [
                       {
                           id: 'deleteRemote',
-                          label: `Supprimer aussi la branche distante (${upstreamLabel})`,
+                          label: vscode.l10n.t('Also delete the remote branch ({0})', upstreamLabel),
                           checked: false,
                       },
                   ]
@@ -101,13 +101,14 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
             const upstreamFullName = `${upstream.remote}/${upstream.name}`;
 
             const remoteConfirm = await ConfirmModal.show(context, {
-                title: 'Supprimer la branche distante',
-                message: `Supprimer aussi « ${upstreamFullName} » du dépôt distant ?`,
-                warning:
-                    'Cette opération affecte le dépôt partagé. Les autres contributeurs perdront accès à cette branche.',
+                title: vscode.l10n.t('Delete Remote Branch'),
+                message: vscode.l10n.t('Also delete "{0}" from the remote repository?', upstreamFullName),
+                warning: vscode.l10n.t(
+                    'This operation affects the shared repository. Other contributors will lose access to this branch.',
+                ),
                 buttons: [
-                    { label: 'Annuler', value: 'cancel', variant: 'secondary' },
-                    { label: 'Supprimer définitivement', value: 'confirm', variant: 'danger' },
+                    { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                    { label: vscode.l10n.t('Delete Permanently'), value: 'confirm', variant: 'danger' },
                 ],
             });
 
@@ -123,13 +124,13 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
             // deleteBranch(false) échoue si la branche contient des commits non mergés.
             // On propose un second essai avec force, accompagné d'un avertissement explicite.
             const forceResult = await ConfirmModal.show(context, {
-                title: 'Branche non mergée',
-                message: `« ${branchName} » n'est pas entièrement mergée.`,
-                detail: 'Des commits sur cette branche ne sont pas présents dans la branche actuelle.',
-                warning: 'Forcer la suppression entraînera la perte définitive de ces commits.',
+                title: vscode.l10n.t('Branch Not Merged'),
+                message: vscode.l10n.t('"{0}" is not fully merged.', branchName),
+                detail: vscode.l10n.t('Some commits on this branch are not present in the current branch.'),
+                warning: vscode.l10n.t('Force deleting will permanently discard these commits.'),
                 buttons: [
-                    { label: 'Annuler', value: 'cancel', variant: 'secondary' },
-                    { label: 'Forcer la suppression', value: 'force', variant: 'danger' },
+                    { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                    { label: vscode.l10n.t('Force Delete'), value: 'force', variant: 'danger' },
                 ],
             });
 
@@ -141,7 +142,7 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
                 await repo.deleteBranch(branchName, true);
             } catch (err) {
                 vscode.window.showErrorMessage(
-                    `Impossible de supprimer la branche : ${err instanceof Error ? err.message : err}`,
+                    vscode.l10n.t('Could not delete branch: {0}', err instanceof Error ? err.message : String(err)),
                 );
                 return;
             }
@@ -153,7 +154,10 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
                 await gitDeleteRemoteBranch(gitApi.git.path, upstream.remote, upstream.name, repo.rootUri.fsPath);
             } catch (err) {
                 vscode.window.showErrorMessage(
-                    `Branche locale supprimée, mais impossible de supprimer la distante : ${err instanceof Error ? err.message : err}`,
+                    vscode.l10n.t(
+                        'Local branch deleted, but the remote branch could not be deleted: {0}',
+                        err instanceof Error ? err.message : String(err),
+                    ),
                 );
             }
         }
@@ -190,13 +194,14 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
 
             // Premier avertissement : nature irréversible et impact partagé.
             const firstResult = await ConfirmModal.show(context, {
-                title: 'Supprimer une branche distante',
-                message: `Vous êtes sur le point de supprimer « ${fullName} » du dépôt distant.`,
-                warning:
-                    'Cette opération affecte le dépôt partagé. Les autres contributeurs perdront accès à cette branche et elle ne pourra pas être restaurée facilement.',
+                title: vscode.l10n.t('Delete Remote Branch'),
+                message: vscode.l10n.t('You are about to delete "{0}" from the remote repository.', fullName),
+                warning: vscode.l10n.t(
+                    'This operation affects the shared repository. Other contributors will lose access to this branch and it cannot be easily restored.',
+                ),
                 buttons: [
-                    { label: 'Annuler', value: 'cancel', variant: 'secondary' },
-                    { label: 'Continuer', value: 'continue', variant: 'primary' },
+                    { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                    { label: vscode.l10n.t('Continue'), value: 'continue', variant: 'primary' },
                 ],
             });
 
@@ -206,12 +211,12 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
 
             // Second avertissement : confirmation explicite avec le nom de la branche.
             const secondResult = await ConfirmModal.show(context, {
-                title: 'Confirmer la suppression',
-                message: `Supprimer définitivement « ${fullName} » ?`,
-                detail: 'Cette action est irréversible.',
+                title: vscode.l10n.t('Confirm Deletion'),
+                message: vscode.l10n.t('Permanently delete "{0}"?', fullName),
+                detail: vscode.l10n.t('This action is irreversible.'),
                 buttons: [
-                    { label: 'Annuler', value: 'cancel', variant: 'secondary' },
-                    { label: 'Supprimer définitivement', value: 'confirm', variant: 'danger' },
+                    { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                    { label: vscode.l10n.t('Delete Permanently'), value: 'confirm', variant: 'danger' },
                 ],
             });
 
@@ -224,7 +229,10 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
                 await repo.status();
             } catch (err) {
                 vscode.window.showErrorMessage(
-                    `Impossible de supprimer la branche distante : ${err instanceof Error ? err.message : err}`,
+                    vscode.l10n.t(
+                        'Could not delete remote branch: {0}',
+                        err instanceof Error ? err.message : String(err),
+                    ),
                 );
             }
         },

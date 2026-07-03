@@ -36,7 +36,7 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
     const getWorkspaceFolder = (): vscode.WorkspaceFolder | undefined => {
         const folder = vscode.workspace.workspaceFolders?.[0];
         if (!folder) {
-            vscode.window.showErrorMessage("Aucun dossier ouvert dans l'espace de travail.");
+            vscode.window.showErrorMessage(vscode.l10n.t('No folder open in the workspace.'));
         }
         return folder;
     };
@@ -49,21 +49,21 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         try {
             const repo = await gitApi.init(folder.uri);
             if (!repo) {
-                throw new Error('git init a échoué sans message.');
+                throw new Error(vscode.l10n.t('git init failed without a message.'));
             }
-            vscode.window.showInformationMessage(`Dépôt git initialisé dans « ${folder.name} ».`);
+            vscode.window.showInformationMessage(vscode.l10n.t('Git repository initialized in "{0}".', folder.name));
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
-            vscode.window.showErrorMessage(`Initialisation du dépôt échouée : ${errMsg}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('Repository initialization failed: {0}', errMsg));
         }
     });
 
     const askRemoteUrl = (title: string): Thenable<string | undefined> =>
         vscode.window.showInputBox({
             title,
-            prompt: 'URL du dépôt distant (https ou ssh)',
-            placeHolder: 'ex : https://github.com/user/repo.git',
-            validateInput: value => (value.trim() ? undefined : "L'URL ne peut pas être vide"),
+            prompt: vscode.l10n.t('Remote repository URL (https or ssh)'),
+            placeHolder: vscode.l10n.t('e.g. https://github.com/user/repo.git'),
+            validateInput: value => (value.trim() ? undefined : vscode.l10n.t('The URL cannot be empty')),
         });
 
     const cloneRepo = vscode.commands.registerCommand('haerphi-yogit.clone-repo', async () => {
@@ -76,19 +76,20 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         const entries = await vscode.workspace.fs.readDirectory(folder.uri);
         if (entries.length > 0) {
             vscode.window.showErrorMessage(
-                `Impossible de cloner : le dossier « ${folder.name} » n'est pas vide. ` +
-                    'Ouvrez un dossier vide, ou utilisez « Lier à un dépôt distant existant » ' +
-                    'pour rattacher les fichiers existants à un dépôt distant.',
+                vscode.l10n.t(
+                    'Cannot clone: the folder "{0}" is not empty. Open an empty folder, or use "Link to Existing Remote Repository" to attach the existing files to a remote repository.',
+                    folder.name,
+                ),
             );
             return;
         }
-        const url = await askRemoteUrl('Cloner un dépôt distant');
+        const url = await askRemoteUrl(vscode.l10n.t('Clone Remote Repository'));
         if (!url) {
             return;
         }
         try {
             await vscode.window.withProgress(
-                { location: vscode.ProgressLocation.Notification, title: 'Clonage du dépôt…' },
+                { location: vscode.ProgressLocation.Notification, title: vscode.l10n.t('Cloning repository…') },
                 async () => {
                     await runGit(gitApi.git.path, ['clone', url.trim(), '.'], folder.uri.fsPath);
                     // Le clone est fait hors API vscode.git — on enregistre explicitement
@@ -96,10 +97,10 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
                     await gitApi.openRepository(folder.uri);
                 },
             );
-            vscode.window.showInformationMessage(`Dépôt cloné dans « ${folder.name} ».`);
+            vscode.window.showInformationMessage(vscode.l10n.t('Repository cloned into "{0}".', folder.name));
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
-            vscode.window.showErrorMessage(`Clonage du dépôt échoué : ${errMsg}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('Repository clone failed: {0}', errMsg));
         }
     });
 
@@ -108,30 +109,34 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         if (!folder) {
             return;
         }
-        const url = await askRemoteUrl('Lier à un dépôt distant existant');
+        const url = await askRemoteUrl(vscode.l10n.t('Link to Existing Remote Repository'));
         if (!url) {
             return;
         }
         try {
             await vscode.window.withProgress(
-                { location: vscode.ProgressLocation.Notification, title: 'Liaison au dépôt distant…' },
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: vscode.l10n.t('Linking to remote repository…'),
+                },
                 async () => {
                     // Si le dossier n'est pas encore un dépôt, on l'initialise d'abord.
                     const repo = gitApi.repositories[0] ?? (await gitApi.init(folder.uri));
                     if (!repo) {
-                        throw new Error("L'initialisation du dépôt a échoué.");
+                        throw new Error(vscode.l10n.t('Repository initialization failed.'));
                     }
                     await repo.addRemote('origin', url.trim());
                     await repo.fetch();
                 },
             );
             vscode.window.showInformationMessage(
-                'Dépôt lié à « origin » et références distantes récupérées. ' +
-                    'Basculez sur une branche distante pour récupérer les fichiers.',
+                vscode.l10n.t(
+                    'Repository linked to "origin" and remote references fetched. Switch to a remote branch to get the files.',
+                ),
             );
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
-            vscode.window.showErrorMessage(`Liaison au dépôt distant échouée : ${errMsg}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('Linking to remote repository failed: {0}', errMsg));
         }
     });
 

@@ -1,6 +1,7 @@
 import { LitElement, css, html, nothing } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { ConflictFile, ConflictHunk, FileSection } from '../../types/conflict';
+import { pick } from '../shared/i18n';
 
 declare global {
     interface Window {
@@ -9,6 +10,61 @@ declare global {
 }
 
 const vscode = window.acquireVsCodeApi();
+
+const L = pick(
+    {
+        conflictNum: (n: number) => `Conflict ${n}`,
+        keepOursTitle: 'Keep only our version (HEAD)',
+        keepOurs: '← Keep ours',
+        bothTitle: 'Keep both versions',
+        both: 'Both',
+        keepTheirsTitle: 'Keep only their version (incoming)',
+        keepTheirs: 'Keep theirs →',
+        noneTitle: 'Keep neither version',
+        none: 'None',
+        lblCurrent: 'HEAD (ours)',
+        lblTheirs: 'Incoming (theirs)',
+        finalEdited: '✏ Result (manually edited)',
+        finalAuto: '▶ Result (from the selections)',
+        fromSelections: '↺ From the selections',
+        emptyPlaceholder: '(empty — the conflict will be removed)',
+        loading: 'Loading…',
+        conflictsTitle: (fileName: string) => `⚠ Conflicts — ${fileName}`,
+        unresolved: (n: number) => `${n} unresolved`,
+        allResolved: '✓ All resolved',
+        footerHint: (n: number) =>
+            `${n} conflict${n > 1 ? 's' : ''} — click on lines to include them in the result, or edit the result area directly.`,
+        savedBanner: '✓ Saved and staged',
+        saving: 'Saving…',
+        saveButton: 'Save and stage',
+    },
+    {
+        conflictNum: (n: number) => `Conflit ${n}`,
+        keepOursTitle: 'Garder uniquement notre version (HEAD)',
+        keepOurs: '← Garder le nôtre',
+        bothTitle: 'Garder les deux versions',
+        both: 'Les deux',
+        keepTheirsTitle: 'Garder uniquement leur version (entrante)',
+        keepTheirs: 'Garder les leurs →',
+        noneTitle: 'Ne garder aucune des deux versions',
+        none: 'Aucun',
+        lblCurrent: 'HEAD (le nôtre)',
+        lblTheirs: 'Entrant (les leurs)',
+        finalEdited: '✏ Résultat (édité manuellement)',
+        finalAuto: '▶ Résultat (depuis les sélections)',
+        fromSelections: '↺ Depuis les sélections',
+        emptyPlaceholder: '(vide — le conflit sera supprimé)',
+        loading: 'Chargement…',
+        conflictsTitle: (fileName: string) => `⚠ Conflits — ${fileName}`,
+        unresolved: (n: number) => `${n} non résolu${n > 1 ? 's' : ''}`,
+        allResolved: '✓ Tout résolu',
+        footerHint: (n: number) =>
+            `${n} conflit${n > 1 ? 's' : ''} — cliquez sur les lignes pour les inclure dans le résultat, ou éditez directement la zone de résultat.`,
+        savedBanner: '✓ Sauvegardé et indexé',
+        saving: 'Sauvegarde…',
+        saveButton: 'Sauvegarder et indexer',
+    },
+);
 
 type HostMessage = { type: 'file'; file: ConflictFile } | { type: 'error'; message: string } | { type: 'saved' };
 
@@ -557,43 +613,43 @@ export class YogitConflict extends LitElement {
         return html`
             <div class="conflict-card ${resolved ? 'resolved' : ''}">
                 <div class="card-header">
-                    <span class="card-num">Conflit ${cardIdx + 1}</span>
+                    <span class="card-num">${L.conflictNum(cardIdx + 1)}</span>
                     ${resolved ? html`<span class="card-status">✓</span>` : nothing}
                     <div class="card-actions">
                         <button
                             class="btn-quick ${allCurrentSel && !allTheirsSel && !hunk.finalEdited ? 'active' : ''}"
-                            title="Garder uniquement notre version (HEAD)"
+                            title=${L.keepOursTitle}
                             @click=${() => this._quickSelect(hunk.id, 'current')}
                         >
-                            ← Garder le nôtre
+                            ${L.keepOurs}
                         </button>
                         <button
                             class="btn-quick ${allCurrentSel && allTheirsSel && !hunk.finalEdited ? 'active' : ''}"
-                            title="Garder les deux versions"
+                            title=${L.bothTitle}
                             @click=${() => this._quickSelect(hunk.id, 'both')}
                         >
-                            Les deux
+                            ${L.both}
                         </button>
                         <button
                             class="btn-quick ${!allCurrentSel && allTheirsSel && !hunk.finalEdited ? 'active' : ''}"
-                            title="Garder uniquement leur version (entrante)"
+                            title=${L.keepTheirsTitle}
                             @click=${() => this._quickSelect(hunk.id, 'theirs')}
                         >
-                            Garder les leurs →
+                            ${L.keepTheirs}
                         </button>
                         <button
                             class="btn-quick ${noneSel && !hunk.finalEdited ? 'active' : ''}"
-                            title="Ne garder aucune des deux versions"
+                            title=${L.noneTitle}
                             @click=${() => this._quickSelect(hunk.id, 'none')}
                         >
-                            Aucun
+                            ${L.none}
                         </button>
                     </div>
                 </div>
 
                 <div class="sides">
                     <div class="side side-current">
-                        <span class="side-label lbl-current">HEAD (le nôtre)</span>
+                        <span class="side-label lbl-current">${L.lblCurrent}</span>
                         ${hunk.currentLines.map((line, i) =>
                             this._renderLineRow(line, hunk.currentSelected[i], 'sel-current', () =>
                                 this._toggleCurrentLine(hunk.id, i),
@@ -601,7 +657,7 @@ export class YogitConflict extends LitElement {
                         )}
                     </div>
                     <div class="side side-theirs">
-                        <span class="side-label lbl-theirs">Entrant (les leurs)</span>
+                        <span class="side-label lbl-theirs">${L.lblTheirs}</span>
                         ${hunk.theirsLines.map((line, i) =>
                             this._renderLineRow(line, hunk.theirsSelected[i], 'sel-theirs', () =>
                                 this._toggleTheirsLine(hunk.id, i),
@@ -613,13 +669,11 @@ export class YogitConflict extends LitElement {
                 <div class="final-section">
                     <div class="final-header">
                         <span class="final-label ${hunk.finalEdited ? 'edited' : ''}">
-                            ${hunk.finalEdited
-                                ? '✏ Résultat (édité manuellement)'
-                                : '▶ Résultat (depuis les sélections)'}
+                            ${hunk.finalEdited ? L.finalEdited : L.finalAuto}
                         </span>
                         ${hunk.finalEdited
                             ? html`<button class="btn-reset-final" @click=${() => this._resetFinal(hunk.id)}>
-                                  ↺ Depuis les sélections
+                                  ${L.fromSelections}
                               </button>`
                             : nothing}
                     </div>
@@ -627,7 +681,7 @@ export class YogitConflict extends LitElement {
                         class="final-textarea"
                         rows=${rows}
                         .value=${live(hunk.finalContent)}
-                        placeholder="(vide — le conflit sera supprimé)"
+                        placeholder=${L.emptyPlaceholder}
                         @input=${(e: InputEvent) =>
                             this._setFinalContent(hunk.id, (e.target as HTMLTextAreaElement).value)}
                     ></textarea>
@@ -649,7 +703,7 @@ export class YogitConflict extends LitElement {
 
     render() {
         if (!this._file) {
-            return html`<div class="state-msg">Chargement…</div>`;
+            return html`<div class="state-msg">${L.loading}</div>`;
         }
 
         const unresolved = this._unresolvedCount();
@@ -659,21 +713,18 @@ export class YogitConflict extends LitElement {
 
         return html`
             <div class="header">
-                <span class="header-title">⚠ Conflits — ${this._file.fileName}</span>
+                <span class="header-title">${L.conflictsTitle(this._file.fileName)}</span>
                 ${unresolved > 0
-                    ? html`<span class="badge-unresolved">${unresolved} non résolu${unresolved > 1 ? 's' : ''}</span>`
-                    : html`<span class="badge-ok">✓ Tout résolu</span>`}
+                    ? html`<span class="badge-unresolved">${L.unresolved(unresolved)}</span>`
+                    : html`<span class="badge-ok">${L.allResolved}</span>`}
             </div>
             ${this._error ? html`<div class="error-banner">${this._error}</div>` : nothing}
             <div class="scroll-area">${this._file.sections.map(s => this._renderSection(s, conflictIdx))}</div>
             <div class="footer">
-                <span class="footer-hint">
-                    ${total} conflit${total > 1 ? 's' : ''} — cliquez sur les lignes pour les inclure dans le résultat,
-                    ou éditez directement la zone de résultat.
-                </span>
-                ${this._saved ? html`<span class="saved-banner">✓ Sauvegardé et indexé</span>` : nothing}
+                <span class="footer-hint"> ${L.footerHint(total)} </span>
+                ${this._saved ? html`<span class="saved-banner">${L.savedBanner}</span>` : nothing}
                 <button class="btn btn-primary" ?disabled=${!canSave || this._saving} @click=${this._save}>
-                    ${this._saving ? 'Sauvegarde…' : 'Sauvegarder et indexer'}
+                    ${this._saving ? L.saving : L.saveButton}
                 </button>
             </div>
         `;

@@ -13,10 +13,10 @@ export function registerContinueRebase(gitApi: API): vscode.Disposable {
         try {
             await _spawnGit(gitApi.git.path, ['rebase', '--continue'], repo.rootUri.fsPath);
             await repo.status();
-            vscode.window.showInformationMessage('Rebase continué.');
+            vscode.window.showInformationMessage(vscode.l10n.t('Rebase continued.'));
         } catch (err) {
             vscode.window.showErrorMessage(
-                `git rebase --continue a échoué : ${err instanceof Error ? err.message : err}`,
+                vscode.l10n.t('git rebase --continue failed: {0}', err instanceof Error ? err.message : String(err)),
             );
         }
     });
