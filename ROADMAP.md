@@ -19,6 +19,7 @@ Première vraie interface utilisateur : une TreeView listant les branches.
 - [x] TreeView listant les branches distantes
 - [x] Action : créer une branche
 - [x] Action : basculer sur une branche (switch)
+- [x] Basculer sur une branche distante crée la branche locale avec tracking si elle n'existe pas (`git switch --track`)
 - [x] Action : supprimer une branche locale / distante
 
 ---
