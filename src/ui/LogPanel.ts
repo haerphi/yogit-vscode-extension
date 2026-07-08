@@ -2,6 +2,7 @@ import { API } from '@haerphi/vscode-git-api-types';
 import { spawn } from 'child_process';
 import { randomBytes } from 'crypto';
 import * as vscode from 'vscode';
+import { resolveWebviewLocale } from '../config';
 import { CommitEntry, LogRef } from '../types/log';
 import { ConfirmModal } from './ConfirmModal';
 import { RebasePanel } from './RebasePanel';
@@ -451,7 +452,7 @@ export class LogPanel {
 </head>
 <body>
     <yogit-log></yogit-log>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

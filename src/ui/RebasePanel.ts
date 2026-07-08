@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { getRebaseDefaultOrder, resolveWebviewLocale } from '../config';
 import { offerConflictResolution } from '../git/conflict-helper';
 import { RebaseEntry } from '../types/rebase';
 
@@ -266,7 +267,7 @@ export class RebasePanel {
 </head>
 <body>
     <yogit-rebase></yogit-rebase>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())}; window.__YOGIT_REBASE_DEFAULT_ORDER__ = ${JSON.stringify(getRebaseDefaultOrder())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

@@ -513,7 +513,40 @@
                 "contents": "%welcome.stash.noRepo%",
                 "when": "haerphi-yogit.noRepo"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "YoGit",
+            "properties": {
+                "haerphi-yogit.language": {
+                    "type": "string",
+                    "enum": [
+                        "auto",
+                        "en",
+                        "fr"
+                    ],
+                    "enumDescriptions": [
+                        "%config.language.enum.auto%",
+                        "%config.language.enum.en%",
+                        "%config.language.enum.fr%"
+                    ],
+                    "default": "auto",
+                    "description": "%config.language.description%"
+                },
+                "haerphi-yogit.rebase.defaultOrder": {
+                    "type": "string",
+                    "enum": [
+                        "oldest-first",
+                        "newest-first"
+                    ],
+                    "enumDescriptions": [
+                        "%config.rebase.defaultOrder.enum.oldestFirst%",
+                        "%config.rebase.defaultOrder.enum.newestFirst%"
+                    ],
+                    "default": "oldest-first",
+                    "description": "%config.rebase.defaultOrder.description%"
+                }
+            }
+        }
     },
     "extensionDependencies": [
         "vscode.git"

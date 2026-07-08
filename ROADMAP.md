@@ -92,6 +92,13 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 
 ---
 
+## Préférences configurables
+
+- [x] `haerphi-yogit.language` (auto/en/fr) — langue des webviews propres à YoGit (rebase, diff, conflits, log, commit). N'affecte pas les titres de commandes/notifications (`vscode.l10n.t()`), qui suivent toujours la langue d'affichage de VS Code — limitation de la plateforme, pas de notre code.
+- [x] `haerphi-yogit.rebase.defaultOrder` (oldest-first/newest-first) — sens d'affichage initial du rebase interactif, togglable ensuite depuis le panneau
+
+---
+
 ## Infrastructure
 
 - [x] Internationalisation : anglais (défaut) + français — `package.nls*.json` pour le manifest, `vscode.l10n` + `l10n/bundle.l10n.fr.json` pour l'extension host, dictionnaires `pick(en, fr)` pour les webviews

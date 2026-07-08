@@ -5,6 +5,7 @@ import { pick } from '../shared/i18n';
 declare global {
     interface Window {
         acquireVsCodeApi: () => { postMessage: (msg: unknown) => void };
+        __YOGIT_REBASE_DEFAULT_ORDER__?: 'oldest-first' | 'newest-first';
     }
 }
 
@@ -142,7 +143,10 @@ export class YogitRebase extends LitElement {
         this._rebaseError = '';
         this._draggingIdx = null;
         this._dragOverIdx = null;
-        this._reversed = false;
+        // Préférence utilisateur (haerphi-yogit.rebase.defaultOrder), injectée par
+        // RebasePanel — seul le sens d'affichage initial en dépend, le bouton reste
+        // libre de basculer à tout moment.
+        this._reversed = window.__YOGIT_REBASE_DEFAULT_ORDER__ === 'newest-first';
     }
 
     connectedCallback() {

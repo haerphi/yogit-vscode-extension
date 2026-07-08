@@ -44,5 +44,12 @@
     "welcome.changes.default": "No local changes.",
     "welcome.changes.noRepo": "This folder is not a git repository.",
     "welcome.stash.default": "No stashes.",
-    "welcome.stash.noRepo": "This folder is not a git repository."
+    "welcome.stash.noRepo": "This folder is not a git repository.",
+    "config.language.description": "Language used in YoGit's own panels (rebase, diff, conflict resolution, log, commit). Does not affect command titles or notifications, which always follow VS Code's display language.",
+    "config.language.enum.auto": "Follow VS Code's display language",
+    "config.language.enum.en": "English",
+    "config.language.enum.fr": "Français",
+    "config.rebase.defaultOrder.description": "Default display order for the interactive rebase panel. Can always be toggled from the panel itself.",
+    "config.rebase.defaultOrder.enum.oldestFirst": "Oldest commit on top (git's traditional order)",
+    "config.rebase.defaultOrder.enum.newestFirst": "Newest commit on top"
 }

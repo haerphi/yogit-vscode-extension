@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { resolveWebviewLocale } from '../config';
 import { ConflictFile, ConflictHunk, FileSection } from '../types/conflict';
 
 export class ConflictPanel {
@@ -159,7 +160,7 @@ export class ConflictPanel {
 </head>
 <body>
     <yogit-conflict></yogit-conflict>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

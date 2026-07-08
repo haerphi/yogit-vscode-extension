@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { resolveWebviewLocale } from '../config';
 
 type WebviewMessage =
     | { type: 'ready' }
@@ -161,7 +162,7 @@ export class CommitView implements vscode.WebviewViewProvider {
 </head>
 <body>
     <yogit-commit></yogit-commit>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
+    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 import * as vscode from 'vscode';
+import { resolveWebviewLocale } from '../config';
 import { FileDiff, HunkSelection } from '../types/diff';
 
 /**
@@ -114,7 +115,7 @@ export class DiffPanel {
     </style>
 </head>
 <body>
-    <script nonce="${nonce}">window.__YOGIT_DIFF__ = ${diffJson}; window.__YOGIT_LOCALE__ = ${JSON.stringify(vscode.env.language)};</script>
+    <script nonce="${nonce}">window.__YOGIT_DIFF__ = ${diffJson}; window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script src="${scriptUri}"></script>
 </body>
 </html>`;

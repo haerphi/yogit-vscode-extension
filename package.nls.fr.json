@@ -44,5 +44,12 @@
     "welcome.changes.default": "Aucune modification locale.",
     "welcome.changes.noRepo": "Ce dossier n'est pas un dépôt git.",
     "welcome.stash.default": "Aucun stash.",
-    "welcome.stash.noRepo": "Ce dossier n'est pas un dépôt git."
+    "welcome.stash.noRepo": "Ce dossier n'est pas un dépôt git.",
+    "config.language.description": "Langue utilisée dans les panneaux propres à YoGit (rebase, diff, résolution de conflits, historique, commit). N'affecte pas les titres de commandes ni les notifications, qui suivent toujours la langue d'affichage de VS Code.",
+    "config.language.enum.auto": "Suivre la langue d'affichage de VS Code",
+    "config.language.enum.en": "English",
+    "config.language.enum.fr": "Français",
+    "config.rebase.defaultOrder.description": "Ordre d'affichage par défaut du panneau de rebase interactif. Modifiable à tout moment depuis le panneau lui-même.",
+    "config.rebase.defaultOrder.enum.oldestFirst": "Le plus ancien commit en haut (ordre traditionnel de git)",
+    "config.rebase.defaultOrder.enum.newestFirst": "Le plus récent commit en haut"
 }
