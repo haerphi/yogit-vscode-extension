@@ -17,6 +17,8 @@
     "cmd.fetch.title": "Fetch",
     "cmd.pull.title": "Pull",
     "cmd.push.title": "Push",
+    "cmd.push-force-with-lease.title": "Push (forcer avec vérification, --force-with-lease)",
+    "cmd.push-force.title": "Push (forcer, --force)",
     "cmd.stash-pop.title": "Appliquer et supprimer",
     "cmd.stash-apply.title": "Appliquer (garder le stash)",
     "cmd.stash-drop.title": "Supprimer le stash",

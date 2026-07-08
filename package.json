@@ -116,6 +116,14 @@
                 "icon": "$(arrow-up)"
             },
             {
+                "command": "haerphi-yogit.push-force-with-lease",
+                "title": "%cmd.push-force-with-lease.title%"
+            },
+            {
+                "command": "haerphi-yogit.push-force",
+                "title": "%cmd.push-force.title%"
+            },
+            {
                 "command": "haerphi-yogit.stash-pop",
                 "title": "%cmd.stash-pop.title%",
                 "icon": "$(run)"
@@ -307,6 +315,16 @@
                     "command": "haerphi-yogit.push",
                     "when": "view == branches && viewItem == branch-local-current",
                     "group": "1_sync@2"
+                },
+                {
+                    "command": "haerphi-yogit.push-force-with-lease",
+                    "when": "view == branches && viewItem == branch-local-current",
+                    "group": "1_sync@3"
+                },
+                {
+                    "command": "haerphi-yogit.push-force",
+                    "when": "view == branches && viewItem == branch-local-current",
+                    "group": "1_sync@4"
                 },
                 {
                     "command": "haerphi-yogit.delete-branch",

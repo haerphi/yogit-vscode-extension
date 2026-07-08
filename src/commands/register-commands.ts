@@ -53,7 +53,7 @@ export function registerCommands(
         ...registerStageUnstage(gitApi),
         ...registerStageHunk(gitApi, context),
         ...registerStash(gitApi, stashProvider, context),
-        ...registerSync(gitApi, provider),
+        ...registerSync(gitApi, provider, context),
         ...registerMerge(gitApi, context),
         ...registerRebase(gitApi, context),
         registerRebaseInteractive(gitApi, context),

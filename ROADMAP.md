@@ -45,6 +45,7 @@ Création et modification des commits.
 - [x] Formulaire de création de commit (titre + description)
 - [x] Amend du dernier commit (message + fichiers oubliés)
 - [x] Synchronisation distante : Fetch / Pull / Push
+- [x] Push forcé : `--force-with-lease` et `--force` (menu contextuel de la branche courante, avec confirmation)
 
 ---
 

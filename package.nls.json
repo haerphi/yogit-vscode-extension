@@ -17,6 +17,8 @@
     "cmd.fetch.title": "Fetch",
     "cmd.pull.title": "Pull",
     "cmd.push.title": "Push",
+    "cmd.push-force-with-lease.title": "Push (Force With Lease)",
+    "cmd.push-force.title": "Push (Force)",
     "cmd.stash-pop.title": "Apply and Drop",
     "cmd.stash-apply.title": "Apply (Keep Stash)",
     "cmd.stash-drop.title": "Drop Stash",
