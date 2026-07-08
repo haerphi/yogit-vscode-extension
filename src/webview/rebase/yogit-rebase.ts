@@ -14,6 +14,7 @@ const L = pick(
     {
         moveUp: 'Move up',
         moveDown: 'Move down',
+        dragHint: 'Drag to reorder',
         loading: 'Loading commits…',
         nothingToRebase: (label: string) => `No commit to rebase onto "${label}".`,
         close: 'Close',
@@ -35,6 +36,7 @@ const L = pick(
     {
         moveUp: 'Monter',
         moveDown: 'Descendre',
+        dragHint: 'Glisser pour réordonner',
         loading: 'Chargement des commits…',
         nothingToRebase: (label: string) => `Aucun commit à rebaser sur « ${label} ».`,
         close: 'Fermer',
@@ -93,6 +95,8 @@ export class YogitRebase extends LitElement {
         _running: { state: true },
         _done: { state: true },
         _rebaseError: { state: true },
+        _draggingIdx: { state: true },
+        _dragOverIdx: { state: true },
     };
 
     declare _entries: RebaseEntry[];
@@ -102,6 +106,10 @@ export class YogitRebase extends LitElement {
     declare _running: boolean;
     declare _done: boolean;
     declare _rebaseError: string;
+    // Index de la ligne en cours de glissement / de la ligne survolée — pilotent
+    // les classes CSS .dragging et .drag-over pendant l'opération.
+    declare _draggingIdx: number | null;
+    declare _dragOverIdx: number | null;
 
     // Snapshot des entrées telles que reçues du host — permet le reset.
     private _initialEntries: RebaseEntry[] = [];
@@ -115,6 +123,8 @@ export class YogitRebase extends LitElement {
         this._running = false;
         this._done = false;
         this._rebaseError = '';
+        this._draggingIdx = null;
+        this._dragOverIdx = null;
     }
 
     connectedCallback() {
@@ -159,6 +169,56 @@ export class YogitRebase extends LitElement {
         const entries = [...this._entries];
         [entries[idx], entries[idx + 1]] = [entries[idx + 1], entries[idx]];
         this._entries = entries;
+    }
+
+    /**
+     * Annule le drag s'il démarre depuis un contrôle interactif (select/input) — sans
+     * ce garde, saisir le texte du champ reword ou ouvrir le select d'action ferait
+     * partir un drag de toute la ligne au lieu de l'interaction attendue.
+     */
+    private _onDragStart(e: DragEvent, idx: number) {
+        if ((e.target as HTMLElement).closest('select, input')) {
+            e.preventDefault();
+            return;
+        }
+        this._draggingIdx = idx;
+        e.dataTransfer?.setData('text/plain', String(idx));
+        if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+        }
+    }
+
+    private _onDragOver(e: DragEvent, idx: number) {
+        // preventDefault() est requis par la spec HTML5 DnD pour autoriser le drop.
+        e.preventDefault();
+        if (this._draggingIdx === null || this._draggingIdx === idx) {
+            return;
+        }
+        this._dragOverIdx = idx;
+        if (e.dataTransfer) {
+            e.dataTransfer.dropEffect = 'move';
+        }
+    }
+
+    private _onDrop(e: DragEvent, idx: number) {
+        e.preventDefault();
+        const fromIdx = this._draggingIdx;
+        this._draggingIdx = null;
+        this._dragOverIdx = null;
+        if (fromIdx === null || fromIdx === idx) {
+            return;
+        }
+        const entries = [...this._entries];
+        const [moved] = entries.splice(fromIdx, 1);
+        entries.splice(idx, 0, moved);
+        this._entries = entries;
+    }
+
+    private _onDragEnd() {
+        // dragend se déclenche toujours (drop réussi, annulé, ou lâché hors cible) —
+        // c'est le seul endroit fiable pour nettoyer l'état visuel dans tous les cas.
+        this._draggingIdx = null;
+        this._dragOverIdx = null;
     }
 
     private _setAction(idx: number, action: RebaseAction) {
@@ -239,10 +299,22 @@ export class YogitRebase extends LitElement {
             border-left: 3px solid var(--accent, transparent);
             background: color-mix(in srgb, var(--accent, transparent) 10%, transparent);
             transition: background 0.1s;
+            cursor: grab;
         }
 
         .entry-row:hover {
             background: var(--vscode-list-hoverBackground);
+        }
+
+        .entry-row.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+        }
+
+        /* Ligne survolée pendant un drag — indique où la ligne relâchée atterrira. */
+        .entry-row.drag-over {
+            outline: 2px dashed var(--vscode-focusBorder);
+            outline-offset: -2px;
         }
 
         .entry-row.drop .entry-hash,
@@ -254,6 +326,16 @@ export class YogitRebase extends LitElement {
         .entry-row.drop .entry-msg {
             opacity: 0.55;
             text-decoration: line-through;
+        }
+
+        /* Largeur alignée sur .col-order pour que la poignée + les flèches
+           restent sous l'en-tête "Ordre" malgré l'ajout de la poignée de drag. */
+        .order-cell {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            width: 44px;
         }
 
         .move-btns {
@@ -291,6 +373,14 @@ export class YogitRebase extends LitElement {
             cursor: default;
         }
 
+        .drag-handle {
+            flex-shrink: 0;
+            color: var(--vscode-descriptionForeground);
+            font-size: 12px;
+            line-height: 1;
+            user-select: none;
+        }
+
         .action-select {
             flex-shrink: 0;
             width: 76px;
@@ -315,6 +405,8 @@ export class YogitRebase extends LitElement {
             font-size: 12px;
             font-family: var(--vscode-font-family);
             outline: none;
+            /* Écrase le curseur "grab" hérité de .entry-row : ce champ s'édite, ne se glisse pas. */
+            cursor: text;
         }
 
         .reword-input:focus {
@@ -469,25 +561,41 @@ export class YogitRebase extends LitElement {
         const isFirst = idx === 0;
         const isLast = idx === total - 1;
         const accent = ACTION_ACCENT[entry.action];
+        const rowClasses = [
+            'entry-row',
+            entry.action === 'drop' ? 'drop' : '',
+            this._draggingIdx === idx ? 'dragging' : '',
+            this._dragOverIdx === idx && this._draggingIdx !== idx ? 'drag-over' : '',
+        ]
+            .filter(Boolean)
+            .join(' ');
         return html`
             <div
-                class="entry-row ${entry.action === 'drop' ? 'drop' : ''}"
+                class=${rowClasses}
                 style=${accent ? `--accent: ${accent}` : ''}
+                draggable="true"
+                @dragstart=${(e: DragEvent) => this._onDragStart(e, idx)}
+                @dragover=${(e: DragEvent) => this._onDragOver(e, idx)}
+                @drop=${(e: DragEvent) => this._onDrop(e, idx)}
+                @dragend=${() => this._onDragEnd()}
             >
-                <div class="move-btns">
-                    <div
-                        class="move-btn ${isFirst ? 'disabled' : ''}"
-                        title=${L.moveUp}
-                        @click=${() => !isFirst && this._moveUp(idx)}
-                    >
-                        ▲
-                    </div>
-                    <div
-                        class="move-btn ${isLast ? 'disabled' : ''}"
-                        title=${L.moveDown}
-                        @click=${() => !isLast && this._moveDown(idx)}
-                    >
-                        ▼
+                <div class="order-cell">
+                    <span class="drag-handle" title=${L.dragHint}>⠿</span>
+                    <div class="move-btns">
+                        <div
+                            class="move-btn ${isFirst ? 'disabled' : ''}"
+                            title=${L.moveUp}
+                            @click=${() => !isFirst && this._moveUp(idx)}
+                        >
+                            ▲
+                        </div>
+                        <div
+                            class="move-btn ${isLast ? 'disabled' : ''}"
+                            title=${L.moveDown}
+                            @click=${() => !isLast && this._moveDown(idx)}
+                        >
+                            ▼
+                        </div>
                     </div>
                 </div>
                 <select
