@@ -70,6 +70,20 @@ const ACTION_LABELS: Record<RebaseAction, string> = {
     drop: 'drop',
 };
 
+/**
+ * Couleur d'accent par action, appliquée en bordure gauche + léger fond teinté sur
+ * toute la ligne — permet de scanner le plan de rebase en un coup d'œil sans lire
+ * chaque select. `pick` (majorité des lignes, action par défaut) reste neutre pour
+ * ne faire ressortir que les lignes réellement modifiées.
+ */
+const ACTION_ACCENT: Record<RebaseAction, string | null> = {
+    pick: null,
+    reword: '#e09a4e', // orange — modifie le message du commit
+    squash: '#4e9de0', // bleu — fusionne dans le commit précédent en gardant les deux messages
+    fixup: '#9e4ee0', // violet — comme squash, mais élimine ce message
+    drop: '#e04e4e', // rouge — commit exclu du résultat final
+};
+
 export class YogitRebase extends LitElement {
     static properties = {
         _entries: { state: true },
@@ -218,8 +232,12 @@ export class YogitRebase extends LitElement {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 12px;
+            /* padding-left compense la largeur de border-left pour rester aligné
+               sur le padding de .col-header (qui n'a pas de bordure). */
+            padding: 4px 12px 4px 9px;
             border-bottom: 1px solid var(--vscode-panel-border);
+            border-left: 3px solid var(--accent, transparent);
+            background: color-mix(in srgb, var(--accent, transparent) 10%, transparent);
             transition: background 0.1s;
         }
 
@@ -227,8 +245,14 @@ export class YogitRebase extends LitElement {
             background: var(--vscode-list-hoverBackground);
         }
 
-        .entry-row.drop {
-            opacity: 0.45;
+        .entry-row.drop .entry-hash,
+        .entry-row.drop .entry-date,
+        .entry-row.drop .action-select {
+            opacity: 0.55;
+        }
+
+        .entry-row.drop .entry-msg {
+            opacity: 0.55;
             text-decoration: line-through;
         }
 
@@ -272,28 +296,12 @@ export class YogitRebase extends LitElement {
             width: 76px;
             background: var(--vscode-dropdown-background);
             color: var(--vscode-dropdown-foreground);
-            border: 1px solid var(--vscode-dropdown-border, var(--vscode-panel-border));
+            border: 1px solid var(--accent, var(--vscode-dropdown-border, var(--vscode-panel-border)));
             border-radius: 3px;
             padding: 2px 4px;
             font-size: 11px;
             font-family: var(--vscode-editor-font-family, monospace);
             cursor: pointer;
-        }
-
-        .action-select.pick {
-            border-color: #4e9de0;
-        }
-        .action-select.reword {
-            border-color: #4ec9c9;
-        }
-        .action-select.squash {
-            border-color: #9e4ee0;
-        }
-        .action-select.fixup {
-            border-color: #e09a4e;
-        }
-        .action-select.drop {
-            border-color: #e04e4e;
         }
 
         .reword-input {
@@ -460,8 +468,12 @@ export class YogitRebase extends LitElement {
     private renderEntry(entry: RebaseEntry, idx: number, total: number) {
         const isFirst = idx === 0;
         const isLast = idx === total - 1;
+        const accent = ACTION_ACCENT[entry.action];
         return html`
-            <div class="entry-row ${entry.action === 'drop' ? 'drop' : ''}">
+            <div
+                class="entry-row ${entry.action === 'drop' ? 'drop' : ''}"
+                style=${accent ? `--accent: ${accent}` : ''}
+            >
                 <div class="move-btns">
                     <div
                         class="move-btn ${isFirst ? 'disabled' : ''}"
@@ -479,7 +491,7 @@ export class YogitRebase extends LitElement {
                     </div>
                 </div>
                 <select
-                    class="action-select ${entry.action}"
+                    class="action-select"
                     .value=${entry.action}
                     @change=${(e: Event) => this._setAction(idx, (e.target as HTMLSelectElement).value as RebaseAction)}
                 >

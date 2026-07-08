@@ -66,6 +66,7 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [x] Revert (commit inverse)
 - [x] Rebase simple
 - [x] Rebase interactif (réordonner, squash/fixup, drop) _(WebviewPanel)_
+- [x] Code couleur par action dans le rebase interactif (bordure gauche + fond teinté par ligne : orange=reword, bleu=squash, violet=fixup, rouge+barré=drop, neutre=pick)
 - [x] Ajouter un tag sur un commit (depuis l'historique, avec push optionnel)
 - [x] Supprimer un tag (depuis l'historique, avec suppression distante optionnelle)
 - [X]? Résolution visuelle des conflits (Current / Theirs / Final)
