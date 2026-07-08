@@ -21,6 +21,8 @@ export interface FileDiff {
     header: string; // lignes "diff --git", "index", "---", "+++"
     hunks: Hunk[];
     actionLabel?: string; // libellé du bouton de validation dans le DiffPanel
+    /** Vue seule lecture (ex: contenu d'un stash) — masque les checkboxes et le bouton d'action. */
+    readOnly?: boolean;
 }
 
 // hunkIndex → 'all' (hunk entier) ou tableau d'indices de lignes sélectionnées

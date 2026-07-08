@@ -85,3 +85,36 @@ export function parseDiff(raw: string, filePath: string): FileDiff | null {
         hunks,
     };
 }
+
+// "diff --git a/<oldPath> b/<newPath>" — délimite chaque section fichier d'un diff multi-fichiers.
+const FILE_HEADER_RE = /^diff --git a\/(.+) b\/(.+)$/;
+
+/**
+ * Parse la sortie multi-fichiers de `git stash show -p` en un FileDiff par fichier.
+ *
+ * Découpe d'abord le texte brut en sections délimitées par les lignes "diff --git",
+ * puis réutilise parseDiff() sur chaque section (le nom du fichier vient du côté "b/",
+ * qui correspond à la version cible même en cas de renommage).
+ */
+export function parseMultiFileDiff(raw: string): FileDiff[] {
+    const lines = raw.split(/\r?\n/);
+    const sections: { filePath: string; lines: string[] }[] = [];
+
+    for (const line of lines) {
+        const match = line.match(FILE_HEADER_RE);
+        if (match) {
+            sections.push({ filePath: match[2], lines: [line] });
+        } else if (sections.length > 0) {
+            sections[sections.length - 1].lines.push(line);
+        }
+    }
+
+    const diffs: FileDiff[] = [];
+    for (const section of sections) {
+        const diff = parseDiff(section.lines.join('\n'), section.filePath);
+        if (diff) {
+            diffs.push(diff);
+        }
+    }
+    return diffs;
+}

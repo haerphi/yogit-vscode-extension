@@ -31,6 +31,7 @@ const L = pick(
         loading: 'Loading…',
         conflictsTitle: (fileName: string) => `⚠ Conflicts — ${fileName}`,
         unresolved: (n: number) => `${n} unresolved`,
+        scrollToFirstHint: 'Go to the first unresolved conflict',
         allResolved: '✓ All resolved',
         footerHint: (n: number) =>
             `${n} conflict${n > 1 ? 's' : ''} — click on lines to include them in the result, or edit the result area directly.`,
@@ -57,6 +58,7 @@ const L = pick(
         loading: 'Chargement…',
         conflictsTitle: (fileName: string) => `⚠ Conflits — ${fileName}`,
         unresolved: (n: number) => `${n} non résolu${n > 1 ? 's' : ''}`,
+        scrollToFirstHint: 'Aller au premier conflit non résolu',
         allResolved: '✓ Tout résolu',
         footerHint: (n: number) =>
             `${n} conflit${n > 1 ? 's' : ''} — cliquez sur les lignes pour les inclure dans le résultat, ou éditez directement la zone de résultat.`,
@@ -233,6 +235,24 @@ export class YogitConflict extends LitElement {
         return lines.join('\n');
     }
 
+    /**
+     * Défile jusqu'à la carte du premier conflit non résolu (ordre d'apparition dans
+     * le fichier, pas l'ordre de résolution). Repère la carte via data-hunk-id plutôt
+     * que par index de rendu, car les sections "contexte" ne comptent pas dans l'index.
+     */
+    private _scrollToFirstUnresolved() {
+        if (!this._file) {
+            return;
+        }
+        const first = this._file.sections.find(s => s.type === 'conflict' && !this._isResolved(s.hunk));
+        if (!first || first.type !== 'conflict') {
+            return;
+        }
+        this.shadowRoot
+            ?.querySelector<HTMLElement>(`[data-hunk-id="${first.hunk.id}"]`)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     private _save() {
         if (this._saving) {
             return;
@@ -282,6 +302,11 @@ export class YogitConflict extends LitElement {
             color: var(--vscode-errorForeground, #e04e4e);
             border: 1px solid var(--vscode-errorForeground, #e04e4e);
             white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .badge-unresolved:hover {
+            background: rgba(224, 78, 78, 0.32);
         }
 
         .badge-ok {
@@ -611,7 +636,7 @@ export class YogitConflict extends LitElement {
         const rows = Math.max(3, (hunk.finalContent.match(/\n/g)?.length ?? 0) + 1);
 
         return html`
-            <div class="conflict-card ${resolved ? 'resolved' : ''}">
+            <div class="conflict-card ${resolved ? 'resolved' : ''}" data-hunk-id=${hunk.id}>
                 <div class="card-header">
                     <span class="card-num">${L.conflictNum(cardIdx + 1)}</span>
                     ${resolved ? html`<span class="card-status">✓</span>` : nothing}
@@ -715,7 +740,20 @@ export class YogitConflict extends LitElement {
             <div class="header">
                 <span class="header-title">${L.conflictsTitle(this._file.fileName)}</span>
                 ${unresolved > 0
-                    ? html`<span class="badge-unresolved">${L.unresolved(unresolved)}</span>`
+                    ? html`<span
+                          class="badge-unresolved"
+                          role="button"
+                          tabindex="0"
+                          title=${L.scrollToFirstHint}
+                          @click=${this._scrollToFirstUnresolved}
+                          @keydown=${(e: KeyboardEvent) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  this._scrollToFirstUnresolved();
+                              }
+                          }}
+                          >${L.unresolved(unresolved)}</span
+                      >`
                     : html`<span class="badge-ok">${L.allResolved}</span>`}
             </div>
             ${this._error ? html`<div class="error-banner">${this._error}</div>` : nothing}

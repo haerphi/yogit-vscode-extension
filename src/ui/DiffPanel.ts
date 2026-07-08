@@ -15,8 +15,17 @@ export class DiffPanel {
         { panel: vscode.WebviewPanel; messageListener: vscode.Disposable; cancelCurrent: () => void }
     >();
 
-    static show(context: vscode.ExtensionContext, diff: FileDiff): Promise<HunkSelection | null> {
-        const key = diff.filePath;
+    /**
+     * @param key Identifiant du panel, indépendant de diff.filePath (affiché dans le titre).
+     *            Par défaut égal à diff.filePath. À surcharger quand plusieurs panels peuvent
+     *            porter sur le même fichier (ex: diff d'un stash vs. staging en cours) pour
+     *            éviter qu'ils ne se remplacent l'un l'autre.
+     */
+    static show(
+        context: vscode.ExtensionContext,
+        diff: FileDiff,
+        key: string = diff.filePath,
+    ): Promise<HunkSelection | null> {
         const existing = DiffPanel._panels.get(key);
 
         if (existing) {

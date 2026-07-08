@@ -130,6 +130,10 @@
                 "icon": "$(arrow-up)"
             },
             {
+                "command": "haerphi-yogit.stash-show",
+                "title": "%cmd.stash-show.title%"
+            },
+            {
                 "command": "haerphi-yogit.stash-pop",
                 "title": "%cmd.stash-pop.title%",
                 "icon": "$(run)"

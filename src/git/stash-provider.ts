@@ -4,6 +4,7 @@ import {
     Disposable,
     Event,
     EventEmitter,
+    l10n,
     ProviderResult,
     ThemeIcon,
     TreeDataProvider,
@@ -57,6 +58,12 @@ export class StashProvider implements TreeDataProvider<StashEntry> {
         item.tooltip = entry.ref;
         item.contextValue = 'stash-entry';
         item.iconPath = new ThemeIcon('archive');
+        // Clic gauche → aperçu du contenu du stash, dans la même vue diff que "Changes".
+        item.command = {
+            command: 'haerphi-yogit.stash-show',
+            title: l10n.t('View Changes…'),
+            arguments: [entry],
+        };
         return item;
     }
 

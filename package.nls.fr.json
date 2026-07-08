@@ -13,6 +13,7 @@
     "cmd.stage-hunks.title": "Indexer par hunks/lignes…",
     "cmd.unstage-hunks.title": "Désindexer par hunks/lignes…",
     "cmd.stash.title": "Mettre de côté…",
+    "cmd.stash-show.title": "Voir les modifications du stash",
     "cmd.show-log.title": "Historique",
     "cmd.fetch.title": "Fetch",
     "cmd.pull.title": "Pull",

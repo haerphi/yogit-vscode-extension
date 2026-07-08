@@ -34,7 +34,9 @@ Gestion de l'espace de travail courant.
 - [x] Staging / unstaging de fichiers individuels
 - [x] Staging sélectif par hunks/lignes (diff parsing custom)
 - [x] Stash partiel (sélection de fichiers)
+- [x] Clic gauche sur un stash → aperçu de son contenu dans la même vue diff que "Changes" (lecture seule, sélection de fichier via QuickPick si le stash en touche plusieurs)
 - [x] Badge sur l'icône de la barre d'activité avec le nombre de fichiers modifiés
+- [x] Section "Conflits" dédiée dans la vue Changes, affichée uniquement quand des fichiers sont en conflit (icône warning, clic → panneau de résolution)
 
 ---
 
@@ -71,6 +73,8 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [x] Ajouter un tag sur un commit (depuis l'historique, avec push optionnel)
 - [x] Supprimer un tag (depuis l'historique, avec suppression distante optionnelle)
 - [X]? Résolution visuelle des conflits (Current / Theirs / Final)
+- [x] Clic sur le badge "N non résolu(s)" → défilement animé jusqu'au premier conflit non résolu
+- [x] "Save and stage" ferme automatiquement la vue si le fichier n'a plus de conflit après le staging (vérifié via mergeChanges)
 - [x] Détection de si le dossier est repository git, sinon proposé de l'initialisé ou le lié à un repository existant
 - [x] Ajouter un remote depuis la vue « Remotes »
 - [x] Vue « Remotes » séparée : un groupe par remote (origin, upstream…), la vue branches ne liste que les branches locales

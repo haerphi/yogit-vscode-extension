@@ -58,8 +58,18 @@ export class ConflictPanel {
                     // git add pour marquer le conflit comme résolu
                     await repo.add([fsPath]);
                     await repo.status();
-                    panel.webview.postMessage({ type: 'saved' });
                     vscode.window.showInformationMessage(vscode.l10n.t('{0} saved and staged.', fileName));
+
+                    // mergeChanges est la source de vérité pour l'état de conflit (voir
+                    // ChangesProvider) : si le fichier n'y figure plus après le staging,
+                    // la résolution est terminée — inutile de laisser la vue ouverte.
+                    const stillConflicted = repo.state.mergeChanges.some(c => c.uri.fsPath === fsPath);
+                    if (!stillConflicted) {
+                        panel.dispose();
+                        return;
+                    }
+
+                    panel.webview.postMessage({ type: 'saved' });
                 } catch (err) {
                     const errMsg = err instanceof Error ? err.message : String(err);
                     panel.webview.postMessage({ type: 'error', message: errMsg });

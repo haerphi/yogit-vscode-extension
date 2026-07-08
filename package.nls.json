@@ -13,6 +13,7 @@
     "cmd.stage-hunks.title": "Stage by Hunks/Lines…",
     "cmd.unstage-hunks.title": "Unstage by Hunks/Lines…",
     "cmd.stash.title": "Stash…",
+    "cmd.stash-show.title": "View Stash Changes",
     "cmd.show-log.title": "History",
     "cmd.fetch.title": "Fetch",
     "cmd.pull.title": "Pull",

@@ -2,8 +2,10 @@ import { API, Status } from '@haerphi/vscode-git-api-types';
 import { spawn } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { parseMultiFileDiff } from '../../git/diff-parser';
 import { StashEntry, StashProvider } from '../../git/stash-provider';
 import { ConfirmModal } from '../../ui/ConfirmModal';
+import { DiffPanel } from '../../ui/DiffPanel';
 import { getRepo } from '../utils';
 
 function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
@@ -12,6 +14,21 @@ function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
         const err: string[] = [];
         proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
         proc.on('close', code => (code === 0 ? resolve() : reject(new Error(err.join('').trim()))));
+    });
+}
+
+/**
+ * `-u` inclut le diff des fichiers non trackés inclus dans le stash (3ᵉ parent du
+ * commit de stash, s'il existe) — sans effet, sans erreur, si le stash n'en contient pas.
+ */
+function gitStashShow(gitPath: string, ref: string, cwd: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const proc = spawn(gitPath, ['stash', 'show', '-p', '-u', '--no-color', ref], { cwd });
+        const out: string[] = [];
+        const err: string[] = [];
+        proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
+        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
+        proc.on('close', code => (code === 0 ? resolve(out.join('')) : reject(new Error(err.join('').trim()))));
     });
 }
 
@@ -102,6 +119,60 @@ export function registerStash(
         }
     });
 
+    /**
+     * Aperçu du contenu d'un stash, dans la même vue diff (DiffPanel/yogit-diff) que
+     * pour les changements en cours — en lecture seule, car un stash n'est pas modifiable
+     * en place. `git stash show -p` peut couvrir plusieurs fichiers ; si c'est le cas,
+     * un QuickPick permet de choisir lequel visualiser.
+     */
+    const stashShow = vscode.commands.registerCommand('haerphi-yogit.stash-show', async (entry: StashEntry) => {
+        const repo = getRepo(gitApi);
+        if (!repo) {
+            return;
+        }
+
+        let raw: string;
+        try {
+            raw = await gitStashShow(gitApi.git.path, entry.ref, repo.rootUri.fsPath);
+        } catch (err) {
+            vscode.window.showErrorMessage(
+                vscode.l10n.t(
+                    'Could not read the stash content: {0}',
+                    err instanceof Error ? err.message : String(err),
+                ),
+            );
+            return;
+        }
+
+        const diffs = parseMultiFileDiff(raw);
+        if (diffs.length === 0) {
+            vscode.window.showInformationMessage(vscode.l10n.t('No textual change detected in this stash.'));
+            return;
+        }
+
+        let fileDiff = diffs[0];
+        if (diffs.length > 1) {
+            const picked = await vscode.window.showQuickPick(
+                diffs.map(d => ({
+                    label: path.basename(d.filePath),
+                    description: path.dirname(d.filePath) === '.' ? '' : path.dirname(d.filePath).replace(/\\/g, '/'),
+                    diff: d,
+                })),
+                { title: entry.message, placeHolder: vscode.l10n.t('Select a file to view its changes') },
+            );
+            if (!picked) {
+                return;
+            }
+            fileDiff = picked.diff;
+        }
+
+        fileDiff.readOnly = true;
+        fileDiff.actionLabel = vscode.l10n.t('Stash');
+        // Clé de panel distincte du filePath brut pour ne pas entrer en collision avec
+        // un panel "Indexer/Désindexer" déjà ouvert sur ce même fichier.
+        await DiffPanel.show(context, fileDiff, `stash:${entry.ref}:${fileDiff.filePath}`);
+    });
+
     const stashPop = vscode.commands.registerCommand('haerphi-yogit.stash-pop', async (entry: StashEntry) => {
         const repo = getRepo(gitApi);
         if (!repo) {
@@ -163,5 +234,5 @@ export function registerStash(
         }
     });
 
-    return [stashPush, stashPop, stashApply, stashDrop];
+    return [stashPush, stashShow, stashPop, stashApply, stashDrop];
 }

@@ -1,4 +1,4 @@
-import { Change, Repository, Status } from '@haerphi/vscode-git-api-types';
+import { Change, Repository } from '@haerphi/vscode-git-api-types';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -8,6 +8,7 @@ import {
     EventEmitter,
     l10n,
     ProviderResult,
+    ThemeColor,
     ThemeIcon,
     TreeDataProvider,
     TreeItem,
@@ -17,18 +18,19 @@ import {
 /**
  * Structure discriminée représentant un nœud de la TreeView "changes".
  *
- * - ChangeGroup : nœud parent "Staged" ou "Modifications" avec le compte affiché.
+ * - ChangeGroup : nœud parent "Staged", "Modifications" ou "Conflits" avec le compte affiché.
  * - ChangeLeaf  : nœud feuille correspondant à un fichier modifié.
  *
  * `resourceGroup` sur ChangeLeaf permet aux futures commandes (stage/unstage)
  * de cibler le bon groupe sans inspecter le status du fichier.
  */
-type ChangeGroup = { kind: 'group'; label: string; resourceGroup: 'staged' | 'unstaged' };
-export type ChangeLeaf = { kind: 'change'; change: Change; resourceGroup: 'staged' | 'unstaged' };
+type ChangeGroup = { kind: 'group'; label: string; resourceGroup: 'staged' | 'unstaged' | 'conflict' };
+export type ChangeLeaf = { kind: 'change'; change: Change; resourceGroup: 'staged' | 'unstaged' | 'conflict' };
 type ChangeNode = ChangeGroup | ChangeLeaf;
 
 const STAGED_GROUP: ChangeGroup = { kind: 'group', label: l10n.t('Staged'), resourceGroup: 'staged' };
 const UNSTAGED_GROUP: ChangeGroup = { kind: 'group', label: l10n.t('Changes'), resourceGroup: 'unstaged' };
+const CONFLICT_GROUP: ChangeGroup = { kind: 'group', label: l10n.t('Conflicts'), resourceGroup: 'conflict' };
 
 /**
  * Provider de données pour la TreeView "changes".
@@ -84,12 +86,15 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
                 count > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed,
             );
             item.contextValue = `group-${node.resourceGroup}`;
+            if (node.resourceGroup === 'conflict') {
+                item.iconPath = new ThemeIcon('warning', new ThemeColor('list.warningForeground'));
+            }
             return item;
         }
 
         const { change, resourceGroup } = node;
         const fileName = path.basename(change.uri.fsPath);
-        const isConflict = CONFLICT_STATUSES.has(change.status);
+        const isConflict = resourceGroup === 'conflict';
 
         const item = new TreeItem(fileName);
         item.resourceUri = change.uri;
@@ -100,7 +105,13 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         // La lettre de statut n'est pas répétée ici : les décorations git natives
         // (via resourceUri) l'affichent déjà en bout de ligne.
         item.description = this.relativeDir(change.uri.fsPath);
-        if (resourceGroup === 'unstaged') {
+        if (isConflict) {
+            item.command = {
+                command: 'haerphi-yogit.resolve-conflict',
+                title: l10n.t('Resolve Conflict…'),
+                arguments: [node],
+            };
+        } else if (resourceGroup === 'unstaged') {
             item.command = {
                 command: 'haerphi-yogit.stage-hunks',
                 title: l10n.t('Stage by Hunks/Lines…'),
@@ -126,7 +137,11 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         }
 
         if (!element) {
-            return [STAGED_GROUP, UNSTAGED_GROUP];
+            // Le groupe Conflits n'apparaît que s'il y a effectivement des fichiers en
+            // conflit à résoudre — pas de section vide à ignorer en permanence.
+            return this.countForGroup('conflict') > 0
+                ? [CONFLICT_GROUP, STAGED_GROUP, UNSTAGED_GROUP]
+                : [STAGED_GROUP, UNSTAGED_GROUP];
         }
 
         if (element.kind === 'group') {
@@ -141,32 +156,43 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         return [];
     }
 
-    private changesForGroup(group: 'staged' | 'unstaged'): Change[] {
+    private changesForGroup(group: 'staged' | 'unstaged' | 'conflict'): Change[] {
         if (!this.gitRepository) {
             return [];
         }
-        if (group === 'staged') {
-            return this.gitRepository.state.indexChanges ?? [];
+        // Les fichiers en conflit (merge, rebase, cherry-pick…) sont exposés par vscode.git
+        // dans un tableau dédié, mergeChanges — pas dans indexChanges/workingTreeChanges.
+        // C'est ce que la vue SCM native affiche sous "Merge Changes".
+        if (group === 'conflict') {
+            return this.gitRepository.state.mergeChanges ?? [];
         }
+
         // workingTreeChanges = fichiers trackés modifiés/supprimés
         // untrackedChanges   = nouveaux fichiers non trackés (propriété ajoutée tardivement
         // dans l'API vscode.git — peut être undefined sur les versions antérieures)
-        return [
+        const staged = this.gitRepository.state.indexChanges ?? [];
+        const unstaged = [
             ...(this.gitRepository.state.workingTreeChanges ?? []),
             ...(this.gitRepository.state.untrackedChanges ?? []),
         ];
+
+        // Exclure par précaution les fichiers déjà listés en conflit, au cas où git les
+        // ferait aussi apparaître côté index/working tree selon l'état du merge.
+        const conflictPaths = new Set((this.gitRepository.state.mergeChanges ?? []).map(c => c.uri.fsPath));
+        const source = group === 'staged' ? staged : unstaged;
+        return source.filter(c => !conflictPaths.has(c.uri.fsPath));
     }
 
-    private countForGroup(group: 'staged' | 'unstaged'): number {
+    private countForGroup(group: 'staged' | 'unstaged' | 'conflict'): number {
         return this.changesForGroup(group).length;
     }
 
     /**
-     * Nombre total de fichiers modifiés (staged + modifications + non trackés).
+     * Nombre total de fichiers modifiés (staged + modifications + non trackés + conflits).
      * Utilisé par extension.ts pour le badge de la barre d'activité.
      */
     totalChangesCount(): number {
-        return this.countForGroup('staged') + this.countForGroup('unstaged');
+        return this.countForGroup('staged') + this.countForGroup('unstaged') + this.countForGroup('conflict');
     }
 
     /**
@@ -181,13 +207,3 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         return dir.split(path.sep).join('/');
     }
 }
-
-const CONFLICT_STATUSES = new Set([
-    Status.ADDED_BY_US,
-    Status.ADDED_BY_THEM,
-    Status.DELETED_BY_US,
-    Status.DELETED_BY_THEM,
-    Status.BOTH_ADDED,
-    Status.BOTH_DELETED,
-    Status.BOTH_MODIFIED,
-]);

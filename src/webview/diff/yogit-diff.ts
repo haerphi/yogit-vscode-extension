@@ -15,12 +15,14 @@ const L = pick(
     {
         loading: 'Loading…',
         cancel: 'Cancel',
+        close: 'Close',
         stage: 'Stage',
         lineCount: (n: number) => `${n} line${n > 1 ? 's' : ''}`,
     },
     {
         loading: 'Chargement…',
         cancel: 'Annuler',
+        close: 'Fermer',
         stage: 'Indexer',
         lineCount: (n: number) => `${n} ligne${n > 1 ? 's' : ''}`,
     },
@@ -151,6 +153,17 @@ export class YogitDiff extends LitElement {
             white-space: pre;
         }
 
+        .line-num {
+            flex-shrink: 0;
+            width: 34px;
+            text-align: right;
+            padding-right: 6px;
+            color: var(--vscode-descriptionForeground);
+            opacity: 0.7;
+            user-select: none;
+            font-variant-numeric: tabular-nums;
+        }
+
         .line-checkbox-cell {
             display: flex;
             align-items: center;
@@ -204,7 +217,9 @@ export class YogitDiff extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this.diff = window.__YOGIT_DIFF__;
-        if (this.diff) {
+        // En lecture seule (ex: contenu d'un stash), la sélection n'a pas de sens —
+        // il n'y a pas d'action de staging à effectuer.
+        if (this.diff && !this.diff.readOnly) {
             // Tout sélectionné par défaut
             const sel: HunkSelection = {};
             for (const hunk of this.diff.hunks) {
@@ -332,47 +347,71 @@ export class YogitDiff extends LitElement {
             return html`<div>${L.loading}</div>`;
         }
 
+        const readOnly = this.diff.readOnly ?? false;
         const selected = this.countSelected();
 
         return html`
             <div class="toolbar">
                 <span class="filename">${this.diff.filePath}</span>
-                <button class="btn-cancel" @click=${this.cancel}>${L.cancel}</button>
-                <button class="btn-stage" ?disabled=${selected === 0} @click=${this.stage}>
-                    ${this.diff.actionLabel ?? L.stage} (${L.lineCount(selected)})
-                </button>
+                ${readOnly
+                    ? html`<button class="btn-cancel" @click=${this.cancel}>${L.close}</button>`
+                    : html`
+                          <button class="btn-cancel" @click=${this.cancel}>${L.cancel}</button>
+                          <button class="btn-stage" ?disabled=${selected === 0} @click=${this.stage}>
+                              ${this.diff.actionLabel ?? L.stage} (${L.lineCount(selected)})
+                          </button>
+                      `}
             </div>
-            <div class="hunks">${this.diff.hunks.map(hunk => this.renderHunk(hunk))}</div>
+            <div class="hunks">${this.diff.hunks.map(hunk => this.renderHunk(hunk, readOnly))}</div>
         `;
     }
 
-    private renderHunk(hunk: Hunk) {
+    private renderHunk(hunk: Hunk, readOnly: boolean) {
         const checked = this.isHunkChecked(hunk);
+        // Compteurs de numéro de ligne ancien/nouveau — avancent au fil de la boucle
+        // ci-dessous, à l'image de l'affichage standard d'un diff (`git diff`, GitHub…).
+        let oldNum = hunk.oldStart;
+        let newNum = hunk.newStart;
 
         return html`
             <div class="hunk">
-                <div class="hunk-header" @click=${() => this.toggleHunk(hunk)}>
-                    <input
-                        id="hunk-cb-${hunk.index}"
-                        type="checkbox"
-                        .checked=${checked}
-                        @click=${(e: Event) => {
-                            e.stopPropagation();
-                            this.toggleHunk(hunk);
-                        }}
-                    />
+                <div class="hunk-header" @click=${() => !readOnly && this.toggleHunk(hunk)}>
+                    ${readOnly
+                        ? ''
+                        : html`<input
+                              id="hunk-cb-${hunk.index}"
+                              type="checkbox"
+                              .checked=${checked}
+                              @click=${(e: Event) => {
+                                  e.stopPropagation();
+                                  this.toggleHunk(hunk);
+                              }}
+                          />`}
                     <span>@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@</span>
                     ${hunk.contextHint ? html`<span class="hint">${hunk.contextHint}</span>` : ''}
                 </div>
                 ${hunk.lines.map(line => {
                     const isChange = line.type !== 'context';
                     const isChecked = this.isLineChecked(hunk, line.index);
-                    const dimmed = isChange && !isChecked;
+                    const dimmed = !readOnly && isChange && !isChecked;
+
+                    // Une ligne ajoutée n'existe pas côté ancien, une ligne supprimée n'existe
+                    // pas côté nouveau — la colonne correspondante reste vide pour cette ligne.
+                    const oldLineNum = line.type === 'add' ? '' : oldNum;
+                    const newLineNum = line.type === 'remove' ? '' : newNum;
+                    if (line.type !== 'add') {
+                        oldNum++;
+                    }
+                    if (line.type !== 'remove') {
+                        newNum++;
+                    }
 
                     return html`
                         <div class="line line-${line.type} ${dimmed ? 'line-dimmed' : ''}">
+                            <span class="line-num">${oldLineNum}</span>
+                            <span class="line-num">${newLineNum}</span>
                             <div class="line-checkbox-cell">
-                                ${isChange
+                                ${!readOnly && isChange
                                     ? html`<input
                                           type="checkbox"
                                           .checked=${isChecked}
