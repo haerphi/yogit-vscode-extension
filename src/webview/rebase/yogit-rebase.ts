@@ -27,6 +27,16 @@ const L = pick(
         orderNewestTop: 'Newest on top',
         orderOldestTop: 'Oldest on top',
         orderToggleHint: 'Toggle display order',
+        preview: 'Preview',
+        previewHint: 'Preview the final result',
+        previewTitle: 'Final result',
+        previewCount: (result: number, source: number) =>
+            result === source
+                ? `${result} commit${result > 1 ? 's' : ''}`
+                : `${result} commit${result > 1 ? 's' : ''} (from ${source})`,
+        previewDisclaimer: 'Indicative preview — exact squash messages may differ slightly.',
+        previewEmpty: 'All commits will be dropped — nothing will remain after the rebase.',
+        previewReworded: 'Message will be changed (reword)',
         done: '✓ Rebase completed successfully.',
         colOrder: 'Order',
         colAction: 'Action',
@@ -55,6 +65,16 @@ const L = pick(
         orderNewestTop: 'Plus récent en haut',
         orderOldestTop: 'Plus ancien en haut',
         orderToggleHint: "Inverser l'ordre d'affichage",
+        preview: 'Aperçu',
+        previewHint: 'Prévisualiser le résultat final',
+        previewTitle: 'Résultat final',
+        previewCount: (result: number, source: number) =>
+            result === source
+                ? `${result} commit${result > 1 ? 's' : ''}`
+                : `${result} commit${result > 1 ? 's' : ''} (depuis ${source})`,
+        previewDisclaimer: 'Aperçu indicatif — les messages de squash exacts peuvent légèrement différer.',
+        previewEmpty: 'Tous les commits seront supprimés — il ne restera rien après le rebase.',
+        previewReworded: 'Le message sera modifié (reword)',
         done: '✓ Rebase terminé avec succès.',
         colOrder: 'Ordre',
         colAction: 'Action',
@@ -99,6 +119,50 @@ const ACTION_ACCENT: Record<RebaseAction, string | null> = {
     drop: '#e04e4e', // rouge — commit exclu du résultat final
 };
 
+/** Un commit tel qu'il existera une fois le plan de rebase appliqué (voir computeFinalCommits). */
+interface FinalCommit {
+    leadHash: string;
+    subject: string;
+    fullMessage: string;
+    /** Nombre de commits d'origine fondus dans celui-ci (1 = inchangé, >1 = squash/fixup). */
+    sourceCount: number;
+    reworded: boolean;
+}
+
+/**
+ * Simule le résultat du plan de rebase courant : squash/fixup fondent leur entrée dans
+ * le commit actif précédent (comme le fait réellement `git rebase -i`), drop l'exclut,
+ * pick/reword le gardent tel quel (avec le nouveau message pour reword).
+ *
+ * squash concatène son message à la suite de celui du commit actif ; fixup ne contribue
+ * aucun texte (le sien est entièrement abandonné) — même sémantique que git.
+ */
+function computeFinalCommits(entries: RebaseEntry[]): FinalCommit[] {
+    const result: FinalCommit[] = [];
+    for (const entry of entries) {
+        if (entry.action === 'drop') {
+            continue;
+        }
+        const lead = result[result.length - 1];
+        if ((entry.action === 'squash' || entry.action === 'fixup') && lead) {
+            lead.sourceCount++;
+            if (entry.action === 'squash') {
+                lead.fullMessage += '\n\n' + entry.message;
+            }
+            continue;
+        }
+        const message = entry.action === 'reword' ? (entry.newMessage ?? entry.message) : entry.message;
+        result.push({
+            leadHash: entry.shortHash,
+            subject: message.split('\n')[0] || message,
+            fullMessage: message,
+            sourceCount: 1,
+            reworded: entry.action === 'reword',
+        });
+    }
+    return result;
+}
+
 export class YogitRebase extends LitElement {
     static properties = {
         _entries: { state: true },
@@ -111,6 +175,7 @@ export class YogitRebase extends LitElement {
         _draggingIdx: { state: true },
         _dragOverIdx: { state: true },
         _reversed: { state: true },
+        _showPreview: { state: true },
     };
 
     declare _entries: RebaseEntry[];
@@ -128,6 +193,8 @@ export class YogitRebase extends LitElement {
     // toujours dans l'ordre canonique attendu par git (plus ancien en premier),
     // seul renderEntry() reçoit des index traduits pour cet affichage.
     declare _reversed: boolean;
+    // Affiche/masque le volet "Résultat final" — purement une préférence d'affichage.
+    declare _showPreview: boolean;
 
     // Snapshot des entrées telles que reçues du host — permet le reset.
     private _initialEntries: RebaseEntry[] = [];
@@ -147,6 +214,7 @@ export class YogitRebase extends LitElement {
         // RebasePanel — seul le sens d'affichage initial en dépend, le bouton reste
         // libre de basculer à tout moment.
         this._reversed = window.__YOGIT_REBASE_DEFAULT_ORDER__ === 'newest-first';
+        this._showPreview = false;
     }
 
     connectedCallback() {
@@ -282,6 +350,10 @@ export class YogitRebase extends LitElement {
         this._dragOverIdx = null;
     }
 
+    private _togglePreview() {
+        this._showPreview = !this._showPreview;
+    }
+
     static styles = css`
         :host {
             display: flex;
@@ -319,7 +391,13 @@ export class YogitRebase extends LitElement {
             color: var(--vscode-descriptionForeground);
         }
 
-        .btn-order-toggle {
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .btn-toggle {
             flex-shrink: 0;
             padding: 3px 10px;
             border-radius: 3px;
@@ -332,14 +410,115 @@ export class YogitRebase extends LitElement {
             white-space: nowrap;
         }
 
-        .btn-order-toggle:hover {
+        .btn-toggle:hover {
             background: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        .btn-toggle.active {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border-color: var(--vscode-button-background);
+        }
+
+        .body-split {
+            display: flex;
+            flex: 1;
+            min-height: 0;
         }
 
         .entry-list {
             flex: 1;
             overflow-y: auto;
             padding: 4px 0;
+        }
+
+        .preview-panel {
+            width: 280px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--vscode-panel-border);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 12px 4px;
+            flex-shrink: 0;
+        }
+
+        .preview-title {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .preview-count {
+            font-size: 10px;
+            color: var(--vscode-descriptionForeground);
+            white-space: nowrap;
+        }
+
+        .preview-disclaimer {
+            font-size: 10px;
+            font-style: italic;
+            color: var(--vscode-descriptionForeground);
+            padding: 0 12px 8px;
+            border-bottom: 1px solid var(--vscode-panel-border);
+        }
+
+        .preview-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 0;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .preview-dot {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            margin-top: 3px;
+            border-radius: 50%;
+            background: var(--vscode-descriptionForeground);
+            opacity: 0.5;
+        }
+
+        .preview-dot.reworded {
+            background: #e09a4e;
+            opacity: 1;
+        }
+
+        .preview-subject {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-badge {
+            flex-shrink: 0;
+            font-size: 10px;
+            padding: 0 5px;
+            border-radius: 8px;
+            background: var(--vscode-badge-background);
+            color: var(--vscode-badge-foreground);
+        }
+
+        .preview-empty {
+            padding: 12px;
+            font-size: 12px;
+            font-style: italic;
+            color: var(--vscode-descriptionForeground);
         }
 
         .entry-row {
@@ -692,6 +871,40 @@ export class YogitRebase extends LitElement {
         `;
     }
 
+    /** Volet rétractable montrant à quoi ressemblera l'historique une fois le rebase appliqué. */
+    private renderPreview(sourceCount: number) {
+        const finalCommits = computeFinalCommits(this._entries);
+        const orderedCommits = this._reversed ? [...finalCommits].reverse() : finalCommits;
+
+        return html`
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <span class="preview-title">${L.previewTitle}</span>
+                    <span class="preview-count">${L.previewCount(finalCommits.length, sourceCount)}</span>
+                </div>
+                <div class="preview-disclaimer">${L.previewDisclaimer}</div>
+                <div class="preview-list">
+                    ${finalCommits.length === 0
+                        ? html`<div class="preview-empty">${L.previewEmpty}</div>`
+                        : orderedCommits.map(
+                              fc => html`
+                                  <div class="preview-item" title=${fc.fullMessage}>
+                                      <span
+                                          class="preview-dot ${fc.reworded ? 'reworded' : ''}"
+                                          title=${fc.reworded ? L.previewReworded : ''}
+                                      ></span>
+                                      <span class="preview-subject">${fc.subject}</span>
+                                      ${fc.sourceCount > 1
+                                          ? html`<span class="preview-badge">×${fc.sourceCount}</span>`
+                                          : ''}
+                                  </div>
+                              `,
+                          )}
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         if (this._loading) {
             return html`<div class="state-msg">${L.loading}</div>`;
@@ -723,21 +936,33 @@ export class YogitRebase extends LitElement {
                     <div class="header-title">${L.headerTitle(this._upstreamLabel)}</div>
                     <div class="header-sub">${L.headerSub(total, this._reversed)}</div>
                 </div>
-                <button class="btn-order-toggle" title=${L.orderToggleHint} @click=${this._toggleOrder}>
-                    ⇅ ${this._reversed ? L.orderOldestTop : L.orderNewestTop}
-                </button>
+                <div class="header-actions">
+                    <button
+                        class="btn-toggle ${this._showPreview ? 'active' : ''}"
+                        title=${L.previewHint}
+                        @click=${this._togglePreview}
+                    >
+                        👁 ${L.preview}
+                    </button>
+                    <button class="btn-toggle" title=${L.orderToggleHint} @click=${this._toggleOrder}>
+                        ⇅ ${this._reversed ? L.orderOldestTop : L.orderNewestTop}
+                    </button>
+                </div>
             </div>
             ${this._rebaseError ? html`<div class="error-banner">${this._rebaseError}</div>` : ''}
             ${this._done ? html`<div class="done-banner">${L.done}</div>` : ''}
-            <div class="entry-list">
-                <div class="col-header">
-                    <div class="col-order">${L.colOrder}</div>
-                    <div class="col-action">${L.colAction}</div>
-                    <div class="col-hash">${L.colHash}</div>
-                    <div class="col-date">${L.colDate}</div>
-                    <div>${L.colMessage}</div>
+            <div class="body-split">
+                <div class="entry-list">
+                    <div class="col-header">
+                        <div class="col-order">${L.colOrder}</div>
+                        <div class="col-action">${L.colAction}</div>
+                        <div class="col-hash">${L.colHash}</div>
+                        <div class="col-date">${L.colDate}</div>
+                        <div>${L.colMessage}</div>
+                    </div>
+                    ${displayList.map((d, displayIdx) => this.renderEntry(d.entry, d.realIdx, displayIdx, total))}
                 </div>
-                ${displayList.map((d, displayIdx) => this.renderEntry(d.entry, d.realIdx, displayIdx, total))}
+                ${this._showPreview ? this.renderPreview(total) : ''}
             </div>
             <div class="footer">
                 <span class="hint"> ${activeCount === 0 ? L.allDropped : L.activeCount(activeCount)} </span>

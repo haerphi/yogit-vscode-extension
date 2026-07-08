@@ -72,6 +72,7 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [x] Code couleur par action dans le rebase interactif (bordure gauche + fond teinté par ligne : orange=reword, bleu=squash, violet=fixup, rouge+barré=drop, neutre=pick)
 - [x] Glisser-déposer pour réordonner les commits du rebase interactif (en plus des flèches Haut/Bas, conservées pour l'accessibilité clavier)
 - [x] Bouton pour inverser l'ordre d'affichage du rebase interactif (plus récent en haut) — vue seulement, l'ordre envoyé à git reste toujours plus ancien en premier
+- [x] Volet "Aperçu" rétractable montrant le résultat final du rebase (squash/fixup fondus, drop exclus, reword avec le nouveau message) avant de cliquer sur "Lancer le rebase"
 - [x] Ajouter un tag sur un commit (depuis l'historique, avec push optionnel)
 - [x] Supprimer un tag (depuis l'historique, avec suppression distante optionnelle)
 - [X]? Résolution visuelle des conflits (Current / Theirs / Final)
