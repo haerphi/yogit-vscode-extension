@@ -47,6 +47,10 @@
                 "title": "%cmd.switch-force.title%"
             },
             {
+                "command": "haerphi-yogit.copy-branch-name",
+                "title": "%cmd.copy-branch-name.title%"
+            },
+            {
                 "command": "haerphi-yogit.delete-branch",
                 "title": "%cmd.delete-branch.title%",
                 "icon": "$(trash)"
@@ -313,6 +317,11 @@
                     "command": "haerphi-yogit.delete-branch-remote",
                     "when": "view == remotes && viewItem == branch-remote",
                     "group": "4_delete"
+                },
+                {
+                    "command": "haerphi-yogit.copy-branch-name",
+                    "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
+                    "group": "5_copy"
                 },
                 {
                     "command": "haerphi-yogit.stage-file",

@@ -8,6 +8,7 @@
     "Force": "Forcer",
     "Force switch to \"{0}\"? Uncommitted local changes will be lost.": "Basculer en force sur « {0} » ? Les modifications locales non commitées seront perdues.",
     "git switch -f failed: {0}": "git switch -f a échoué : {0}",
+    "Branch name \"{0}\" copied.": "Nom de branche « {0} » copié.",
     "Cannot delete the current branch \"{0}\".": "Impossible de supprimer la branche actuelle « {0} ».",
     "Delete Local Branch": "Supprimer une branche locale",
     "Delete local branch \"{0}\"?": "Supprimer la branche locale « {0} » ?",

@@ -3,6 +3,7 @@
     "cmd.create-branch-from.title": "Créer une branche depuis celle-ci",
     "cmd.switch.title": "Basculer sur cette branche",
     "cmd.switch-force.title": "Basculer sur cette branche (forcer)",
+    "cmd.copy-branch-name.title": "Copier le nom de la branche",
     "cmd.delete-branch.title": "Supprimer la branche",
     "cmd.delete-branch-remote.title": "Supprimer la branche distante",
     "cmd.stage-file.title": "Indexer ce fichier",

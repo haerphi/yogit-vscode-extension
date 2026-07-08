@@ -2,6 +2,7 @@ import { API } from '@haerphi/vscode-git-api-types';
 import * as vscode from 'vscode';
 import { BranchesProvider } from '../git/branches-provider';
 import { StashProvider } from '../git/stash-provider';
+import { registerCopyBranchName } from './branch/copy-branch-name';
 import { registerCreateBranch } from './branch/create-branch';
 import { registerCreateBranchFrom } from './branch/create-branch-from';
 import { registerDeleteBranch } from './branch/delete-branch';
@@ -47,6 +48,7 @@ export function registerCommands(
         registerCreateBranch(gitApi, provider),
         registerCreateBranchFrom(gitApi, provider),
         ...registerSwitch(gitApi),
+        registerCopyBranchName(),
         ...registerDeleteBranch(gitApi, context),
         ...registerStageUnstage(gitApi),
         ...registerStageHunk(gitApi, context),
