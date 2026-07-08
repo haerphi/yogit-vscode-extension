@@ -48,6 +48,7 @@ Création et modification des commits.
 - [x] Amend du dernier commit (message + fichiers oubliés)
 - [x] Synchronisation distante : Fetch / Pull / Push
 - [x] Modale de push (branche, remote cible, tous les tags, mode normal / `--force-with-lease` / `--force` avec warning)
+- [x] Le select "To" de la modale de push affiche `remote/branche` en direct (suit le select "Branch" via interpolation `${id}` générique dans ConfirmModal)
 
 ---
 

@@ -125,8 +125,11 @@ export function registerSync(
                 {
                     id: 'remote',
                     label: vscode.l10n.t('To'),
+                    // "${branch}" est interpolé côté webview avec la valeur courante du
+                    // select "branch" — la cible affichée (ex: "origin/main") reste donc
+                    // à jour même si l'utilisateur change la branche après coup.
                     options: remotes.map(r => ({
-                        label: r.fetchUrl ? `${r.name} (${r.fetchUrl})` : r.name,
+                        label: r.fetchUrl ? `${r.name}/\${branch} (${r.fetchUrl})` : `${r.name}/\${branch}`,
                         value: r.name,
                     })),
                     value: defaultRemote,

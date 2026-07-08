@@ -260,7 +260,17 @@ class YogitModal extends LitElement {
     private get activeSelectWarnings(): string[] {
         return (this.options?.selects ?? [])
             .map(select => select.options.find(opt => opt.value === this.selectValues[select.id])?.warning)
-            .filter((warning): warning is string => warning !== undefined);
+            .filter((warning): warning is string => warning !== undefined)
+            .map(warning => this.interpolate(warning));
+    }
+
+    /**
+     * Remplace les jetons `${id}` d'un libellé par la valeur courante du select
+     * portant cet id — ex: un select "remote" peut afficher "origin/${branch}" pour
+     * suivre en direct le select "branch" sans dépendance figée à l'ouverture de la modale.
+     */
+    private interpolate(text: string): string {
+        return text.replace(/\$\{(\w+)\}/g, (_, id: string) => this.selectValues[id] ?? '');
     }
 
     private handleSelectChange(e: Event) {
@@ -304,7 +314,7 @@ class YogitModal extends LitElement {
                                                               value=${opt.value}
                                                               ?selected=${opt.value === this.selectValues[select.id]}
                                                           >
-                                                              ${opt.label}
+                                                              ${this.interpolate(opt.label)}
                                                           </option>
                                                       `,
                                                   )}
