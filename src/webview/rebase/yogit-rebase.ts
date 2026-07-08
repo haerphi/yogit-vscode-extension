@@ -19,7 +19,13 @@ const L = pick(
         nothingToRebase: (label: string) => `No commit to rebase onto "${label}".`,
         close: 'Close',
         headerTitle: (label: string) => `Interactive rebase onto "${label}"`,
-        headerSub: (n: number) => `${n} commit${n > 1 ? 's' : ''} — from oldest (top) to newest (bottom)`,
+        headerSub: (n: number, reversed: boolean) =>
+            reversed
+                ? `${n} commit${n > 1 ? 's' : ''} — from newest (top) to oldest (bottom)`
+                : `${n} commit${n > 1 ? 's' : ''} — from oldest (top) to newest (bottom)`,
+        orderNewestTop: 'Newest on top',
+        orderOldestTop: 'Oldest on top',
+        orderToggleHint: 'Toggle display order',
         done: '✓ Rebase completed successfully.',
         colOrder: 'Order',
         colAction: 'Action',
@@ -41,7 +47,13 @@ const L = pick(
         nothingToRebase: (label: string) => `Aucun commit à rebaser sur « ${label} ».`,
         close: 'Fermer',
         headerTitle: (label: string) => `Rebase interactif sur « ${label} »`,
-        headerSub: (n: number) => `${n} commit${n > 1 ? 's' : ''} — du plus ancien (haut) au plus récent (bas)`,
+        headerSub: (n: number, reversed: boolean) =>
+            reversed
+                ? `${n} commit${n > 1 ? 's' : ''} — du plus récent (haut) au plus ancien (bas)`
+                : `${n} commit${n > 1 ? 's' : ''} — du plus ancien (haut) au plus récent (bas)`,
+        orderNewestTop: 'Plus récent en haut',
+        orderOldestTop: 'Plus ancien en haut',
+        orderToggleHint: "Inverser l'ordre d'affichage",
         done: '✓ Rebase terminé avec succès.',
         colOrder: 'Ordre',
         colAction: 'Action',
@@ -97,6 +109,7 @@ export class YogitRebase extends LitElement {
         _rebaseError: { state: true },
         _draggingIdx: { state: true },
         _dragOverIdx: { state: true },
+        _reversed: { state: true },
     };
 
     declare _entries: RebaseEntry[];
@@ -110,6 +123,10 @@ export class YogitRebase extends LitElement {
     // les classes CSS .dragging et .drag-over pendant l'opération.
     declare _draggingIdx: number | null;
     declare _dragOverIdx: number | null;
+    // Inverse uniquement l'AFFICHAGE (plus récent en haut) — this._entries reste
+    // toujours dans l'ordre canonique attendu par git (plus ancien en premier),
+    // seul renderEntry() reçoit des index traduits pour cet affichage.
+    declare _reversed: boolean;
 
     // Snapshot des entrées telles que reçues du host — permet le reset.
     private _initialEntries: RebaseEntry[] = [];
@@ -125,6 +142,7 @@ export class YogitRebase extends LitElement {
         this._rebaseError = '';
         this._draggingIdx = null;
         this._dragOverIdx = null;
+        this._reversed = false;
     }
 
     connectedCallback() {
@@ -253,6 +271,13 @@ export class YogitRebase extends LitElement {
         this._done = false;
     }
 
+    /** Inverse l'ordre d'affichage (plus récent en haut) sans toucher à this._entries. */
+    private _toggleOrder() {
+        this._reversed = !this._reversed;
+        this._draggingIdx = null;
+        this._dragOverIdx = null;
+    }
+
     static styles = css`
         :host {
             display: flex;
@@ -266,9 +291,17 @@ export class YogitRebase extends LitElement {
         }
 
         .header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
             padding: 10px 16px 8px;
             border-bottom: 1px solid var(--vscode-panel-border);
             flex-shrink: 0;
+        }
+
+        .header-text {
+            min-width: 0;
         }
 
         .header-title {
@@ -280,6 +313,23 @@ export class YogitRebase extends LitElement {
         .header-sub {
             font-size: 11px;
             color: var(--vscode-descriptionForeground);
+        }
+
+        .btn-order-toggle {
+            flex-shrink: 0;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid var(--vscode-panel-border);
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            font-family: var(--vscode-font-family);
+            white-space: nowrap;
+        }
+
+        .btn-order-toggle:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
         }
 
         .entry-list {
@@ -557,26 +607,38 @@ export class YogitRebase extends LitElement {
         }
     `;
 
-    private renderEntry(entry: RebaseEntry, idx: number, total: number) {
-        const isFirst = idx === 0;
-        const isLast = idx === total - 1;
+    /**
+     * @param realIdx    Index dans this._entries (ordre canonique git) — utilisé pour
+     *                   toute mutation (setAction, drag, etc.).
+     * @param displayIdx Position dans la liste rendue à l'écran — utilisé uniquement
+     *                   pour savoir si la ligne est visuellement première/dernière.
+     */
+    private renderEntry(entry: RebaseEntry, realIdx: number, displayIdx: number, total: number) {
+        const isFirst = displayIdx === 0;
+        const isLast = displayIdx === total - 1;
         const accent = ACTION_ACCENT[entry.action];
         const rowClasses = [
             'entry-row',
             entry.action === 'drop' ? 'drop' : '',
-            this._draggingIdx === idx ? 'dragging' : '',
-            this._dragOverIdx === idx && this._draggingIdx !== idx ? 'drag-over' : '',
+            this._draggingIdx === realIdx ? 'dragging' : '',
+            this._dragOverIdx === realIdx && this._draggingIdx !== realIdx ? 'drag-over' : '',
         ]
             .filter(Boolean)
             .join(' ');
+
+        // En affichage inversé, la flèche "monter" (vers le haut visuel = vers le plus
+        // récent) doit avancer l'entrée dans this._entries — l'inverse de l'affichage normal.
+        const onMoveUp = () => (this._reversed ? this._moveDown(realIdx) : this._moveUp(realIdx));
+        const onMoveDown = () => (this._reversed ? this._moveUp(realIdx) : this._moveDown(realIdx));
+
         return html`
             <div
                 class=${rowClasses}
                 style=${accent ? `--accent: ${accent}` : ''}
                 draggable="true"
-                @dragstart=${(e: DragEvent) => this._onDragStart(e, idx)}
-                @dragover=${(e: DragEvent) => this._onDragOver(e, idx)}
-                @drop=${(e: DragEvent) => this._onDrop(e, idx)}
+                @dragstart=${(e: DragEvent) => this._onDragStart(e, realIdx)}
+                @dragover=${(e: DragEvent) => this._onDragOver(e, realIdx)}
+                @drop=${(e: DragEvent) => this._onDrop(e, realIdx)}
                 @dragend=${() => this._onDragEnd()}
             >
                 <div class="order-cell">
@@ -585,14 +647,14 @@ export class YogitRebase extends LitElement {
                         <div
                             class="move-btn ${isFirst ? 'disabled' : ''}"
                             title=${L.moveUp}
-                            @click=${() => !isFirst && this._moveUp(idx)}
+                            @click=${() => !isFirst && onMoveUp()}
                         >
                             ▲
                         </div>
                         <div
                             class="move-btn ${isLast ? 'disabled' : ''}"
                             title=${L.moveDown}
-                            @click=${() => !isLast && this._moveDown(idx)}
+                            @click=${() => !isLast && onMoveDown()}
                         >
                             ▼
                         </div>
@@ -601,7 +663,8 @@ export class YogitRebase extends LitElement {
                 <select
                     class="action-select"
                     .value=${entry.action}
-                    @change=${(e: Event) => this._setAction(idx, (e.target as HTMLSelectElement).value as RebaseAction)}
+                    @change=${(e: Event) =>
+                        this._setAction(realIdx, (e.target as HTMLSelectElement).value as RebaseAction)}
                 >
                     ${(Object.keys(ACTION_LABELS) as RebaseAction[]).map(
                         a => html`<option value=${a} ?selected=${entry.action === a}>${ACTION_LABELS[a]}</option>`,
@@ -615,7 +678,8 @@ export class YogitRebase extends LitElement {
                           type="text"
                           .value=${entry.newMessage ?? entry.message}
                           placeholder=${entry.message}
-                          @input=${(e: InputEvent) => this._setNewMessage(idx, (e.target as HTMLInputElement).value)}
+                          @input=${(e: InputEvent) =>
+                              this._setNewMessage(realIdx, (e.target as HTMLInputElement).value)}
                       />`
                     : html`<span class="entry-msg" title=${entry.message}>${entry.message}</span>`}
             </div>
@@ -639,11 +703,23 @@ export class YogitRebase extends LitElement {
         }
 
         const activeCount = this._entries.filter(e => e.action !== 'drop').length;
+        const total = this._entries.length;
+        // La liste affichée ne fait qu'inverser l'ordre de rendu — realIdx conserve
+        // la position dans this._entries pour que les mutations restent correctes.
+        const displayList = this._entries.map((entry, realIdx) => ({ entry, realIdx }));
+        if (this._reversed) {
+            displayList.reverse();
+        }
 
         return html`
             <div class="header">
-                <div class="header-title">${L.headerTitle(this._upstreamLabel)}</div>
-                <div class="header-sub">${L.headerSub(this._entries.length)}</div>
+                <div class="header-text">
+                    <div class="header-title">${L.headerTitle(this._upstreamLabel)}</div>
+                    <div class="header-sub">${L.headerSub(total, this._reversed)}</div>
+                </div>
+                <button class="btn-order-toggle" title=${L.orderToggleHint} @click=${this._toggleOrder}>
+                    ⇅ ${this._reversed ? L.orderOldestTop : L.orderNewestTop}
+                </button>
             </div>
             ${this._rebaseError ? html`<div class="error-banner">${this._rebaseError}</div>` : ''}
             ${this._done ? html`<div class="done-banner">${L.done}</div>` : ''}
@@ -655,7 +731,7 @@ export class YogitRebase extends LitElement {
                     <div class="col-date">${L.colDate}</div>
                     <div>${L.colMessage}</div>
                 </div>
-                ${this._entries.map((e, i) => this.renderEntry(e, i, this._entries.length))}
+                ${displayList.map((d, displayIdx) => this.renderEntry(d.entry, d.realIdx, displayIdx, total))}
             </div>
             <div class="footer">
                 <span class="hint"> ${activeCount === 0 ? L.allDropped : L.activeCount(activeCount)} </span>
