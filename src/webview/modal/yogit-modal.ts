@@ -19,9 +19,14 @@ const vscode = acquireVsCodeApi();
 class YogitModal extends LitElement {
     static properties = {
         options: { type: Object },
+        selectValues: { state: true },
     };
 
     options: ModalOptions | null = null;
+
+    // Valeur courante de chaque liste déroulante — état réactif pour que le bandeau
+    // warning de l'option sélectionnée apparaisse/disparaisse au changement.
+    selectValues: Record<string, string> = {};
 
     static styles = css`
         :host {
@@ -138,6 +143,41 @@ class YogitModal extends LitElement {
             color: var(--vscode-input-placeholderForeground);
         }
 
+        .selects {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .select-field {
+            display: grid;
+            grid-template-columns: minmax(70px, auto) 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-field label {
+            color: var(--vscode-foreground);
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+        .select-field select {
+            padding: 4px 8px;
+            background: var(--vscode-dropdown-background, var(--vscode-input-background));
+            color: var(--vscode-dropdown-foreground, var(--vscode-input-foreground));
+            border: 1px solid var(--vscode-dropdown-border, var(--vscode-input-border, transparent));
+            border-radius: 3px;
+            font-size: var(--vscode-font-size);
+            font-family: var(--vscode-font-family);
+            outline: none;
+            width: 100%;
+        }
+
+        .select-field select:focus {
+            border-color: var(--vscode-focusBorder);
+        }
+
         .checkboxes {
             display: flex;
             flex-direction: column;
@@ -208,7 +248,24 @@ class YogitModal extends LitElement {
         const w = window as typeof window & { __YOGIT_OPTIONS__?: ModalOptions };
         if (w.__YOGIT_OPTIONS__) {
             this.options = w.__YOGIT_OPTIONS__;
+            const values: Record<string, string> = {};
+            for (const select of this.options.selects ?? []) {
+                values[select.id] = select.value ?? select.options[0]?.value ?? '';
+            }
+            this.selectValues = values;
         }
+    }
+
+    /** Warnings des options actuellement sélectionnées dans les listes déroulantes. */
+    private get activeSelectWarnings(): string[] {
+        return (this.options?.selects ?? [])
+            .map(select => select.options.find(opt => opt.value === this.selectValues[select.id])?.warning)
+            .filter((warning): warning is string => warning !== undefined);
+    }
+
+    private handleSelectChange(e: Event) {
+        const select = e.target as HTMLSelectElement;
+        this.selectValues = { ...this.selectValues, [select.id]: select.value };
     }
 
     render() {
@@ -224,15 +281,40 @@ class YogitModal extends LitElement {
                 </div>
                 <div class="modal__body">
                     <p class="message">${o.message}</p>
-                    ${o.warning
+                    ${[...(o.warning ? [o.warning] : []), ...this.activeSelectWarnings].map(
+                        warning => html`
+                            <div class="warning-banner">
+                                <span class="warning-icon">⚠</span>
+                                <span>${warning}</span>
+                            </div>
+                        `,
+                    )}
+                    ${o.detail ? html`<p class="detail">${o.detail}</p>` : ''}
+                    ${o.selects?.length
                         ? html`
-                              <div class="warning-banner">
-                                  <span class="warning-icon">⚠</span>
-                                  <span>${o.warning}</span>
+                              <div class="selects">
+                                  ${o.selects.map(
+                                      select => html`
+                                          <div class="select-field">
+                                              <label for=${select.id}>${select.label}</label>
+                                              <select id=${select.id} @change=${this.handleSelectChange}>
+                                                  ${select.options.map(
+                                                      opt => html`
+                                                          <option
+                                                              value=${opt.value}
+                                                              ?selected=${opt.value === this.selectValues[select.id]}
+                                                          >
+                                                              ${opt.label}
+                                                          </option>
+                                                      `,
+                                                  )}
+                                              </select>
+                                          </div>
+                                      `,
+                                  )}
                               </div>
                           `
                         : ''}
-                    ${o.detail ? html`<p class="detail">${o.detail}</p>` : ''}
                     ${o.inputs?.length
                         ? html`
                               <div class="inputs">
@@ -320,8 +402,12 @@ class YogitModal extends LitElement {
         this.renderRoot.querySelectorAll<HTMLInputElement>('input[type="text"]').forEach(input => {
             inputs[input.id] = input.value;
         });
+        const selects: Record<string, string> = {};
+        this.renderRoot.querySelectorAll<HTMLSelectElement>('select').forEach(select => {
+            selects[select.id] = select.value;
+        });
 
-        vscode.postMessage({ button: buttonValue, checkboxes, inputs });
+        vscode.postMessage({ button: buttonValue, checkboxes, inputs, selects });
     }
 }
 

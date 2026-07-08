@@ -1,9 +1,10 @@
 {
     "name": "haerphi-yogit",
     "displayName": "YoGit",
-    "description": "A extension to help you using Git and have a clear visualisation of what you're doing!",
+    "description": "An extension to help you using Git and have a clear visualisation of what you're doing!",
     "version": "1.0.0",
     "publisher": "haerphi",
+    "license": "MIT",
     "packageManager": "pnpm@11.7.0",
     "repository": {
         "url": "https://github.com/haerphi/yogit-vscode-extension"
@@ -12,7 +13,20 @@
         "vscode": "^1.125.0"
     },
     "categories": [
+        "SCM Providers",
         "Other"
+    ],
+    "keywords": [
+        "git",
+        "scm",
+        "branch",
+        "rebase",
+        "stash",
+        "merge",
+        "commit",
+        "push",
+        "pull",
+        "version control"
     ],
     "activationEvents": [
         "onView:commit",
@@ -114,14 +128,6 @@
                 "command": "haerphi-yogit.push",
                 "title": "%cmd.push.title%",
                 "icon": "$(arrow-up)"
-            },
-            {
-                "command": "haerphi-yogit.push-force-with-lease",
-                "title": "%cmd.push-force-with-lease.title%"
-            },
-            {
-                "command": "haerphi-yogit.push-force",
-                "title": "%cmd.push-force.title%"
             },
             {
                 "command": "haerphi-yogit.stash-pop",
@@ -315,16 +321,6 @@
                     "command": "haerphi-yogit.push",
                     "when": "view == branches && viewItem == branch-local-current",
                     "group": "1_sync@2"
-                },
-                {
-                    "command": "haerphi-yogit.push-force-with-lease",
-                    "when": "view == branches && viewItem == branch-local-current",
-                    "group": "1_sync@3"
-                },
-                {
-                    "command": "haerphi-yogit.push-force",
-                    "when": "view == branches && viewItem == branch-local-current",
-                    "group": "1_sync@4"
                 },
                 {
                     "command": "haerphi-yogit.delete-branch",

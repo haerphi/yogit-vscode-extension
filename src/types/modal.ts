@@ -25,6 +25,21 @@ export interface ModalInput {
     value?: string;
 }
 
+export interface ModalSelectOption {
+    label: string;
+    value: string;
+    /** Bandeau warning affiché dans la modale tant que cette option est sélectionnée. */
+    warning?: string;
+}
+
+export interface ModalSelect {
+    id: string;
+    label: string;
+    options: ModalSelectOption[];
+    /** Valeur sélectionnée à l'ouverture. Défaut : la première option. */
+    value?: string;
+}
+
 export interface ModalOptions {
     title: string;
     /** Message principal affiché en haut du corps. */
@@ -37,6 +52,8 @@ export interface ModalOptions {
     checkboxes?: ModalCheckbox[];
     /** Champs texte affichés au-dessus des checkboxes. */
     inputs?: ModalInput[];
+    /** Listes déroulantes affichées au-dessus des champs texte. */
+    selects?: ModalSelect[];
 }
 
 export interface ModalResult {
@@ -46,4 +63,6 @@ export interface ModalResult {
     checkboxes: Record<string, boolean>;
     /** Valeur de chaque champ texte au moment du clic, indexée par leur id. */
     inputs: Record<string, string>;
+    /** Valeur de chaque liste déroulante au moment du clic, indexée par leur id. */
+    selects: Record<string, string>;
 }
