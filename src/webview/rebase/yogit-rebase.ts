@@ -348,10 +348,10 @@ export class YogitRebase extends LitElement {
             gap: 6px;
             /* padding-left compense la largeur de border-left pour rester aligné
                sur le padding de .col-header (qui n'a pas de bordure). */
-            padding: 4px 12px 4px 9px;
+            padding: 4px 12px 4px 8px;
             border-bottom: 1px solid var(--vscode-panel-border);
-            border-left: 3px solid var(--accent, transparent);
-            background: color-mix(in srgb, var(--accent, transparent) 10%, transparent);
+            border-left: 4px solid var(--accent, transparent);
+            background: color-mix(in srgb, var(--accent, transparent) 14%, transparent);
             transition: background 0.1s;
             cursor: grab;
         }
@@ -438,8 +438,10 @@ export class YogitRebase extends LitElement {
         .action-select {
             flex-shrink: 0;
             width: 76px;
-            background: var(--vscode-dropdown-background);
-            color: var(--vscode-dropdown-foreground);
+            background-color: var(--vscode-dropdown-background);
+            /* Le texte de l'action (pick/squash/fixup…) reprend sa couleur d'accent —
+               plus fiable que le contour seul, qui peut se fondre dans un thème clair. */
+            color: var(--accent, var(--vscode-dropdown-foreground));
             border: 1px solid var(--accent, var(--vscode-dropdown-border, var(--vscode-panel-border)));
             border-radius: 3px;
             padding: 2px 4px;

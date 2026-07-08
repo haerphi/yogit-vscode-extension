@@ -262,7 +262,7 @@ export class RebasePanel {
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';" />
     <style>html,body{margin:0;padding:0;height:100%;overflow:hidden;}</style>
 </head>
 <body>
