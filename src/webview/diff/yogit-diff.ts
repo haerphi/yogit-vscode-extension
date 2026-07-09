@@ -18,6 +18,11 @@ const L = pick(
         close: 'Close',
         stage: 'Stage',
         lineCount: (n: number) => `${n} line${n > 1 ? 's' : ''}`,
+        showFullFile: 'Show whole file',
+        showChangesOnly: 'Show changes only',
+        toggleFullFileHint: 'Toggle between the whole file and changed lines only',
+        hiddenLines: (n: number) => `⋯ ${n} unchanged line${n > 1 ? 's' : ''} hidden ⋯`,
+        expandHint: 'Click to show the whole file',
     },
     {
         loading: 'Chargement…',
@@ -25,8 +30,66 @@ const L = pick(
         close: 'Fermer',
         stage: 'Indexer',
         lineCount: (n: number) => `${n} ligne${n > 1 ? 's' : ''}`,
+        showFullFile: 'Afficher tout le fichier',
+        showChangesOnly: 'Afficher les changements uniquement',
+        toggleFullFileHint: 'Basculer entre le fichier complet et les lignes modifiées uniquement',
+        hiddenLines: (n: number) =>
+            `⋯ ${n} ligne${n > 1 ? 's' : ''} inchangée${n > 1 ? 's' : ''} masquée${n > 1 ? 's' : ''} ⋯`,
+        expandHint: 'Cliquer pour afficher tout le fichier',
     },
 );
+
+type RenderItem = { kind: 'line'; index: number } | { kind: 'collapsed'; count: number };
+
+/**
+ * Découpe les `total` lignes d'un hunk (déjà en contexte complet, voir stage-hunk.ts)
+ * en éléments à afficher : soit une ligne, soit un repli représentant une plage de
+ * lignes de contexte trop longue, avec `margin` lignes gardées de chaque côté d'un
+ * changement voisin — comme GitHub/GitLab replient les régions inchangées éloignées.
+ *
+ * `expand` (mode "Afficher tout le fichier") désactive tout repliement.
+ */
+function buildRenderItems(total: number, isContext: (i: number) => boolean, expand: boolean, margin = 3): RenderItem[] {
+    if (expand) {
+        return Array.from({ length: total }, (_, i) => ({ kind: 'line' as const, index: i }));
+    }
+
+    const items: RenderItem[] = [];
+    let i = 0;
+    while (i < total) {
+        if (!isContext(i)) {
+            items.push({ kind: 'line', index: i });
+            i++;
+            continue;
+        }
+
+        let j = i;
+        while (j < total && isContext(j)) {
+            j++;
+        }
+
+        // Pas de contexte à garder "avant" le tout début du fichier / "après" sa toute fin.
+        const keepBefore = i === 0 ? 0 : margin;
+        const keepAfter = j === total ? 0 : margin;
+        const runLength = j - i;
+
+        if (runLength <= keepBefore + keepAfter) {
+            for (let k = i; k < j; k++) {
+                items.push({ kind: 'line', index: k });
+            }
+        } else {
+            for (let k = i; k < i + keepBefore; k++) {
+                items.push({ kind: 'line', index: k });
+            }
+            items.push({ kind: 'collapsed', count: runLength - keepBefore - keepAfter });
+            for (let k = j - keepAfter; k < j; k++) {
+                items.push({ kind: 'line', index: k });
+            }
+        }
+        i = j;
+    }
+    return items;
+}
 
 /**
  * Composant Lit pour la sélection de hunks/lignes avant staging.
@@ -43,17 +106,22 @@ export class YogitDiff extends LitElement {
     static properties = {
         diff: { type: Object },
         selection: { type: Object },
+        showFullFile: { state: true },
     };
 
     // 'declare' évite que le class field avec useDefineForClassFields:true ne shadow
     // le getter/setter réactif installé par Lit sur le prototype.
     declare diff: FileDiff | null;
     declare selection: HunkSelection;
+    // Purement un mode d'affichage (voir buildRenderItems) — n'affecte jamais selection,
+    // qui reste indexée sur les mêmes hunks/lignes quel que soit le repliement visuel.
+    declare showFullFile: boolean;
 
     constructor() {
         super();
         this.diff = null;
         this.selection = {};
+        this.showFullFile = false;
     }
 
     static styles = css`
@@ -113,6 +181,15 @@ export class YogitDiff extends LitElement {
         }
 
         .btn-cancel:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        .btn-toggle-full {
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+        }
+
+        .btn-toggle-full:hover {
             background: var(--vscode-button-secondaryHoverBackground);
         }
 
@@ -204,6 +281,21 @@ export class YogitDiff extends LitElement {
 
         .line-dimmed {
             opacity: 0.4;
+        }
+
+        .line-collapsed {
+            cursor: pointer;
+            color: var(--vscode-descriptionForeground);
+            background: var(--vscode-diffEditor-unchangedRegionBackground, rgba(128, 128, 128, 0.08));
+        }
+
+        .line-collapsed:hover {
+            background: var(--vscode-list-hoverBackground);
+        }
+
+        .collapsed-text {
+            font-style: italic;
+            opacity: 0.8;
         }
 
         input[type='checkbox'] {
@@ -353,6 +445,13 @@ export class YogitDiff extends LitElement {
         return html`
             <div class="toolbar">
                 <span class="filename">${this.diff.filePath}</span>
+                <button
+                    class="btn-toggle-full"
+                    title=${L.toggleFullFileHint}
+                    @click=${() => (this.showFullFile = !this.showFullFile)}
+                >
+                    ${this.showFullFile ? L.showChangesOnly : L.showFullFile}
+                </button>
                 ${readOnly
                     ? html`<button class="btn-cancel" @click=${this.cancel}>${L.close}</button>`
                     : html`
@@ -372,6 +471,7 @@ export class YogitDiff extends LitElement {
         // ci-dessous, à l'image de l'affichage standard d'un diff (`git diff`, GitHub…).
         let oldNum = hunk.oldStart;
         let newNum = hunk.newStart;
+        const items = buildRenderItems(hunk.lines.length, i => hunk.lines[i].type === 'context', this.showFullFile);
 
         return html`
             <div class="hunk">
@@ -390,7 +490,28 @@ export class YogitDiff extends LitElement {
                     <span>@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@</span>
                     ${hunk.contextHint ? html`<span class="hint">${hunk.contextHint}</span>` : ''}
                 </div>
-                ${hunk.lines.map(line => {
+                ${items.map(item => {
+                    if (item.kind === 'collapsed') {
+                        // Les lignes repliées sont forcément du contexte : elles avancent
+                        // les deux compteurs à l'identique, sans rien afficher individuellement.
+                        oldNum += item.count;
+                        newNum += item.count;
+                        return html`
+                            <div
+                                class="line line-collapsed"
+                                title=${L.expandHint}
+                                @click=${() => (this.showFullFile = true)}
+                            >
+                                <span class="line-num"></span>
+                                <span class="line-num"></span>
+                                <div class="line-checkbox-cell"></div>
+                                <span class="line-prefix"></span>
+                                <span class="line-content collapsed-text">${L.hiddenLines(item.count)}</span>
+                            </div>
+                        `;
+                    }
+
+                    const line = hunk.lines[item.index];
                     const isChange = line.type !== 'context';
                     const isChecked = this.isLineChecked(hunk, line.index);
                     const dimmed = !readOnly && isChange && !isChecked;

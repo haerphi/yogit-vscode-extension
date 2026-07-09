@@ -33,6 +33,7 @@ Gestion de l'espace de travail courant.
 - [x] Chemin relatif grisé à côté du nom de fichier (désambiguïsation des homonymes)
 - [x] Staging / unstaging de fichiers individuels
 - [x] Staging sélectif par hunks/lignes (diff parsing custom)
+- [x] Bouton "Afficher tout le fichier" dans la vue diff (indexation/stash) — replie/déplie les régions de contexte éloignées d'un changement, sans jamais affecter la sélection des hunks/lignes
 - [x] Stash partiel (sélection de fichiers)
 - [x] Clic gauche sur un stash → aperçu de son contenu dans la même vue diff que "Changes" (lecture seule, sélection de fichier via QuickPick si le stash en touche plusieurs)
 - [x] Badge sur l'icône de la barre d'activité avec le nombre de fichiers modifiés

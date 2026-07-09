@@ -10,9 +10,18 @@ import { getRepo } from '../utils';
 
 // ─── Helpers git ─────────────────────────────────────────────────────────────
 
+/**
+ * --unified=100000 force git à inclure tout le fichier comme contexte plutôt que les
+ * quelques lignes autour de chaque changement — le diff tient alors dans un seul hunk
+ * couvrant le fichier entier. Le webview peut ensuite replier visuellement les lignes
+ * inchangées éloignées (mode compact) ou tout afficher (bouton "Afficher tout le
+ * fichier"), sans jamais changer l'indexation hunk/ligne utilisée par la sélection.
+ */
 function gitDiff(gitPath: string, relPath: string, cwd: string, cached = false): Promise<string> {
     return new Promise((resolve, reject) => {
-        const args = cached ? ['diff', '--no-color', '--cached', '--', relPath] : ['diff', '--no-color', '--', relPath];
+        const args = cached
+            ? ['diff', '--no-color', '--unified=100000', '--cached', '--', relPath]
+            : ['diff', '--no-color', '--unified=100000', '--', relPath];
         const proc = spawn(gitPath, args, { cwd });
         const out: string[] = [];
         const err: string[] = [];

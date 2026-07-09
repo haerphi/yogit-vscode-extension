@@ -20,10 +20,12 @@ function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
 /**
  * `-u` inclut le diff des fichiers non trackés inclus dans le stash (3ᵉ parent du
  * commit de stash, s'il existe) — sans effet, sans erreur, si le stash n'en contient pas.
+ * `--unified=100000` fournit tout le fichier comme contexte, pour que le bouton
+ * "Afficher tout le fichier" de la vue diff fonctionne aussi ici (voir stage-hunk.ts).
  */
 function gitStashShow(gitPath: string, ref: string, cwd: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['stash', 'show', '-p', '-u', '--no-color', ref], { cwd });
+        const proc = spawn(gitPath, ['stash', 'show', '-p', '-u', '--no-color', '--unified=100000', ref], { cwd });
         const out: string[] = [];
         const err: string[] = [];
         proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
