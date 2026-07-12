@@ -180,6 +180,14 @@
                 "icon": "$(diff)"
             },
             {
+                "command": "haerphi-yogit.resolve-conflict-ours",
+                "title": "%cmd.resolve-conflict-ours.title%"
+            },
+            {
+                "command": "haerphi-yogit.resolve-conflict-theirs",
+                "title": "%cmd.resolve-conflict-theirs.title%"
+            },
+            {
                 "command": "haerphi-yogit.abort-rebase",
                 "title": "%cmd.abort-rebase.title%",
                 "icon": "$(discard)"
@@ -406,7 +414,17 @@
                 {
                     "command": "haerphi-yogit.resolve-conflict",
                     "when": "view == changes && viewItem == change-conflict",
-                    "group": "1_resolve"
+                    "group": "1_resolve@1"
+                },
+                {
+                    "command": "haerphi-yogit.resolve-conflict-ours",
+                    "when": "view == changes && viewItem == change-conflict",
+                    "group": "1_resolve@2"
+                },
+                {
+                    "command": "haerphi-yogit.resolve-conflict-theirs",
+                    "when": "view == changes && viewItem == change-conflict",
+                    "group": "1_resolve@3"
                 },
                 {
                     "command": "haerphi-yogit.stage-all",

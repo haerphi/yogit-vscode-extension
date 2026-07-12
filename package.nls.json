@@ -28,6 +28,8 @@
     "cmd.rebase-onto.title": "Rebase Current Branch onto This One",
     "cmd.rebase-interactive.title": "Interactive Rebase onto This Branch…",
     "cmd.resolve-conflict.title": "Resolve Conflict…",
+    "cmd.resolve-conflict-ours.title": "Take Our Changes",
+    "cmd.resolve-conflict-theirs.title": "Take Their Changes",
     "cmd.abort-rebase.title": "Abort Rebase",
     "cmd.continue-rebase.title": "Continue Rebase",
     "cmd.discard-file.title": "Discard Changes",

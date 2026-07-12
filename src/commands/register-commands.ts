@@ -62,7 +62,7 @@ export function registerCommands(
         ...registerRebase(gitApi, context),
         registerRebaseInteractive(gitApi, context),
         registerShowLog(gitApi, context),
-        registerResolveConflict(gitApi, context),
+        ...registerResolveConflict(gitApi, context),
         ...registerDiscard(gitApi),
         registerAbortRebase(gitApi),
         registerContinueRebase(gitApi),

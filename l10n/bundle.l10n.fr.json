@@ -37,6 +37,7 @@
     "Force Delete": "Forcer la suppression",
     "Could not delete branch: {0}": "Impossible de supprimer la branche : {0}",
     "Could not rename branch: {0}": "Impossible de renommer la branche : {0}",
+    "Could not resolve conflict: {0}": "Impossible de résoudre le conflit : {0}",
     "Local branch deleted, but the remote branch could not be deleted: {0}": "Branche locale supprimée, mais impossible de supprimer la distante : {0}",
     "You are about to delete \"{0}\" from the remote repository.": "Vous êtes sur le point de supprimer « {0} » du dépôt distant.",
     "This operation affects the shared repository. Other contributors will lose access to this branch and it cannot be easily restored.": "Cette opération affecte le dépôt partagé. Les autres contributeurs perdront accès à cette branche et elle ne pourra pas être restaurée facilement.",

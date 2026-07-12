@@ -81,6 +81,7 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [X]? Résolution visuelle des conflits (Current / Theirs / Final)
 - [x] Clic sur le badge "N non résolu(s)" → défilement animé jusqu'au premier conflit non résolu
 - [x] "Save and stage" ferme automatiquement la vue si le fichier n'a plus de conflit après le staging (vérifié via mergeChanges)
+- [x] Menu contextuel fichier en conflit : "Prendre nos modifications" / "Prendre leurs modifications" (`git checkout --ours|--theirs`)
 - [x] Détection de si le dossier est repository git, sinon proposé de l'initialisé ou le lié à un repository existant
 - [x] Ajouter un remote depuis la vue « Remotes »
 - [x] Vue « Remotes » séparée : un groupe par remote (origin, upstream…), la vue branches ne liste que les branches locales
