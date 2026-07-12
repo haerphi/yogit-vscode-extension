@@ -9,6 +9,10 @@ export interface ConflictHunk {
     currentLines: string[];
     /** Lignes du côté entrant (leur version) */
     theirsLines: string[];
+    /** Numéro de ligne (1-based) de la première ligne current dans le fichier en conflit */
+    currentStartLine: number;
+    /** Numéro de ligne (1-based) de la première ligne theirs dans le fichier en conflit */
+    theirsStartLine: number;
     /** Sélection ligne à ligne côté current (true = inclure dans le résultat) */
     currentSelected: boolean[];
     /** Sélection ligne à ligne côté theirs */
@@ -28,6 +32,8 @@ export interface ConflictHunk {
 export interface ContextSection {
     type: 'context';
     lines: string[];
+    /** Numéro de ligne (1-based) de la première ligne du bloc dans le fichier en conflit */
+    startLine: number;
 }
 
 export interface ConflictSection {

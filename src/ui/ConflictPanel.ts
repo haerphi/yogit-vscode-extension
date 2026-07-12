@@ -108,12 +108,15 @@ export class ConflictPanel {
                 const currentLines: string[] = [];
                 const theirsLines: string[] = [];
                 i++;
+                // Numéros 1-based dans le fichier en conflit (marqueurs compris)
+                const currentStartLine = i + 1;
                 // Collecter les lignes "current" jusqu'à =======
                 while (i < lines.length && !lines[i].startsWith('=======')) {
                     currentLines.push(lines[i]);
                     i++;
                 }
                 i++; // sauter =======
+                const theirsStartLine = i + 1;
                 // Collecter les lignes "theirs" jusqu'à >>>>>>>
                 while (i < lines.length && !lines[i].startsWith('>>>>>>>')) {
                     theirsLines.push(lines[i]);
@@ -125,6 +128,8 @@ export class ConflictPanel {
                     id: hunkId++,
                     currentLines,
                     theirsLines,
+                    currentStartLine,
+                    theirsStartLine,
                     currentSelected: currentLines.map(() => false),
                     theirsSelected: theirsLines.map(() => false),
                     selectionOrder: [],
@@ -134,12 +139,13 @@ export class ConflictPanel {
                 sections.push({ type: 'conflict', hunk });
             } else {
                 // Section contexte : accumuler jusqu'au prochain marqueur
+                const startLine = i + 1;
                 const ctxLines: string[] = [];
                 while (i < lines.length && !lines[i].startsWith('<<<<<<<')) {
                     ctxLines.push(lines[i]);
                     i++;
                 }
-                sections.push({ type: 'context', lines: ctxLines });
+                sections.push({ type: 'context', lines: ctxLines, startLine });
             }
         }
 

@@ -328,10 +328,31 @@ export class YogitConflict extends LitElement {
         .ctx-block {
             font-family: var(--vscode-editor-font-family, monospace);
             font-size: 12px;
-            padding: 2px 16px;
+            padding: 2px 0;
             color: var(--vscode-descriptionForeground);
-            white-space: pre;
             line-height: 1.5;
+        }
+
+        .ctx-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 0 16px 0 0;
+        }
+
+        .ctx-row .line-text {
+            color: var(--vscode-descriptionForeground);
+        }
+
+        /* Gouttière : numéro de ligne dans le fichier en conflit */
+        .line-num {
+            flex-shrink: 0;
+            width: 40px;
+            text-align: right;
+            padding-right: 8px;
+            color: var(--vscode-editorLineNumber-foreground, var(--vscode-descriptionForeground));
+            opacity: 0.6;
+            user-select: none;
+            font-variant-numeric: tabular-nums;
         }
 
         /* ── Carte de conflit ─────────────────────────────────────────────── */
@@ -616,12 +637,14 @@ export class YogitConflict extends LitElement {
 
     private _renderLineRow(
         line: string,
+        lineNo: number,
         selected: boolean,
         sideClass: 'sel-current' | 'sel-theirs',
         onToggle: () => void,
     ) {
         return html`
             <div class="line-row ${selected ? sideClass : ''}" @click=${onToggle}>
+                <span class="line-num">${lineNo}</span>
                 <span class="line-toggle">${selected ? '✓' : '·'}</span>
                 <code class="line-text">${line || ' '}</code>
             </div>
@@ -676,16 +699,24 @@ export class YogitConflict extends LitElement {
                     <div class="side side-current">
                         <span class="side-label lbl-current">${L.lblCurrent}</span>
                         ${hunk.currentLines.map((line, i) =>
-                            this._renderLineRow(line, hunk.currentSelected[i], 'sel-current', () =>
-                                this._toggleCurrentLine(hunk.id, i),
+                            this._renderLineRow(
+                                line,
+                                hunk.currentStartLine + i,
+                                hunk.currentSelected[i],
+                                'sel-current',
+                                () => this._toggleCurrentLine(hunk.id, i),
                             ),
                         )}
                     </div>
                     <div class="side side-theirs">
                         <span class="side-label lbl-theirs">${L.lblTheirs}</span>
                         ${hunk.theirsLines.map((line, i) =>
-                            this._renderLineRow(line, hunk.theirsSelected[i], 'sel-theirs', () =>
-                                this._toggleTheirsLine(hunk.id, i),
+                            this._renderLineRow(
+                                line,
+                                hunk.theirsStartLine + i,
+                                hunk.theirsSelected[i],
+                                'sel-theirs',
+                                () => this._toggleTheirsLine(hunk.id, i),
                             ),
                         )}
                     </div>
@@ -720,7 +751,16 @@ export class YogitConflict extends LitElement {
             if (section.lines.every(l => l === '')) {
                 return nothing;
             }
-            return html`<div class="ctx-block">${section.lines.join('\n')}</div>`;
+            return html`<div class="ctx-block">
+                ${section.lines.map(
+                    (line, i) => html`
+                        <div class="ctx-row">
+                            <span class="line-num">${section.startLine + i}</span>
+                            <code class="line-text">${line || ' '}</code>
+                        </div>
+                    `,
+                )}
+            </div>`;
         }
         const idx = conflictIdx.v++;
         return this._renderHunk(section.hunk, idx);
