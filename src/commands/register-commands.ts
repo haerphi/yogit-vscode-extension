@@ -6,6 +6,7 @@ import { registerCopyBranchName } from './branch/copy-branch-name';
 import { registerCreateBranch } from './branch/create-branch';
 import { registerCreateBranchFrom } from './branch/create-branch-from';
 import { registerDeleteBranch } from './branch/delete-branch';
+import { registerRenameBranch } from './branch/rename-branch';
 import { registerMerge } from './branch/merge';
 import { registerRebase } from './branch/rebase';
 import { registerRebaseInteractive } from './branch/rebase-interactive';
@@ -51,6 +52,7 @@ export function registerCommands(
         ...registerSwitch(gitApi),
         registerCopyBranchName(),
         ...registerDeleteBranch(gitApi, context),
+        registerRenameBranch(gitApi, provider),
         ...registerStageUnstage(gitApi),
         ...registerStageHunk(gitApi, context),
         ...registerFileActions(),

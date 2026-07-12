@@ -73,6 +73,10 @@
                 "title": "%cmd.copy-file-name.title%"
             },
             {
+                "command": "haerphi-yogit.rename-branch",
+                "title": "%cmd.rename-branch.title%"
+            },
+            {
                 "command": "haerphi-yogit.delete-branch",
                 "title": "%cmd.delete-branch.title%",
                 "icon": "$(trash)"
@@ -297,7 +301,12 @@
                 {
                     "command": "haerphi-yogit.create-branch-from",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
-                    "group": "2_branch"
+                    "group": "2_branch@1"
+                },
+                {
+                    "command": "haerphi-yogit.rename-branch",
+                    "when": "view == branches && viewItem =~ /^branch-local/",
+                    "group": "2_branch@2"
                 },
                 {
                     "command": "haerphi-yogit.merge",
