@@ -11,6 +11,7 @@ import { registerRebase } from './branch/rebase';
 import { registerRebaseInteractive } from './branch/rebase-interactive';
 import { registerSync } from './branch/sync';
 import { registerSwitch } from './branch/switch';
+import { registerFileActions } from './changes/file-actions';
 import { registerStageHunk } from './changes/stage-hunk';
 import { registerStageUnstage } from './changes/stage-unstage';
 import { registerStash } from './changes/stash';
@@ -52,6 +53,7 @@ export function registerCommands(
         ...registerDeleteBranch(gitApi, context),
         ...registerStageUnstage(gitApi),
         ...registerStageHunk(gitApi, context),
+        ...registerFileActions(),
         ...registerStash(gitApi, stashProvider, context),
         ...registerSync(gitApi, provider, context),
         ...registerMerge(gitApi, context),

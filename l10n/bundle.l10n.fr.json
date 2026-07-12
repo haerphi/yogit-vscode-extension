@@ -9,6 +9,7 @@
     "Force switch to \"{0}\"? Uncommitted local changes will be lost.": "Basculer en force sur « {0} » ? Les modifications locales non commitées seront perdues.",
     "git switch -f failed: {0}": "git switch -f a échoué : {0}",
     "Branch name \"{0}\" copied.": "Nom de branche « {0} » copié.",
+    "File name \"{0}\" copied.": "Nom de fichier « {0} » copié.",
     "Push": "Push",
     "Push your local changes to the remote repository.": "Pushez vos modifications locales vers le dépôt distant.",
     "Branch": "Branche",

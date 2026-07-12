@@ -65,6 +65,14 @@
                 "title": "%cmd.copy-branch-name.title%"
             },
             {
+                "command": "haerphi-yogit.open-file",
+                "title": "%cmd.open-file.title%"
+            },
+            {
+                "command": "haerphi-yogit.copy-file-name",
+                "title": "%cmd.copy-file-name.title%"
+            },
+            {
                 "command": "haerphi-yogit.delete-branch",
                 "title": "%cmd.delete-branch.title%",
                 "icon": "$(trash)"
@@ -415,6 +423,16 @@
                     "command": "haerphi-yogit.discard-file",
                     "when": "view == changes && viewItem == change-unstaged",
                     "group": "2_discard"
+                },
+                {
+                    "command": "haerphi-yogit.open-file",
+                    "when": "view == changes && viewItem =~ /^change/",
+                    "group": "3_file@1"
+                },
+                {
+                    "command": "haerphi-yogit.copy-file-name",
+                    "when": "view == changes && viewItem =~ /^change/",
+                    "group": "3_file@2"
                 },
                 {
                     "command": "haerphi-yogit.stash-pop",

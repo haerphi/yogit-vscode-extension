@@ -4,6 +4,8 @@
     "cmd.switch.title": "Switch to This Branch",
     "cmd.switch-force.title": "Switch to This Branch (Force)",
     "cmd.copy-branch-name.title": "Copy Branch Name",
+    "cmd.open-file.title": "Open File",
+    "cmd.copy-file-name.title": "Copy File Name",
     "cmd.delete-branch.title": "Delete Branch",
     "cmd.delete-branch-remote.title": "Delete Remote Branch",
     "cmd.stage-file.title": "Stage This File",
