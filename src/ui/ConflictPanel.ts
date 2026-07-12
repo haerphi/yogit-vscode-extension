@@ -8,6 +8,11 @@ import { ConflictFile, ConflictHunk, FileSection } from '../types/conflict';
 
 export class ConflictPanel {
     private static _panel: vscode.WebviewPanel | undefined;
+    // Fichier actuellement affiché. Le handler onDidReceiveMessage n'est enregistré
+    // qu'une fois (à la création du panel) : sans cet état mutable, sa closure
+    // resterait figée sur le premier fichier et la sauvegarde écrirait au mauvais
+    // endroit après un changement de fichier dans un panel réutilisé.
+    private static _currentFsPath: string | undefined;
 
     static show(context: vscode.ExtensionContext, gitApi: API, fsPath: string): void {
         const repo = gitApi.repositories[0];
@@ -16,6 +21,7 @@ export class ConflictPanel {
             return;
         }
 
+        ConflictPanel._currentFsPath = fsPath;
         const fileName = path.basename(fsPath);
 
         if (ConflictPanel._panel) {
@@ -39,14 +45,24 @@ export class ConflictPanel {
         ConflictPanel._panel = panel;
         panel.onDidDispose(() => {
             ConflictPanel._panel = undefined;
+            ConflictPanel._currentFsPath = undefined;
         });
 
         panel.webview.html = ConflictPanel._buildHtml(panel.webview, context);
 
         panel.webview.onDidReceiveMessage(async (msg: { type: string; content?: string }) => {
+            // Toujours lire le fichier courant depuis l'état mutable, jamais depuis la
+            // closure : le panel est réutilisé pour d'autres fichiers sans réenregistrer
+            // ce handler.
+            const currentFsPath = ConflictPanel._currentFsPath;
+            if (!currentFsPath) {
+                return;
+            }
+            const currentFileName = path.basename(currentFsPath);
+
             if (msg.type === 'ready') {
                 try {
-                    panel.webview.postMessage({ type: 'file', file: ConflictPanel._parse(fsPath) });
+                    panel.webview.postMessage({ type: 'file', file: ConflictPanel._parse(currentFsPath) });
                 } catch (err) {
                     panel.webview.postMessage({
                         type: 'error',
@@ -55,16 +71,16 @@ export class ConflictPanel {
                 }
             } else if (msg.type === 'save' && msg.content !== undefined) {
                 try {
-                    fs.writeFileSync(fsPath, msg.content, 'utf8');
+                    fs.writeFileSync(currentFsPath, msg.content, 'utf8');
                     // git add pour marquer le conflit comme résolu
-                    await repo.add([fsPath]);
+                    await repo.add([currentFsPath]);
                     await repo.status();
-                    vscode.window.showInformationMessage(vscode.l10n.t('{0} saved and staged.', fileName));
+                    vscode.window.showInformationMessage(vscode.l10n.t('{0} saved and staged.', currentFileName));
 
                     // mergeChanges est la source de vérité pour l'état de conflit (voir
                     // ChangesProvider) : si le fichier n'y figure plus après le staging,
                     // la résolution est terminée — inutile de laisser la vue ouverte.
-                    const stillConflicted = repo.state.mergeChanges.some(c => c.uri.fsPath === fsPath);
+                    const stillConflicted = repo.state.mergeChanges.some(c => c.uri.fsPath === currentFsPath);
                     if (!stillConflicted) {
                         panel.dispose();
                         return;
