@@ -28,6 +28,8 @@ const L = pick(
         titlePlaceholder: 'Commit title',
         descriptionPlaceholder: 'Description (optional)',
         amendLabel: 'Amend last commit',
+        pushButton: (n: number) => `Push ${n} commit${n > 1 ? 's' : ''}`,
+        pullButton: (n: number) => `Pull ${n} commit${n > 1 ? 's' : ''}`,
     },
     {
         rebaseInProgress: 'Rebase en cours',
@@ -47,6 +49,8 @@ const L = pick(
         titlePlaceholder: 'Titre du commit',
         descriptionPlaceholder: 'Description (optionnel)',
         amendLabel: 'Amender le dernier commit',
+        pushButton: (n: number) => `Push ${n} commit${n > 1 ? 's' : ''}`,
+        pullButton: (n: number) => `Pull ${n} commit${n > 1 ? 's' : ''}`,
     },
 );
 
@@ -70,6 +74,8 @@ type ProviderMessage =
           lastCommit: LastCommit | null;
           detachedHead: boolean;
           rebaseState: RebaseState | null;
+          ahead: number;
+          behind: number;
       }
     | { type: 'committed' }
     | { type: 'error'; message: string };
@@ -85,6 +91,8 @@ export class YogitCommit extends LitElement {
         errorMessage: { type: String },
         detachedHead: { type: Boolean },
         rebaseState: { type: Object },
+        ahead: { type: Number },
+        behind: { type: Number },
     };
 
     declare title: string;
@@ -96,6 +104,8 @@ export class YogitCommit extends LitElement {
     declare errorMessage: string;
     declare detachedHead: boolean;
     declare rebaseState: RebaseState | null;
+    declare ahead: number;
+    declare behind: number;
 
     constructor() {
         super();
@@ -108,6 +118,8 @@ export class YogitCommit extends LitElement {
         this.errorMessage = '';
         this.detachedHead = false;
         this.rebaseState = null;
+        this.ahead = 0;
+        this.behind = 0;
     }
 
     connectedCallback() {
@@ -119,6 +131,8 @@ export class YogitCommit extends LitElement {
                 this.lastCommit = msg.lastCommit;
                 this.detachedHead = msg.detachedHead;
                 this.rebaseState = msg.rebaseState ?? null;
+                this.ahead = msg.ahead ?? 0;
+                this.behind = msg.behind ?? 0;
             } else if (msg.type === 'committed') {
                 this.title = '';
                 this.description = '';
@@ -166,6 +180,38 @@ export class YogitCommit extends LitElement {
             font-family: var(--vscode-font-family);
             font-size: var(--vscode-font-size);
             color: var(--vscode-foreground);
+        }
+
+        /* ── Barre push / pull ───────────────────────────────────────────── */
+        .sync-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .btn-sync {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 5px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: var(--vscode-font-family);
+            border: 1px solid var(--vscode-button-border, transparent);
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            white-space: nowrap;
+        }
+
+        .btn-sync:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        .btn-sync .sync-icon {
+            font-size: 13px;
         }
 
         .title-input,
@@ -462,6 +508,20 @@ export class YogitCommit extends LitElement {
                       </button>
                   </div>`
                 : ''}
+            ${this.behind > 0 || this.ahead > 0
+                ? html`<div class="sync-bar">
+                      ${this.behind > 0
+                          ? html`<button class="btn-sync" @click=${() => vscode.postMessage({ type: 'pull' })}>
+                                <span class="sync-icon">↓</span> ${L.pullButton(this.behind)}
+                            </button>`
+                          : nothing}
+                      ${this.ahead > 0
+                          ? html`<button class="btn-sync" @click=${() => vscode.postMessage({ type: 'push' })}>
+                                <span class="sync-icon">↑</span> ${L.pushButton(this.ahead)}
+                            </button>`
+                          : nothing}
+                  </div>`
+                : nothing}
             <input
                 class="title-input"
                 type="text"

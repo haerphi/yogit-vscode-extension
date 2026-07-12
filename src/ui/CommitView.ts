@@ -10,7 +10,9 @@ type WebviewMessage =
     | { type: 'commit'; title: string; description: string; amend: boolean }
     | { type: 'create-branch' }
     | { type: 'abort-rebase' }
-    | { type: 'continue-rebase' };
+    | { type: 'continue-rebase' }
+    | { type: 'push' }
+    | { type: 'pull' };
 
 export interface LastCommit {
     hash: string;
@@ -69,6 +71,10 @@ export class CommitView implements vscode.WebviewViewProvider {
                 vscode.commands.executeCommand('haerphi-yogit.abort-rebase');
             } else if (msg.type === 'continue-rebase') {
                 vscode.commands.executeCommand('haerphi-yogit.continue-rebase');
+            } else if (msg.type === 'push') {
+                vscode.commands.executeCommand('haerphi-yogit.push');
+            } else if (msg.type === 'pull') {
+                vscode.commands.executeCommand('haerphi-yogit.pull');
             }
         });
     }
@@ -82,7 +88,19 @@ export class CommitView implements vscode.WebviewViewProvider {
         // HEAD détachée : name est undefined quand on est sur un commit orphelin.
         const detachedHead = this._repo.state.HEAD !== undefined && this._repo.state.HEAD.name === undefined;
         const rebaseState = this._readRebaseState();
-        this._webviewView.webview.postMessage({ type: 'update', stagedCount, lastCommit, detachedHead, rebaseState });
+        // ahead/behind ne sont renseignés que si un upstream est configuré.
+        const head = this._repo.state.HEAD;
+        const ahead = head?.ahead ?? 0;
+        const behind = head?.behind ?? 0;
+        this._webviewView.webview.postMessage({
+            type: 'update',
+            stagedCount,
+            lastCommit,
+            detachedHead,
+            rebaseState,
+            ahead,
+            behind,
+        });
     }
 
     private _readRebaseState(): RebaseState | null {
