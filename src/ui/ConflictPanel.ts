@@ -135,6 +135,7 @@ export class ConflictPanel {
                     selectionOrder: [],
                     finalContent: '',
                     finalEdited: false,
+                    touched: false,
                 };
                 sections.push({ type: 'conflict', hunk });
             } else {

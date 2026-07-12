@@ -28,6 +28,7 @@ const L = pick(
         finalAuto: '▶ Result (from the selections)',
         fromSelections: '↺ From the selections',
         emptyPlaceholder: '(empty — the conflict will be removed)',
+        emptySide: '(empty — nothing on this side)',
         loading: 'Loading…',
         conflictsTitle: (fileName: string) => `⚠ Conflicts — ${fileName}`,
         unresolved: (n: number) => `${n} unresolved`,
@@ -55,6 +56,7 @@ const L = pick(
         finalAuto: '▶ Résultat (depuis les sélections)',
         fromSelections: '↺ Depuis les sélections',
         emptyPlaceholder: '(vide — le conflit sera supprimé)',
+        emptySide: '(vide — rien de ce côté)',
         loading: 'Chargement…',
         conflictsTitle: (fileName: string) => `⚠ Conflits — ${fileName}`,
         unresolved: (n: number) => `${n} non résolu${n > 1 ? 's' : ''}`,
@@ -139,7 +141,7 @@ export class YogitConflict extends LitElement {
             const selectionOrder = wasSelected
                 ? h.selectionOrder.filter(e => !(e.side === 'current' && e.idx === idx))
                 : [...h.selectionOrder, { side: 'current' as const, idx }];
-            const updated = { ...h, currentSelected, selectionOrder };
+            const updated = { ...h, currentSelected, selectionOrder, touched: true };
             if (!h.finalEdited) {
                 updated.finalContent = this._rebuildFinalContent(updated);
             }
@@ -155,7 +157,7 @@ export class YogitConflict extends LitElement {
             const selectionOrder = wasSelected
                 ? h.selectionOrder.filter(e => !(e.side === 'theirs' && e.idx === idx))
                 : [...h.selectionOrder, { side: 'theirs' as const, idx }];
-            const updated = { ...h, theirsSelected, selectionOrder };
+            const updated = { ...h, theirsSelected, selectionOrder, touched: true };
             if (!h.finalEdited) {
                 updated.finalContent = this._rebuildFinalContent(updated);
             }
@@ -176,14 +178,21 @@ export class YogitConflict extends LitElement {
             if (mode === 'theirs' || mode === 'both') {
                 h.theirsLines.forEach((_, i) => selectionOrder.push({ side: 'theirs', idx: i }));
             }
-            const updated = { ...h, currentSelected, theirsSelected, selectionOrder, finalEdited: false };
+            const updated = {
+                ...h,
+                currentSelected,
+                theirsSelected,
+                selectionOrder,
+                finalEdited: false,
+                touched: true,
+            };
             updated.finalContent = this._rebuildFinalContent(updated);
             return updated;
         });
     }
 
     private _setFinalContent(hunkId: number, value: string) {
-        this._updateHunk(hunkId, h => ({ ...h, finalContent: value, finalEdited: true }));
+        this._updateHunk(hunkId, h => ({ ...h, finalContent: value, finalEdited: true, touched: true }));
     }
 
     /** Repasse en mode sélection (efface l'édition manuelle). */
@@ -191,17 +200,21 @@ export class YogitConflict extends LitElement {
         this._updateHunk(hunkId, h => ({
             ...h,
             finalEdited: false,
+            touched: true,
             finalContent: this._rebuildFinalContent(h),
         }));
     }
 
     // ── Calculs ──────────────────────────────────────────────────────────────
 
+    /**
+     * Un hunk est résolu dès que l'utilisateur a fait un choix explicite (`touched`).
+     * On ne peut pas se baser sur « au moins une ligne sélectionnée » : un résultat
+     * vide légitime (côté vide choisi, ou bouton « Aucun ») n'a aucune ligne cochée
+     * mais tranche pourtant le conflit.
+     */
     private _isResolved(hunk: ConflictHunk): boolean {
-        if (hunk.finalEdited) {
-            return true;
-        }
-        return hunk.currentSelected.some(Boolean) || hunk.theirsSelected.some(Boolean);
+        return hunk.touched;
     }
 
     private _unresolvedCount(): number {
@@ -510,6 +523,13 @@ export class YogitConflict extends LitElement {
             color: var(--vscode-foreground);
         }
 
+        /* Côté vide : un placeholder cliquable pour pouvoir tout de même choisir ce côté. */
+        .empty-text {
+            font-style: italic;
+            color: var(--vscode-descriptionForeground);
+            opacity: 0.8;
+        }
+
         /* ── Zone résultat final ──────────────────────────────────────────── */
         .final-section {
             background: rgba(78, 201, 78, 0.04);
@@ -651,6 +671,21 @@ export class YogitConflict extends LitElement {
         `;
     }
 
+    /**
+     * Placeholder cliquable pour un côté sans aucune ligne. Sans lui, un côté vide ne
+     * rend rien et l'utilisateur ne peut pas le choisir. Le clic sélectionne ce côté
+     * (résultat vide) et marque le hunk résolu.
+     */
+    private _renderEmptySide(selected: boolean, sideClass: 'sel-current' | 'sel-theirs', onSelect: () => void) {
+        return html`
+            <div class="line-row ${selected ? sideClass : ''}" @click=${onSelect}>
+                <span class="line-num"></span>
+                <span class="line-toggle">${selected ? '✓' : '·'}</span>
+                <code class="line-text empty-text">${L.emptySide}</code>
+            </div>
+        `;
+    }
+
     private _renderHunk(hunk: ConflictHunk, cardIdx: number) {
         const resolved = this._isResolved(hunk);
         const allCurrentSel = hunk.currentSelected.every(Boolean);
@@ -698,27 +733,39 @@ export class YogitConflict extends LitElement {
                 <div class="sides">
                     <div class="side side-current">
                         <span class="side-label lbl-current">${L.lblCurrent}</span>
-                        ${hunk.currentLines.map((line, i) =>
-                            this._renderLineRow(
-                                line,
-                                hunk.currentStartLine + i,
-                                hunk.currentSelected[i],
-                                'sel-current',
-                                () => this._toggleCurrentLine(hunk.id, i),
-                            ),
-                        )}
+                        ${hunk.currentLines.length === 0
+                            ? this._renderEmptySide(
+                                  hunk.touched && !hunk.theirsSelected.some(Boolean),
+                                  'sel-current',
+                                  () => this._quickSelect(hunk.id, 'current'),
+                              )
+                            : hunk.currentLines.map((line, i) =>
+                                  this._renderLineRow(
+                                      line,
+                                      hunk.currentStartLine + i,
+                                      hunk.currentSelected[i],
+                                      'sel-current',
+                                      () => this._toggleCurrentLine(hunk.id, i),
+                                  ),
+                              )}
                     </div>
                     <div class="side side-theirs">
                         <span class="side-label lbl-theirs">${L.lblTheirs}</span>
-                        ${hunk.theirsLines.map((line, i) =>
-                            this._renderLineRow(
-                                line,
-                                hunk.theirsStartLine + i,
-                                hunk.theirsSelected[i],
-                                'sel-theirs',
-                                () => this._toggleTheirsLine(hunk.id, i),
-                            ),
-                        )}
+                        ${hunk.theirsLines.length === 0
+                            ? this._renderEmptySide(
+                                  hunk.touched && !hunk.currentSelected.some(Boolean),
+                                  'sel-theirs',
+                                  () => this._quickSelect(hunk.id, 'theirs'),
+                              )
+                            : hunk.theirsLines.map((line, i) =>
+                                  this._renderLineRow(
+                                      line,
+                                      hunk.theirsStartLine + i,
+                                      hunk.theirsSelected[i],
+                                      'sel-theirs',
+                                      () => this._toggleTheirsLine(hunk.id, i),
+                                  ),
+                              )}
                     </div>
                 </div>
 

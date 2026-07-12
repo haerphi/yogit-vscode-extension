@@ -26,6 +26,13 @@ export interface ConflictHunk {
     finalContent: string;
     /** True dès que l'utilisateur a tapé directement dans le textarea — les sélections sont alors ignorées */
     finalEdited: boolean;
+    /**
+     * True dès que l'utilisateur a fait un choix explicite sur ce hunk (clic ligne,
+     * bouton rapide, édition manuelle). Distingue « non résolu » d'« résolu vers un
+     * résultat vide » — cas d'un côté vide ou du bouton « Aucun », où aucune ligne
+     * n'est sélectionnée mais le conflit est bel et bien tranché.
+     */
+    touched: boolean;
 }
 
 /** Section sans conflit entre deux hunks */
