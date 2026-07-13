@@ -2,6 +2,22 @@ import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 
 /**
+ * Canal de sortie "YoGit" partagé — trace chaque commande git et sa sortie.
+ *
+ * Sert notamment à rendre visibles les logs des hooks (husky, lint-staged, …) qui
+ * s'exécutent pendant un commit/rebase : sans cela, leur sortie stdout/stderr est
+ * avalée par le process git et l'utilisateur ne sait pas pourquoi l'action a été
+ * refusée. Créé paresseusement, disposé via context.subscriptions (voir extension.ts).
+ */
+let _channel: vscode.OutputChannel | undefined;
+export function getGitOutputChannel(): vscode.OutputChannel {
+    if (!_channel) {
+        _channel = vscode.window.createOutputChannel('YoGit');
+    }
+    return _channel;
+}
+
+/**
  * Erreur enrichie d'un appel git.
  *
  * En plus d'un `message` toujours lisible et non vide (voir buildFailureMessage), elle
@@ -30,6 +46,13 @@ export interface RunGitOptions {
     input?: string | Buffer;
     /** Variables d'environnement supplémentaires, fusionnées avec process.env. */
     env?: NodeJS.ProcessEnv;
+    /**
+     * Écrit aussi stdout dans le canal de logs "YoGit" (défaut: false). La ligne de
+     * commande et stderr y sont toujours écrits ; stdout ne l'est qu'à la demande car
+     * il peut être volumineux (diffs) ou binaire (cat-file). À activer pour les
+     * commandes susceptibles de déclencher des hooks (commit, rebase, merge…).
+     */
+    logStdout?: boolean;
 }
 
 /**
@@ -59,6 +82,9 @@ function buildSpawnErrorMessage(gitPath: string, err: NodeJS.ErrnoException): st
 
 function spawnGit(gitPath: string, args: string[], cwd: string, opts: RunGitOptions): Promise<Buffer> {
     return new Promise((resolve, reject) => {
+        const channel = getGitOutputChannel();
+        channel.appendLine(`> git ${args.join(' ')}`);
+
         const proc = spawn(gitPath, args, {
             cwd,
             env: opts.env ? { ...process.env, ...opts.env } : process.env,
@@ -66,20 +92,32 @@ function spawnGit(gitPath: string, args: string[], cwd: string, opts: RunGitOpti
         const outChunks: Buffer[] = [];
         const errChunks: Buffer[] = [];
 
-        proc.stdout.on('data', (d: Buffer) => outChunks.push(d));
-        proc.stderr.on('data', (d: Buffer) => errChunks.push(d));
+        proc.stdout.on('data', (d: Buffer) => {
+            outChunks.push(d);
+            // stdout n'est reflété que sur demande : diffs volumineux et sorties binaires
+            // (cat-file) ne doivent pas polluer le canal.
+            if (opts.logStdout) {
+                channel.append(d.toString());
+            }
+        });
+        // stderr est toujours reflété : c'est là qu'écrivent les hooks, warnings et erreurs git.
+        proc.stderr.on('data', (d: Buffer) => {
+            errChunks.push(d);
+            channel.append(d.toString());
+        });
 
         // Sans ce handler, un spawn en échec (git absent, cwd invalide) laisserait la
         // Promise en suspens indéfiniment — la commande resterait bloquée, sans aucun feedback.
         proc.on('error', (err: NodeJS.ErrnoException) => {
-            reject(
-                new GitError(buildSpawnErrorMessage(gitPath, err), { args, exitCode: null, stderr: '', stdout: '' }),
-            );
+            const message = buildSpawnErrorMessage(gitPath, err);
+            channel.appendLine(`✗ ${message}`);
+            reject(new GitError(message, { args, exitCode: null, stderr: '', stdout: '' }));
         });
 
         proc.on('close', code => {
             const stdout = Buffer.concat(outChunks);
             const stderr = Buffer.concat(errChunks).toString().trim();
+            channel.appendLine(`${code === 0 ? '✓' : '✗'} git ${args[0] ?? ''} exited with code ${code}`);
             if (code === 0) {
                 resolve(stdout);
                 return;

@@ -4,6 +4,7 @@ import { registerCommands } from './commands/register-commands';
 import { BranchesProvider } from './git/branches-provider';
 import { ChangesProvider } from './git/changes-provider';
 import { RemotesProvider } from './git/remotes-provider';
+import { getGitOutputChannel } from './git/git-exec';
 import { checkSafeDirectory } from './git/safe-directory';
 import { StashProvider } from './git/stash-provider';
 import { CommitView } from './ui/CommitView';
@@ -61,7 +62,7 @@ export async function activate(context: vscode.ExtensionContext) {
             remotesProvider.setRepository(repo);
             changesProvider.setRepository(repo);
             stashProvider.setRepository(repo, gitApi.git.path);
-            commitView.setRepository(repo);
+            commitView.setRepository(repo, gitApi.git.path);
         }
     };
 
@@ -96,6 +97,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(
+        getGitOutputChannel(),
         branchesView,
         remotesView,
         changesView,

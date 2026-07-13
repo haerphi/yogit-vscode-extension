@@ -110,6 +110,8 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 
 - [x] Exécution git centralisée : helper `src/git/git-exec.ts` (`runGit`/`runGitBuffer`/`GitError`) — un seul point de spawn pour toutes les commandes d'action. Gère l'échec de démarrage du process (binaire introuvable, cwd invalide) et garantit un message d'erreur toujours non vide (stderr → stdout → code de sortie) pour un feedback exploitable
 
+- [x] Canal de sortie « YoGit » : chaque commande git et sa sortie (stderr toujours, stdout à la demande) sont tracées. Le commit passe par child_process (au lieu de `repo.commit()`) pour capturer la sortie des hooks pre-commit/commit-msg (husky, lint-staged…) ; le canal est révélé automatiquement si un hook refuse le commit
+
 - [x] CI GitHub Actions : lint + compile + packaging `.vsix` sur chaque push/PR vers `main`
 - [x] Release automatique : push d'un tag `vX.Y.Z` → build + release GitHub avec le `.vsix` en pièce jointe
 

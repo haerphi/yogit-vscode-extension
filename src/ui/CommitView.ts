@@ -1,9 +1,10 @@
-import { CommitOptions, Repository } from '@haerphi/vscode-git-api-types';
+import { Repository } from '@haerphi/vscode-git-api-types';
 import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { resolveWebviewLocale } from '../config';
+import { getGitOutputChannel, runGit } from '../git/git-exec';
 
 type WebviewMessage =
     | { type: 'ready' }
@@ -39,13 +40,15 @@ export interface RebaseState {
 export class CommitView implements vscode.WebviewViewProvider {
     private _webviewView: vscode.WebviewView | undefined;
     private _repo: Repository | undefined;
+    private _gitPath: string | undefined;
     private _repoStateListener: vscode.Disposable | undefined;
 
     constructor(private readonly _context: vscode.ExtensionContext) {}
 
-    setRepository(repo: Repository): void {
+    setRepository(repo: Repository, gitPath: string): void {
         this._repoStateListener?.dispose();
         this._repo = repo;
+        this._gitPath = gitPath;
         this._repoStateListener = repo.state.onDidChange(() => {
             this._sendUpdate();
         });
@@ -152,17 +155,31 @@ export class CommitView implements vscode.WebviewViewProvider {
         }
     }
 
+    /**
+     * Commit exécuté via child_process (et non repo.commit()) pour capturer la sortie
+     * des hooks pre-commit/commit-msg (husky, lint-staged…) dans le canal "YoGit".
+     * L'API vscode.git avale cette sortie ; en cas de refus par un hook, l'utilisateur
+     * ne verrait sinon aucune raison. Le commit est purement local — aucune authentification
+     * réseau n'est requise, contrairement à push/pull qui restent sur l'API (askpass).
+     */
     private async _doCommit(title: string, description: string, amend: boolean): Promise<void> {
-        if (!this._repo) {
+        if (!this._repo || !this._gitPath) {
             return;
         }
         const message = description ? `${title}\n\n${description}` : title;
-        const opts: CommitOptions = amend ? { amend: true } : {};
+        const args = ['commit', '-m', message];
+        if (amend) {
+            args.push('--amend');
+        }
         try {
-            await this._repo.commit(message, opts);
+            await runGit(this._gitPath, args, this._repo.rootUri.fsPath, { logStdout: true });
+            // Commit fait hors API : forcer la relecture de l'état pour rafraîchir les vues.
+            await this._repo.status();
             this._webviewView?.webview.postMessage({ type: 'committed' });
         } catch (err) {
             const errMsg = err instanceof Error ? err.message : String(err);
+            // Un hook a probablement refusé le commit — révéler ses logs sans voler le focus.
+            getGitOutputChannel().show(true);
             this._webviewView?.webview.postMessage({ type: 'error', message: errMsg });
         }
     }
