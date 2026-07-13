@@ -591,6 +591,11 @@ export class YogitLog extends LitElement {
             background: var(--vscode-list-hoverBackground);
         }
 
+        /* Commit courant (HEAD) — légère mise en avant rose pâle */
+        .commit-row-flat.current {
+            background: rgba(255, 145, 180, 0.13);
+        }
+
         .commit-row-flat.selected {
             background: var(--vscode-list-activeSelectionBackground);
             color: var(--vscode-list-activeSelectionForeground);
@@ -734,6 +739,11 @@ export class YogitLog extends LitElement {
 
         .commit-row:hover {
             background: var(--vscode-list-hoverBackground);
+        }
+
+        /* Commit courant (HEAD) — légère mise en avant rose pâle */
+        .commit-row.current {
+            background: rgba(255, 145, 180, 0.13);
         }
 
         .commit-row.selected {
@@ -1242,6 +1252,11 @@ export class YogitLog extends LitElement {
         `;
     }
 
+    /** Le commit sur lequel pointe HEAD (branche courante). */
+    private _isCurrentCommit(commit: CommitEntry): boolean {
+        return commit.refs.some(r => r.isCurrent);
+    }
+
     private _matchesFilter(commit: CommitEntry, q: string): boolean {
         const lq = q.toLowerCase();
         return (
@@ -1255,9 +1270,10 @@ export class YogitLog extends LitElement {
 
     private renderFlatRow(commit: CommitEntry) {
         const selected = commit.hash === this.selectedHash;
+        const current = this._isCurrentCommit(commit);
         return html`
             <div
-                class="commit-row-flat ${selected ? 'selected' : ''}"
+                class="commit-row-flat ${current ? 'current' : ''} ${selected ? 'selected' : ''}"
                 @click=${() => this._selectCommit(commit.hash)}
                 @contextmenu=${(e: MouseEvent) => this._openCtxMenu(e, commit)}
             >
@@ -1275,9 +1291,10 @@ export class YogitLog extends LitElement {
 
     private renderCommitRow(row: GraphRow) {
         const selected = row.commit.hash === this.selectedHash;
+        const current = this._isCurrentCommit(row.commit);
         return html`
             <div
-                class="commit-row ${selected ? 'selected' : ''}"
+                class="commit-row ${current ? 'current' : ''} ${selected ? 'selected' : ''}"
                 @click=${() => this._selectCommit(row.commit.hash)}
                 @contextmenu=${(e: MouseEvent) => this._openCtxMenu(e, row.commit)}
             >
