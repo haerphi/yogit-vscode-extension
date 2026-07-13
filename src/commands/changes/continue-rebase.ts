@@ -1,6 +1,6 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
+import { runGit } from '../../git/git-exec';
 import { getRepo } from '../utils';
 
 export function registerContinueRebase(gitApi: API): vscode.Disposable {
@@ -22,18 +22,7 @@ export function registerContinueRebase(gitApi: API): vscode.Disposable {
     });
 }
 
-function _spawnGit(gitPath: string, args: string[], cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        // GIT_EDITOR=true évite l'ouverture d'un éditeur interactif pour valider le message
-        const proc = spawn(gitPath, args, { cwd, env: { ...process.env, GIT_EDITOR: 'true' } });
-        const err: string[] = [];
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => {
-            if (code !== 0) {
-                reject(new Error(err.join('').trim()));
-            } else {
-                resolve();
-            }
-        });
-    });
+async function _spawnGit(gitPath: string, args: string[], cwd: string): Promise<void> {
+    // GIT_EDITOR=true évite l'ouverture d'un éditeur interactif pour valider le message
+    await runGit(gitPath, args, cwd, { env: { GIT_EDITOR: 'true' } });
 }

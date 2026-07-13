@@ -1,21 +1,6 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
-
-function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, args, { cwd });
-        const err: string[] = [];
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => {
-            if (code !== 0) {
-                reject(new Error(err.join('').trim()));
-                return;
-            }
-            resolve();
-        });
-    });
-}
+import { runGit } from '../../git/git-exec';
 
 /**
  * Détection de l'absence de dépôt git + commandes d'initialisation.

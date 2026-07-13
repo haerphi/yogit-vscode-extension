@@ -1,7 +1,7 @@
 import { API, ForcePushMode } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { BranchesProvider } from '../../git/branches-provider';
+import { runGit } from '../../git/git-exec';
 import { ConfirmModal } from '../../ui/ConfirmModal';
 import { getRepo } from '../utils';
 
@@ -14,7 +14,7 @@ async function withProgress(title: string, task: () => Promise<void>): Promise<v
  * vscode.git n'expose pas. Les autres pushes passent par repo.push() (API), qui
  * bénéficie de l'askpass de VS Code pour l'authentification.
  */
-function gitPushWithTags(
+async function gitPushWithTags(
     gitPath: string,
     opts: { remote: string; branch: string; setUpstream: boolean; forceMode?: ForcePushMode },
     cwd: string,
@@ -29,19 +29,7 @@ function gitPushWithTags(
         args.push('--force');
     }
 
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, args, { cwd });
-        const stderr: string[] = [];
-        proc.stderr.on('data', (data: Buffer) => stderr.push(data.toString()));
-        proc.on('close', code => {
-            if (code === 0) {
-                resolve();
-            } else {
-                reject(new Error(stderr.join('').trim()));
-            }
-        });
-        proc.on('error', reject);
-    });
+    await runGit(gitPath, args, cwd);
 }
 
 export function registerSync(

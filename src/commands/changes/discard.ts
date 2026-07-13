@@ -1,8 +1,8 @@
 import { API, Status } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { ChangeLeaf } from '../../git/changes-provider';
+import { runGit } from '../../git/git-exec';
 import { DiffPanel } from '../../ui/DiffPanel';
 import { getRepo } from '../utils';
 
@@ -153,17 +153,6 @@ async function _reloadEditorFromDisk(uri: vscode.Uri): Promise<void> {
     await vscode.commands.executeCommand('workbench.action.files.revert');
 }
 
-function _spawnGit(gitPath: string, args: string[], cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, args, { cwd });
-        const err: string[] = [];
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => {
-            if (code !== 0) {
-                reject(new Error(err.join('').trim()));
-            } else {
-                resolve();
-            }
-        });
-    });
+async function _spawnGit(gitPath: string, args: string[], cwd: string): Promise<void> {
+    await runGit(gitPath, args, cwd);
 }

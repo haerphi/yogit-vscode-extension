@@ -1,7 +1,7 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { BranchLeaf } from '../../git/branches-provider';
+import { runGit } from '../../git/git-exec';
 import { ConfirmModal } from '../../ui/ConfirmModal';
 import { getRepo } from '../utils';
 
@@ -13,20 +13,8 @@ import { getRepo } from '../utils';
  *
  * Voir switch.ts (gitSwitchForce) pour les raisons du choix de spawn et de gitApi.git.path.
  */
-function gitDeleteRemoteBranch(gitPath: string, remote: string, branch: string, cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['push', remote, '--delete', branch], { cwd });
-        const stderr: string[] = [];
-
-        proc.stderr.on('data', (data: Buffer) => stderr.push(data.toString()));
-        proc.on('close', code => {
-            if (code === 0) {
-                resolve();
-            } else {
-                reject(new Error(stderr.join('').trim()));
-            }
-        });
-    });
+async function gitDeleteRemoteBranch(gitPath: string, remote: string, branch: string, cwd: string): Promise<void> {
+    await runGit(gitPath, ['push', remote, '--delete', branch], cwd);
 }
 
 /**

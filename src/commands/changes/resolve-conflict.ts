@@ -1,7 +1,7 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { ChangeLeaf } from '../../git/changes-provider';
+import { runGit } from '../../git/git-exec';
 import { ConflictPanel } from '../../ui/ConflictPanel';
 import { getRepo } from '../utils';
 
@@ -15,21 +15,8 @@ import { getRepo } from '../utils';
  *
  * Voir delete-branch.ts / switch.ts pour les raisons du choix de spawn et de gitApi.git.path.
  */
-function gitCheckoutSide(gitPath: string, side: 'ours' | 'theirs', fsPath: string, cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['checkout', `--${side}`, '--', fsPath], { cwd });
-        const stderr: string[] = [];
-
-        proc.stderr.on('data', (data: Buffer) => stderr.push(data.toString()));
-        proc.on('close', code => {
-            if (code === 0) {
-                resolve();
-            } else {
-                reject(new Error(stderr.join('').trim()));
-            }
-        });
-        proc.on('error', reject);
-    });
+async function gitCheckoutSide(gitPath: string, side: 'ours' | 'theirs', fsPath: string, cwd: string): Promise<void> {
+    await runGit(gitPath, ['checkout', `--${side}`, '--', fsPath], cwd);
 }
 
 export function registerResolveConflict(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {

@@ -1,7 +1,7 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { BranchesProvider, BranchLeaf } from '../../git/branches-provider';
+import { runGit } from '../../git/git-exec';
 import { getRepo, validateBranchName } from '../utils';
 
 /**
@@ -13,21 +13,8 @@ import { getRepo, validateBranchName } from '../utils';
  *
  * Voir delete-branch.ts / switch.ts pour les raisons du choix de spawn et de gitApi.git.path.
  */
-function gitRenameBranch(gitPath: string, oldName: string, newName: string, cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['branch', '-m', oldName, newName], { cwd });
-        const stderr: string[] = [];
-
-        proc.stderr.on('data', (data: Buffer) => stderr.push(data.toString()));
-        proc.on('close', code => {
-            if (code === 0) {
-                resolve();
-            } else {
-                reject(new Error(stderr.join('').trim()));
-            }
-        });
-        proc.on('error', reject);
-    });
+async function gitRenameBranch(gitPath: string, oldName: string, newName: string, cwd: string): Promise<void> {
+    await runGit(gitPath, ['branch', '-m', oldName, newName], cwd);
 }
 
 /**

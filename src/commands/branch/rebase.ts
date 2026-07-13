@@ -1,34 +1,18 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { BranchLeaf } from '../../git/branches-provider';
 import { offerConflictResolution } from '../../git/conflict-helper';
+import { runGit } from '../../git/git-exec';
 import { getRepo } from '../utils';
 
-function gitRebase(gitPath: string, onto: string, cwd: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['rebase', onto], { cwd });
-        const stdout: string[] = [];
-        const stderr: string[] = [];
-
-        proc.stdout.on('data', (data: Buffer) => stdout.push(data.toString()));
-        proc.stderr.on('data', (data: Buffer) => stderr.push(data.toString()));
-
-        proc.on('close', code => {
-            if (code === 0) {
-                resolve(stdout.join('').trim());
-            } else {
-                reject(new Error((stderr.join('') || stdout.join('')).trim()));
-            }
-        });
-    });
+async function gitRebase(gitPath: string, onto: string, cwd: string): Promise<string> {
+    return (await runGit(gitPath, ['rebase', onto], cwd)).trim();
 }
 
-function gitRebaseAbort(gitPath: string, cwd: string): Promise<void> {
-    return new Promise(resolve => {
-        const proc = spawn(gitPath, ['rebase', '--abort'], { cwd });
-        proc.on('close', () => resolve());
-    });
+async function gitRebaseAbort(gitPath: string, cwd: string): Promise<void> {
+    // Best-effort : appelé en récupération d'un rebase déjà en échec, on ignore une
+    // éventuelle erreur d'abort pour ne pas masquer la cause initiale.
+    await runGit(gitPath, ['rebase', '--abort'], cwd).catch(() => undefined);
 }
 
 export function registerRebase(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {

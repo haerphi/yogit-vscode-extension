@@ -1,8 +1,8 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { parseDiff } from '../../git/diff-parser';
+import { runGit, runGitBuffer } from '../../git/git-exec';
 import { FileDiff, Hunk, HunkSelection } from '../../types/diff';
 import { ChangeLeaf } from '../../git/changes-provider';
 import { DiffPanel } from '../../ui/DiffPanel';
@@ -18,17 +18,10 @@ import { getRepo } from '../utils';
  * fichier"), sans jamais changer l'indexation hunk/ligne utilisée par la sélection.
  */
 function gitDiff(gitPath: string, relPath: string, cwd: string, cached = false): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const args = cached
-            ? ['diff', '--no-color', '--unified=100000', '--cached', '--', relPath]
-            : ['diff', '--no-color', '--unified=100000', '--', relPath];
-        const proc = spawn(gitPath, args, { cwd });
-        const out: string[] = [];
-        const err: string[] = [];
-        proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => (code === 0 ? resolve(out.join('')) : reject(new Error(err.join('').trim()))));
-    });
+    const args = cached
+        ? ['diff', '--no-color', '--unified=100000', '--cached', '--', relPath]
+        : ['diff', '--no-color', '--unified=100000', '--', relPath];
+    return runGit(gitPath, args, cwd);
 }
 
 /**
@@ -38,53 +31,25 @@ function gitDiff(gitPath: string, relPath: string, cwd: string, cached = false):
  * Retourne un Buffer pour préserver les octets exacts (binaires, encodages).
  */
 function gitCatFile(gitPath: string, relPath: string, cwd: string): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['cat-file', 'blob', `:0:${relPath}`], { cwd });
-        const chunks: Buffer[] = [];
-        const err: string[] = [];
-        proc.stdout.on('data', (d: Buffer) => chunks.push(d));
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code =>
-            code === 0 ? resolve(Buffer.concat(chunks)) : reject(new Error(err.join('').trim())),
-        );
-    });
+    return runGitBuffer(gitPath, ['cat-file', 'blob', `:0:${relPath}`], cwd);
 }
 
 /**
  * Écrit un Buffer dans le store git et retourne son hash SHA-1.
  * Équivalent de `echo content | git hash-object -w --stdin`.
  */
-function gitHashObjectWrite(gitPath: string, content: Buffer, cwd: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['hash-object', '-w', '--stdin'], { cwd });
-        const out: string[] = [];
-        const err: string[] = [];
-        proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => (code === 0 ? resolve(out.join('').trim()) : reject(new Error(err.join('').trim()))));
-        proc.stdin.end(content);
-    });
+async function gitHashObjectWrite(gitPath: string, content: Buffer, cwd: string): Promise<string> {
+    return (await runGit(gitPath, ['hash-object', '-w', '--stdin'], cwd, { input: content })).trim();
 }
 
 /**
  * Récupère le mode et le hash courant du fichier dans l'index
  * via `git ls-files -s`. Format de sortie : "<mode> <hash> <stage>\t<path>".
  */
-function gitLsFiles(gitPath: string, relPath: string, cwd: string): Promise<{ mode: string }> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['ls-files', '-s', '--', relPath], { cwd });
-        const out: string[] = [];
-        proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
-        proc.on('close', code => {
-            if (code !== 0) {
-                reject(new Error('ls-files failed'));
-                return;
-            }
-            const line = out.join('').trim();
-            const mode = line.split(' ')[0] ?? '100644';
-            resolve({ mode });
-        });
-    });
+async function gitLsFiles(gitPath: string, relPath: string, cwd: string): Promise<{ mode: string }> {
+    const line = (await runGit(gitPath, ['ls-files', '-s', '--', relPath], cwd)).trim();
+    const mode = line.split(' ')[0] ?? '100644';
+    return { mode };
 }
 
 /**
@@ -92,13 +57,14 @@ function gitLsFiles(gitPath: string, relPath: string, cwd: string): Promise<{ mo
  * C'est la commande plomberie qui écrit directement dans l'index sans passer par
  * git apply, contournant ainsi les problèmes de correspondance de contexte sur WSL UNC.
  */
-function gitUpdateIndex(gitPath: string, mode: string, hash: string, relPath: string, cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['update-index', '--cacheinfo', `${mode},${hash},${relPath}`], { cwd });
-        const err: string[] = [];
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => (code === 0 ? resolve() : reject(new Error(err.join('').trim()))));
-    });
+async function gitUpdateIndex(
+    gitPath: string,
+    mode: string,
+    hash: string,
+    relPath: string,
+    cwd: string,
+): Promise<void> {
+    await runGit(gitPath, ['update-index', '--cacheinfo', `${mode},${hash},${relPath}`], cwd);
 }
 
 // ─── Application en mémoire ───────────────────────────────────────────────────

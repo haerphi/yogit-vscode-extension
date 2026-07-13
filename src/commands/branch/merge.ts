@@ -1,8 +1,8 @@
 import { API } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { BranchLeaf } from '../../git/branches-provider';
 import { offerConflictResolution } from '../../git/conflict-helper';
+import { runGit } from '../../git/git-exec';
 import { getRepo } from '../utils';
 
 export function registerMerge(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {
@@ -91,18 +91,5 @@ export function registerMerge(gitApi: API, context: vscode.ExtensionContext): vs
 }
 
 function _spawnGit(gitPath: string, args: string[], cwd: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, args, { cwd });
-        const out: string[] = [];
-        const err: string[] = [];
-        proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => {
-            if (code !== 0) {
-                reject(new Error((err.join('') || out.join('')).trim()));
-            } else {
-                resolve(out.join(''));
-            }
-        });
-    });
+    return runGit(gitPath, args, cwd);
 }

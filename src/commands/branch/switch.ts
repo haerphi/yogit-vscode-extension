@@ -1,42 +1,19 @@
 import { API, Branch, RefType, Repository } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 import { BranchLeaf } from '../../git/branches-provider';
+import { runGit } from '../../git/git-exec';
 import { getRepo } from '../utils';
 
 /**
- * Exécute `git switch <args>` via child_process en utilisant le binaire git
- * que vscode.git utilise lui-même (gitApi.git.path).
+ * Exécute `git switch <args>` via le helper partagé (child_process + gitApi.git.path).
  *
  * Pourquoi child_process plutôt que l'API vscode.git ?
  *   L'API n'expose ni l'option "force" ni "--track" sur checkout(). On doit donc
- *   appeler git directement pour ces variantes.
- *
- * Pourquoi gitApi.git.path plutôt que "git" en dur ?
- *   En mode Remote WSL, l'extension host tourne dans WSL — child_process.spawn s'exécute
- *   aussi dans WSL et git.path pointe vers le bon binaire Linux. Hardcoder "git" pourrait
- *   pointer vers un git différent ou absent selon l'environnement.
- *
- * Pourquoi spawn et non exec ?
- *   spawn streame stderr en temps réel, ce qui permet de collecter le message d'erreur
- *   exact que git retourne pour le passer dans showErrorMessage.
+ *   appeler git directement pour ces variantes. Voir git-exec.ts pour la gestion
+ *   d'erreur (message toujours exploitable, échec de spawn géré).
  */
-function gitSwitch(gitPath: string, args: string[], cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['switch', ...args], { cwd });
-        const stderr: string[] = [];
-
-        proc.stderr.on('data', (data: Buffer) => {
-            stderr.push(data.toString());
-        });
-        proc.on('close', code => {
-            if (code === 0) {
-                resolve();
-            } else {
-                reject(new Error(stderr.join('').trim()));
-            }
-        });
-    });
+async function gitSwitch(gitPath: string, args: string[], cwd: string): Promise<void> {
+    await runGit(gitPath, ['switch', ...args], cwd);
 }
 
 /**

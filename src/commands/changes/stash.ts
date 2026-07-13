@@ -1,21 +1,12 @@
 import { API, Status } from '@haerphi/vscode-git-api-types';
-import { spawn } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { parseMultiFileDiff } from '../../git/diff-parser';
+import { runGit } from '../../git/git-exec';
 import { StashEntry, StashProvider } from '../../git/stash-provider';
 import { ConfirmModal } from '../../ui/ConfirmModal';
 import { DiffPanel } from '../../ui/DiffPanel';
 import { getRepo } from '../utils';
-
-function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, args, { cwd });
-        const err: string[] = [];
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => (code === 0 ? resolve() : reject(new Error(err.join('').trim()))));
-    });
-}
 
 /**
  * `-u` inclut le diff des fichiers non trackés inclus dans le stash (3ᵉ parent du
@@ -24,14 +15,7 @@ function runGit(gitPath: string, args: string[], cwd: string): Promise<void> {
  * "Afficher tout le fichier" de la vue diff fonctionne aussi ici (voir stage-hunk.ts).
  */
 function gitStashShow(gitPath: string, ref: string, cwd: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(gitPath, ['stash', 'show', '-p', '-u', '--no-color', '--unified=100000', ref], { cwd });
-        const out: string[] = [];
-        const err: string[] = [];
-        proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));
-        proc.stderr.on('data', (d: Buffer) => err.push(d.toString()));
-        proc.on('close', code => (code === 0 ? resolve(out.join('')) : reject(new Error(err.join('').trim()))));
-    });
+    return runGit(gitPath, ['stash', 'show', '-p', '-u', '--no-color', '--unified=100000', ref], cwd);
 }
 
 export function registerStash(

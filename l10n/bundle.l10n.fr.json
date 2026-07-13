@@ -207,5 +207,7 @@
     "Rebase aborted.": "Rebase annulé.",
     "Conflicts — {0}": "Conflits — {0}",
     "{0} saved and staged.": "{0} sauvegardé et indexé.",
-    "Save failed: {0}": "Sauvegarde échouée : {0}"
+    "Save failed: {0}": "Sauvegarde échouée : {0}",
+    "git {0} exited with code {1}": "git {0} s'est terminé avec le code {1}",
+    "Git executable not found: {0}": "Exécutable git introuvable : {0}"
 }
