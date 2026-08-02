@@ -106,7 +106,18 @@ export async function activate(context: vscode.ExtensionContext) {
         disposableRepo,
         disposableBadge,
         disposableSave,
-        ...registerCommands(gitApi, branchesProvider, stashProvider, context),
+        ...registerCommands(gitApi, branchesProvider, stashProvider, context, {
+            branches: {
+                provider: branchesProvider,
+                view: branchesView,
+                contextKey: 'haerphi-yogit.branchesFiltered',
+            },
+            remotes: {
+                provider: remotesProvider,
+                view: remotesView,
+                contextKey: 'haerphi-yogit.remotesFiltered',
+            },
+        }),
     );
 }
 

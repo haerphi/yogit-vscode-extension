@@ -35,6 +35,10 @@ export class RemotesProvider implements TreeDataProvider<RemoteNode> {
     private gitRepository: Repository | undefined;
     private repoStateListener: Disposable | undefined;
 
+    // Filtre de recherche, toujours stocké en minuscules pour une comparaison
+    // insensible à la casse sans retraitement à chaque branche.
+    private filter = '';
+
     setRepository(repository: Repository): void {
         this.repoStateListener?.dispose();
 
@@ -52,6 +56,23 @@ export class RemotesProvider implements TreeDataProvider<RemoteNode> {
      */
     refresh(): void {
         this._onDidChangeTreeData.fire();
+    }
+
+    /**
+     * Restreint la vue aux branches distantes dont le nom complet ("origin/foo")
+     * contient `value`. Une chaîne vide réaffiche tout.
+     */
+    setFilter(value: string): void {
+        this.filter = value.trim().toLowerCase();
+        this._onDidChangeTreeData.fire();
+    }
+
+    get activeFilter(): string {
+        return this.filter;
+    }
+
+    private matches(branchName: string | undefined): boolean {
+        return (branchName ?? '').toLowerCase().includes(this.filter);
     }
 
     getTreeItem(node: RemoteNode): TreeItem {
@@ -84,11 +105,25 @@ export class RemotesProvider implements TreeDataProvider<RemoteNode> {
 
         // Racine : un groupe par remote configuré.
         if (!element) {
-            return this.gitRepository.state.remotes.map(remote => ({
+            const groups = this.gitRepository.state.remotes.map(remote => ({
                 kind: 'remote' as const,
                 name: remote.name,
                 fetchUrl: remote.fetchUrl,
             }));
+
+            if (!this.filter) {
+                return groups;
+            }
+
+            // Sous filtre, un remote sans aucune branche correspondante disparaît
+            // plutôt que de rester affiché comme un groupe vide.
+            return this.gitRepository
+                .getBranches({ remote: true })
+                .then(branches =>
+                    groups.filter(group =>
+                        branches.some(b => b.name?.startsWith(`${group.name}/`) && this.matches(b.name)),
+                    ),
+                );
         }
 
         // Enfants d'un remote : ses branches distantes.
@@ -97,7 +132,7 @@ export class RemotesProvider implements TreeDataProvider<RemoteNode> {
                 .getBranches({ remote: true })
                 .then(branches =>
                     branches
-                        .filter(b => b.name?.startsWith(`${element.name}/`) ?? false)
+                        .filter(b => (b.name?.startsWith(`${element.name}/`) ?? false) && this.matches(b.name))
                         .map(branch => ({ kind: 'branch' as const, branch })),
                 );
         }

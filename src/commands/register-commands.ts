@@ -6,6 +6,7 @@ import { registerCopyBranchName } from './branch/copy-branch-name';
 import { registerCreateBranch } from './branch/create-branch';
 import { registerCreateBranchFrom } from './branch/create-branch-from';
 import { registerDeleteBranch } from './branch/delete-branch';
+import { FilterTarget, registerBranchFilters } from './branch/filter-branches';
 import { registerRenameBranch } from './branch/rename-branch';
 import { registerMerge } from './branch/merge';
 import { registerRebase } from './branch/rebase';
@@ -39,14 +40,18 @@ import { registerRepoSetup } from './repo/init-repo';
  * @param provider - Le provider de la TreeView, passé aux commandes qui doivent
  *                   forcer un rafraîchissement hors du cycle onDidChange.
  * @param context  - Le contexte d'extension, nécessaire pour les WebviewPanels (modales).
+ * @param filters  - Providers + TreeViews des vues filtrables (branches, remotes) :
+ *                   la recherche a besoin de la vue elle-même pour afficher le filtre actif.
  */
 export function registerCommands(
     gitApi: API,
     provider: BranchesProvider,
     stashProvider: StashProvider,
     context: vscode.ExtensionContext,
+    filters: { branches: FilterTarget; remotes: FilterTarget },
 ): vscode.Disposable[] {
     return [
+        ...registerBranchFilters(filters),
         registerCreateBranch(gitApi, provider),
         registerCreateBranchFrom(gitApi, provider),
         ...registerSwitch(gitApi),

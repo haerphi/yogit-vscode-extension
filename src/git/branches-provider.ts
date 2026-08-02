@@ -41,6 +41,10 @@ export class BranchesProvider implements TreeDataProvider<BranchLeaf> {
     // proprement si setRepository() est appelé une seconde fois (changement de dépôt).
     private repoStateListener: Disposable | undefined;
 
+    // Filtre de recherche, toujours stocké en minuscules pour une comparaison
+    // insensible à la casse sans retraitement à chaque branche.
+    private filter = '';
+
     /**
      * Branche le provider sur un dépôt git.
      * Dispose l'ancien listener avant d'en créer un nouveau pour éviter les fuites mémoire.
@@ -66,6 +70,19 @@ export class BranchesProvider implements TreeDataProvider<BranchLeaf> {
      */
     refresh(): void {
         this._onDidChangeTreeData.fire();
+    }
+
+    /**
+     * Restreint la vue aux branches dont le nom contient `value`.
+     * Une chaîne vide réaffiche toutes les branches.
+     */
+    setFilter(value: string): void {
+        this.filter = value.trim().toLowerCase();
+        this._onDidChangeTreeData.fire();
+    }
+
+    get activeFilter(): string {
+        return this.filter;
     }
 
     getTreeItem(node: BranchLeaf): TreeItem {
@@ -101,7 +118,11 @@ export class BranchesProvider implements TreeDataProvider<BranchLeaf> {
         if (!element) {
             return this.gitRepository
                 .getBranches({ remote: false })
-                .then(branches => branches.map(branch => ({ kind: 'branch' as const, branch })));
+                .then(branches =>
+                    branches
+                        .filter(branch => (branch.name ?? '').toLowerCase().includes(this.filter))
+                        .map(branch => ({ kind: 'branch' as const, branch })),
+                );
         }
 
         // Les feuilles (branches) n'ont pas d'enfants.

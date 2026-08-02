@@ -226,6 +226,40 @@
                 "command": "haerphi-yogit.add-remote",
                 "title": "%cmd.add-remote.title%",
                 "icon": "$(add)"
+            },
+            {
+                "command": "haerphi-yogit.filter-branches",
+                "title": "%cmd.filter-branches.title%",
+                "icon": "$(search)"
+            },
+            {
+                "command": "haerphi-yogit.clear-filter-branches",
+                "title": "%cmd.clear-filter-branches.title%",
+                "icon": "$(search-stop)"
+            },
+            {
+                "command": "haerphi-yogit.filter-remotes",
+                "title": "%cmd.filter-remotes.title%",
+                "icon": "$(search)"
+            },
+            {
+                "command": "haerphi-yogit.clear-filter-remotes",
+                "title": "%cmd.clear-filter-remotes.title%",
+                "icon": "$(search-stop)"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "haerphi-yogit.filter-branches",
+                "key": "ctrl+f",
+                "mac": "cmd+f",
+                "when": "focusedView == branches"
+            },
+            {
+                "command": "haerphi-yogit.filter-remotes",
+                "key": "ctrl+f",
+                "mac": "cmd+f",
+                "when": "focusedView == remotes"
             }
         ],
         "menus": {
@@ -241,6 +275,14 @@
                 {
                     "command": "haerphi-yogit.link-repo",
                     "when": "haerphi-yogit.noRepo"
+                },
+                {
+                    "command": "haerphi-yogit.clear-filter-branches",
+                    "when": "haerphi-yogit.branchesFiltered"
+                },
+                {
+                    "command": "haerphi-yogit.clear-filter-remotes",
+                    "when": "haerphi-yogit.remotesFiltered"
                 }
             ],
             "view/title": [
@@ -270,6 +312,16 @@
                     "group": "navigation@5"
                 },
                 {
+                    "command": "haerphi-yogit.filter-branches",
+                    "when": "view == branches && !haerphi-yogit.branchesFiltered",
+                    "group": "navigation@6"
+                },
+                {
+                    "command": "haerphi-yogit.clear-filter-branches",
+                    "when": "view == branches && haerphi-yogit.branchesFiltered",
+                    "group": "navigation@6"
+                },
+                {
                     "command": "haerphi-yogit.fetch",
                     "when": "view == remotes",
                     "group": "navigation@1"
@@ -278,6 +330,16 @@
                     "command": "haerphi-yogit.add-remote",
                     "when": "view == remotes",
                     "group": "navigation@2"
+                },
+                {
+                    "command": "haerphi-yogit.filter-remotes",
+                    "when": "view == remotes && !haerphi-yogit.remotesFiltered",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "haerphi-yogit.clear-filter-remotes",
+                    "when": "view == remotes && haerphi-yogit.remotesFiltered",
+                    "group": "navigation@3"
                 },
                 {
                     "command": "haerphi-yogit.stash",
@@ -529,9 +591,19 @@
                 "when": "haerphi-yogit.noRepo"
             },
             {
+                "view": "branches",
+                "contents": "%welcome.branches.filtered%",
+                "when": "!haerphi-yogit.noRepo && haerphi-yogit.branchesFiltered"
+            },
+            {
                 "view": "remotes",
                 "contents": "%welcome.remotes.default%",
-                "when": "!haerphi-yogit.noRepo"
+                "when": "!haerphi-yogit.noRepo && !haerphi-yogit.remotesFiltered"
+            },
+            {
+                "view": "remotes",
+                "contents": "%welcome.remotes.filtered%",
+                "when": "!haerphi-yogit.noRepo && haerphi-yogit.remotesFiltered"
             },
             {
                 "view": "remotes",

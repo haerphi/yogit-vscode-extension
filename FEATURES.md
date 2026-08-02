@@ -20,6 +20,7 @@
 - [x] Copier le nom d'une branche (menu contextuel, branches locales et distantes)
 - [x] Action : renommer une branche locale (`git branch -m`)
 - [x] Action : supprimer une branche locale / distante
+- [x] Recherche/filtre des branches (vues Branches et Remotes) : bouton loupe dans la barre de titre ou Ctrl+F quand la vue a le focus, filtrage à la frappe, filtre actif affiché dans la description de la vue et effaçable d'un clic
 
 ---
 
