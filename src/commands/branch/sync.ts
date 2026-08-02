@@ -43,7 +43,7 @@ export function registerSync(
             return;
         }
         try {
-            await withProgress('Fetch…', () => repo.fetch());
+            await withProgress('Fetch…', () => repo.fetch({ prune: true }));
             provider.refresh();
         } catch (err) {
             vscode.window.showErrorMessage(
