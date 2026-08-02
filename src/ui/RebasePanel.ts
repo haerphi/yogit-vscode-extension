@@ -80,10 +80,16 @@ export class RebasePanel {
 
                     await offerConflictResolution(repo, gitApi, context);
 
+                    // Ne pas affirmer "conflits" quand git a rejeté le todo lui-même
+                    // (todo invalide, commit introuvable…) : le message masquait la vraie cause.
+                    const looksLikeConflict = /conflict|CONFLICT|could not apply/.test(errMsg);
+
                     // Proposer d'annuler le rebase si git est en état REBASE_MERGE
                     const abortLabel = vscode.l10n.t('Abort Rebase');
                     const action = await vscode.window.showErrorMessage(
-                        vscode.l10n.t('Interactive rebase failed (likely conflicts).'),
+                        looksLikeConflict
+                            ? vscode.l10n.t('Interactive rebase failed (likely conflicts).')
+                            : vscode.l10n.t('Interactive rebase failed.'),
                         { detail: errMsg },
                         abortLabel,
                     );
@@ -115,10 +121,20 @@ export class RebasePanel {
     /**
      * Retourne les commits entre `upstream` et HEAD, du plus ancien au plus récent.
      * C'est l'ordre attendu par git rebase -i (top = appliqué en premier).
+     *
+     * --no-merges est obligatoire : `git rebase -i` (sans --rebase-merges) linéarise
+     * l'historique et construit son todo sans les commits de merge. Les lister ici
+     * produisait un todo que git refuse — "error: 'pick' does not accept merge commits",
+     * dès qu'un merge restait en pick. Les commits apportés par le merge, eux, sont bien
+     * présents dans la plage et restent donc rebasables individuellement.
      */
     private static _loadEntries(gitPath: string, cwd: string, upstream: string): Promise<RebaseEntry[]> {
         return new Promise((resolve, reject) => {
-            const proc = spawn(gitPath, ['log', '--reverse', `${upstream}..HEAD`, '--format=%H%x00%s%x00%ar'], { cwd });
+            const proc = spawn(
+                gitPath,
+                ['log', '--reverse', '--no-merges', `${upstream}..HEAD`, '--format=%H%x00%s%x00%ar'],
+                { cwd },
+            );
             const out: string[] = [];
             const err: string[] = [];
             proc.stdout.on('data', (d: Buffer) => out.push(d.toString()));

@@ -209,6 +209,7 @@
     "Interactive Rebase → {0}": "Rebase interactif → {0}",
     "Interactive rebase onto \"{0}\" completed.": "Rebase interactif sur « {0} » terminé.",
     "Interactive rebase failed (likely conflicts).": "Le rebase interactif a échoué (conflits probables).",
+    "Interactive rebase failed.": "Le rebase interactif a échoué.",
     "Rebase aborted.": "Rebase annulé.",
     "Conflicts — {0}": "Conflits — {0}",
     "{0} saved and staged.": "{0} sauvegardé et indexé.",
