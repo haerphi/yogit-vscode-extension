@@ -1,19 +1,16 @@
 # YoGit — Roadmap
 
-## Jalon 1 — Fondations _(en cours)_
-
-Mise en place de l'infrastructure de base de l'extension.
+## Fondations
 
 - [x] Squelette de l'extension généré
 - [x] Commande affichant la branche courante via `vscode.git`
-- [x] Husky + lint-staged (Prettier + ESLint au commit)6
+- [x] Husky + lint-staged (Prettier + ESLint au commit)
 - [x] Nettoyage du code template (suppression `helloWorld`)
+- [x] Détection de si le dossier est un repository git, sinon proposer de l'initialiser ou de le lier à un repository existant
 
 ---
 
-## Jalon 2 — Vue des branches
-
-Première vraie interface utilisateur : une TreeView listant les branches.
+## Branches
 
 - [x] TreeView listant les branches locales
 - [x] TreeView listant les branches distantes
@@ -26,9 +23,14 @@ Première vraie interface utilisateur : une TreeView listant les branches.
 
 ---
 
-## Jalon 3 — Vue des changements locaux
+## Remotes
 
-Gestion de l'espace de travail courant.
+- [x] Vue « Remotes » séparée : un groupe par remote (origin, upstream…), la vue branches ne liste que les branches locales
+- [x] Ajouter un remote depuis la vue « Remotes »
+
+---
+
+## Changements locaux
 
 - [x] Liste des fichiers modifiés (unstaged / staged / untracked)
 - [x] Chemin relatif grisé à côté du nom de fichier (désambiguïsation des homonymes)
@@ -38,14 +40,12 @@ Gestion de l'espace de travail courant.
 - [x] Menu contextuel "Changes" : ouvrir le fichier dans l'éditeur / copier le nom du fichier (Staged, Modifications, Conflits)
 - [x] Stash partiel (sélection de fichiers)
 - [x] Clic gauche sur un stash → aperçu de son contenu dans la même vue diff que "Changes" (lecture seule, sélection de fichier via QuickPick si le stash en touche plusieurs)
+- [x] Déduplication des modales de confirmation (clé optionnelle dans `ConfirmModal.show`) — re-cliquer sur "Supprimer le stash" ramène la modale existante au lieu d'en empiler une nouvelle
 - [x] Badge sur l'icône de la barre d'activité avec le nombre de fichiers modifiés
-- [x] Section "Conflits" dédiée dans la vue Changes, affichée uniquement quand des fichiers sont en conflit (icône warning, clic → panneau de résolution)
 
 ---
 
-## Jalon 4 — Commits
-
-Création et modification des commits.
+## Commits et synchronisation
 
 - [x] Formulaire de création de commit (titre + description)
 - [x] Amend du dernier commit (message + fichiers oubliés)
@@ -55,18 +55,17 @@ Création et modification des commits.
 
 ---
 
-## Jalon 5 — Graphe et historique _(WebviewPanel)_
-
-Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPanel.
+## Graphe et historique _(WebviewPanel)_
 
 - [x] Historique des commits via `git log`
 - [x] Graphe visuel des commits
 - [x] Inspection d'un commit (diff détaillé en parallèle du graphe)
 - [x] Filtres : par auteur, message, SHA, date
+- [x] Copier le hash d'un commit dans le presse-papiers (menu contextuel de l'historique)
 
 ---
 
-## Jalon 6 — Opérations avancées
+## Opérations avancées
 
 - [x] Cherry-pick
 - [x] Revert (commit inverse)
@@ -78,18 +77,22 @@ Visualisation de l'historique du dépôt. Nécessite `child_process` + WebviewPa
 - [x] Volet "Aperçu" rétractable montrant le résultat final du rebase (squash/fixup fondus, drop exclus, reword avec le nouveau message) avant de cliquer sur "Lancer le rebase"
 - [x] Ajouter un tag sur un commit (depuis l'historique, avec push optionnel)
 - [x] Supprimer un tag (depuis l'historique, avec suppression distante optionnelle)
-- [X]? Résolution visuelle des conflits (Current / Theirs / Final)
-- [x] Clic sur le badge "N non résolu(s)" → défilement animé jusqu'au premier conflit non résolu
-- [x] "Save and stage" ferme automatiquement la vue si le fichier n'a plus de conflit après le staging (vérifié via mergeChanges)
-- [x] Menu contextuel fichier en conflit : "Prendre nos modifications" / "Prendre leurs modifications" (`git checkout --ours|--theirs`)
-- [x] Détection de si le dossier est repository git, sinon proposé de l'initialisé ou le lié à un repository existant
-- [x] Ajouter un remote depuis la vue « Remotes »
-- [x] Vue « Remotes » séparée : un groupe par remote (origin, upstream…), la vue branches ne liste que les branches locales
 - [ ] Reflog (via `git reflog`, commande directe)
 
 ---
 
-## Jalon 7 — Submodules
+## Résolution des conflits
+
+- [x] Section "Conflits" dédiée dans la vue Changes, affichée uniquement quand des fichiers sont en conflit (icône warning, clic → panneau de résolution)
+- [x] Résolution visuelle des conflits (Current / Theirs / Final)
+- [x] Clic sur le badge "N non résolu(s)" → défilement animé jusqu'au premier conflit non résolu
+- [x] "Save and stage" ferme automatiquement la vue si le fichier n'a plus de conflit après le staging (vérifié via mergeChanges)
+- [x] Menu contextuel fichier en conflit : "Prendre nos modifications" / "Prendre leurs modifications" (`git checkout --ours|--theirs`)
+- [x] Bouton "Changements du fichier" (haut à droite) : bascule vers le diff complet nôtre↔entrant (`git diff :2 :3`) pour voir les modifications au-delà des conflits
+
+---
+
+## Submodules
 
 - [ ] Détection des submodules
 - [ ] Affichage dans la TreeView

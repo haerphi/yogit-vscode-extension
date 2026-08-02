@@ -1,9 +1,10 @@
-import { API } from '@haerphi/vscode-git-api-types';
+import { API, Repository } from '@haerphi/vscode-git-api-types';
 import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { resolveWebviewLocale } from '../config';
+import { runGit } from '../git/git-exec';
 import { ConflictFile, ConflictHunk, FileSection } from '../types/conflict';
 
 export class ConflictPanel {
@@ -27,7 +28,7 @@ export class ConflictPanel {
         if (ConflictPanel._panel) {
             ConflictPanel._panel.title = vscode.l10n.t('Conflicts — {0}', fileName);
             ConflictPanel._panel.reveal(vscode.ViewColumn.One);
-            ConflictPanel._panel.webview.postMessage({ type: 'file', file: ConflictPanel._parse(fsPath) });
+            void ConflictPanel._postFile(ConflictPanel._panel, gitApi, repo, fsPath);
             return;
         }
 
@@ -61,14 +62,7 @@ export class ConflictPanel {
             const currentFileName = path.basename(currentFsPath);
 
             if (msg.type === 'ready') {
-                try {
-                    panel.webview.postMessage({ type: 'file', file: ConflictPanel._parse(currentFsPath) });
-                } catch (err) {
-                    panel.webview.postMessage({
-                        type: 'error',
-                        message: err instanceof Error ? err.message : String(err),
-                    });
-                }
+                await ConflictPanel._postFile(panel, gitApi, repo, currentFsPath);
             } else if (msg.type === 'save' && msg.content !== undefined) {
                 try {
                     fs.writeFileSync(currentFsPath, msg.content, 'utf8');
@@ -94,6 +88,53 @@ export class ConflictPanel {
                 }
             }
         });
+    }
+
+    /**
+     * Envoie au webview le fichier parsé accompagné du diff global ours↔theirs.
+     * Regroupe les deux dans un seul message pour éviter un aller-retour supplémentaire ;
+     * le diff peut être `null` (voir _computeDiff) sans empêcher l'affichage de la résolution.
+     */
+    private static async _postFile(
+        panel: vscode.WebviewPanel,
+        gitApi: API,
+        repo: Repository,
+        fsPath: string,
+    ): Promise<void> {
+        try {
+            const file = ConflictPanel._parse(fsPath);
+            const diff = await ConflictPanel._computeDiff(gitApi, repo, fsPath);
+            panel.webview.postMessage({ type: 'file', file, diff });
+        } catch (err) {
+            panel.webview.postMessage({
+                type: 'error',
+                message: err instanceof Error ? err.message : String(err),
+            });
+        }
+    }
+
+    /**
+     * Diff unifié entre le côté « nôtre » (stage 2) et le côté « entrant » (stage 3) du
+     * fichier en conflit — c.-à-d. l'ensemble des différences entre les deux versions, y
+     * compris les zones fusionnées automatiquement qui n'apparaissent pas comme conflits.
+     *
+     * Utilise les blobs de l'index (`:2:` / `:3:`) pour rester cohérent avec les côtés
+     * affichés par le panel et avec `git checkout --ours|--theirs`. Retourne `null` si le
+     * diff n'est pas calculable (fichier déjà indexé, conflit add/delete sans l'un des
+     * stages…) : ce n'est qu'une aide contextuelle, jamais bloquante.
+     */
+    private static async _computeDiff(gitApi: API, repo: Repository, fsPath: string): Promise<string | null> {
+        const rel = path.relative(repo.rootUri.fsPath, fsPath).split(path.sep).join('/');
+        try {
+            const out = await runGit(
+                gitApi.git.path,
+                ['diff', '--no-color', `:2:${rel}`, `:3:${rel}`],
+                repo.rootUri.fsPath,
+            );
+            return out.trim() === '' ? null : out;
+        } catch {
+            return null;
+        }
     }
 
     /**

@@ -180,6 +180,7 @@
     "All uncommitted local changes will be permanently discarded.": "Tous les changements locaux non commités seront définitivement supprimés.",
     "Reset {0} to {1} done.": "Reset {0} sur {1} effectué.",
     "Reset failed: {0}": "Reset échoué : {0}",
+    "Hash of commit {0} copied to the clipboard.": "Hash du commit {0} copié dans le presse-papiers.",
     "Switch Anyway": "Basculer quand même",
     "Switch to commit {0}?": "Basculer sur le commit {0} ?",
     "HEAD will be detached. You will no longer be on a branch — any new commit will be orphaned until you create or switch to a branch.": "La HEAD sera détachée (detached HEAD). Vous ne serez plus sur une branche — tout nouveau commit sera orphelin jusqu'à ce que vous créiez ou basculiez sur une branche.",

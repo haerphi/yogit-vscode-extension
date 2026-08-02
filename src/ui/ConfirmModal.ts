@@ -26,7 +26,24 @@ export type {
  * Retourne null si l'utilisateur ferme le panneau sans choisir ou clique "Annuler".
  */
 export class ConfirmModal {
-    static show(context: vscode.ExtensionContext, options: ModalOptions): Promise<ModalResult | null> {
+    // Modales ouvertes indexées par clé de déduplication — évite d'empiler plusieurs
+    // confirmations identiques quand l'utilisateur re-clique sur la même action.
+    private static readonly openPanels = new Map<string, vscode.WebviewPanel>();
+
+    static show(
+        context: vscode.ExtensionContext,
+        options: ModalOptions,
+        dedupeKey?: string,
+    ): Promise<ModalResult | null> {
+        if (dedupeKey) {
+            const existing = ConfirmModal.openPanels.get(dedupeKey);
+            if (existing) {
+                // Ramener la modale déjà ouverte au premier plan ; le re-clic est
+                // traité comme une annulation pour ne pas dupliquer l'action en aval.
+                existing.reveal();
+                return Promise.resolve(null);
+            }
+        }
         return new Promise(resolve => {
             const panel = vscode.window.createWebviewPanel(
                 'yogit-confirm-modal',
@@ -40,6 +57,10 @@ export class ConfirmModal {
                     localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'out', 'webview')],
                 },
             );
+
+            if (dedupeKey) {
+                ConfirmModal.openPanels.set(dedupeKey, panel);
+            }
 
             panel.webview.html = ConfirmModal.buildHtml(panel.webview, context, options);
 
@@ -55,6 +76,9 @@ export class ConfirmModal {
             });
 
             panel.onDidDispose(() => {
+                if (dedupeKey) {
+                    ConfirmModal.openPanels.delete(dedupeKey);
+                }
                 if (!resolved) {
                     resolve(null);
                 }

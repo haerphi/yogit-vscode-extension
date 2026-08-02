@@ -196,15 +196,20 @@ export function registerStash(
             return;
         }
 
-        const result = await ConfirmModal.show(context, {
-            title: vscode.l10n.t('Drop Stash'),
-            message: vscode.l10n.t('Permanently delete "{0}"?', entry.message),
-            warning: vscode.l10n.t('This action is irreversible.'),
-            buttons: [
-                { label: vscode.l10n.t('Delete'), value: 'confirm', variant: 'danger' },
-                { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
-            ],
-        });
+        const result = await ConfirmModal.show(
+            context,
+            {
+                title: vscode.l10n.t('Drop Stash'),
+                message: vscode.l10n.t('Permanently delete "{0}"?', entry.message),
+                warning: vscode.l10n.t('This action is irreversible.'),
+                buttons: [
+                    { label: vscode.l10n.t('Delete'), value: 'confirm', variant: 'danger' },
+                    { label: vscode.l10n.t('Cancel'), value: 'cancel', variant: 'secondary' },
+                ],
+            },
+            // Clic répété sur "Supprimer" pour le même stash → réutilise la modale ouverte
+            `stash-drop:${entry.ref}`,
+        );
 
         if (!result || result.button !== 'confirm') {
             return;

@@ -24,6 +24,7 @@ const L = pick(
         colAuthor: 'Author',
         colDate: 'Date',
         colHash: 'Hash',
+        ctxCopyHash: 'Copy commit hash',
         ctxSwitch: 'Switch to this commit',
         ctxCherryPick: 'Cherry-pick this commit',
         ctxRevert: 'Revert this commit',
@@ -43,6 +44,7 @@ const L = pick(
         colAuthor: 'Auteur',
         colDate: 'Date',
         colHash: 'Hash',
+        ctxCopyHash: 'Copier le hash du commit',
         ctxSwitch: 'Basculer sur ce commit',
         ctxCherryPick: 'Cherry-pick ce commit',
         ctxRevert: 'Revert ce commit',
@@ -1135,6 +1137,15 @@ export class YogitLog extends LitElement {
         };
     }
 
+    private _copyHash(e: MouseEvent) {
+        e.stopPropagation();
+        if (!this._ctxMenu) {
+            return;
+        }
+        vscode.postMessage({ type: 'copy-hash', hash: this._ctxMenu.hash, shortHash: this._ctxMenu.shortHash });
+        this._ctxMenu = null;
+    }
+
     private _cherryPick(e: MouseEvent) {
         e.stopPropagation();
         if (!this._ctxMenu) {
@@ -1219,6 +1230,9 @@ export class YogitLog extends LitElement {
                 @click=${(e: MouseEvent) => e.stopPropagation()}
             >
                 <div class="ctx-menu-header">${shortHash}</div>
+                <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._copyHash(e)}>
+                    <span>⧉</span> ${L.ctxCopyHash}
+                </div>
                 <div class="ctx-menu-item" @click=${(e: MouseEvent) => this._switchToCommit(e)}>
                     <span>⎇</span> ${L.ctxSwitch}
                 </div>

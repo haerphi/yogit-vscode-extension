@@ -39,6 +39,13 @@ const L = pick(
         savedBanner: '✓ Saved and staged',
         saving: 'Saving…',
         saveButton: 'Save and stage',
+        showDiff: '⇄ File changes',
+        showDiffTitle: 'Show all differences in the file (ours ↔ incoming), beyond the conflicts',
+        hideDiff: '↩ Back to resolution',
+        diffTitle: 'File changes — ours (HEAD) ↔ incoming',
+        diffLegendOurs: '− ours (HEAD)',
+        diffLegendTheirs: '+ incoming (theirs)',
+        diffUnavailable: 'The full diff is unavailable for this file.',
     },
     {
         conflictNum: (n: number) => `Conflit ${n}`,
@@ -67,10 +74,20 @@ const L = pick(
         savedBanner: '✓ Sauvegardé et indexé',
         saving: 'Sauvegarde…',
         saveButton: 'Sauvegarder et indexer',
+        showDiff: '⇄ Changements du fichier',
+        showDiffTitle: 'Afficher toutes les différences du fichier (nôtre ↔ entrant), au-delà des conflits',
+        hideDiff: '↩ Retour à la résolution',
+        diffTitle: 'Changements du fichier — le nôtre (HEAD) ↔ entrant',
+        diffLegendOurs: '− le nôtre (HEAD)',
+        diffLegendTheirs: '+ entrant (les leurs)',
+        diffUnavailable: 'Le diff complet est indisponible pour ce fichier.',
     },
 );
 
-type HostMessage = { type: 'file'; file: ConflictFile } | { type: 'error'; message: string } | { type: 'saved' };
+type HostMessage =
+    | { type: 'file'; file: ConflictFile; diff: string | null }
+    | { type: 'error'; message: string }
+    | { type: 'saved' };
 
 export class YogitConflict extends LitElement {
     static properties = {
@@ -78,12 +95,16 @@ export class YogitConflict extends LitElement {
         _error: { state: true },
         _saving: { state: true },
         _saved: { state: true },
+        _diff: { state: true },
+        _showDiff: { state: true },
     };
 
     declare _file: ConflictFile | null;
     declare _error: string;
     declare _saving: boolean;
     declare _saved: boolean;
+    declare _diff: string | null;
+    declare _showDiff: boolean;
 
     constructor() {
         super();
@@ -91,6 +112,8 @@ export class YogitConflict extends LitElement {
         this._error = '';
         this._saving = false;
         this._saved = false;
+        this._diff = null;
+        this._showDiff = false;
     }
 
     connectedCallback() {
@@ -99,8 +122,11 @@ export class YogitConflict extends LitElement {
             const msg = event.data;
             if (msg.type === 'file') {
                 this._file = msg.file;
+                this._diff = msg.diff;
                 this._error = '';
                 this._saved = false;
+                // Un nouveau fichier repart en mode résolution, jamais figé sur le diff du précédent.
+                this._showDiff = false;
             } else if (msg.type === 'error') {
                 this._error = msg.message;
             } else if (msg.type === 'saved') {
@@ -273,6 +299,42 @@ export class YogitConflict extends LitElement {
         this._saving = true;
         this._saved = false;
         vscode.postMessage({ type: 'save', content: this._buildFinal() });
+    }
+
+    private _toggleDiff() {
+        this._showDiff = !this._showDiff;
+    }
+
+    /**
+     * Découpe un diff unifié git en lignes typées pour le rendu. Les entêtes de fichier
+     * (`diff --git`, `index`, `---`, `+++`) sont classées `meta` et affichées en sourdine,
+     * seuls les `@@`, ajouts et suppressions portent l'information utile.
+     */
+    private _parseDiff(diff: string): Array<{ kind: 'meta' | 'hunk' | 'add' | 'del' | 'ctx'; text: string }> {
+        return diff
+            .replace(/\n$/, '')
+            .split('\n')
+            .map(text => {
+                if (text.startsWith('@@')) {
+                    return { kind: 'hunk' as const, text };
+                }
+                if (
+                    text.startsWith('diff ') ||
+                    text.startsWith('index ') ||
+                    text.startsWith('--- ') ||
+                    text.startsWith('+++ ') ||
+                    text.startsWith('\\ ')
+                ) {
+                    return { kind: 'meta' as const, text };
+                }
+                if (text.startsWith('+')) {
+                    return { kind: 'add' as const, text };
+                }
+                if (text.startsWith('-')) {
+                    return { kind: 'del' as const, text };
+                }
+                return { kind: 'ctx' as const, text };
+            });
     }
 
     // ── Styles ────────────────────────────────────────────────────────────────
@@ -651,6 +713,80 @@ export class YogitConflict extends LitElement {
             font-size: 12px;
             color: var(--vscode-errorForeground, #e04e4e);
         }
+
+        /* ── Bouton d'entête (bascule vers le diff) ───────────────────────── */
+        .btn-header {
+            font-size: 11px;
+            padding: 3px 9px;
+            cursor: pointer;
+            border-radius: 3px;
+            border: 1px solid var(--vscode-panel-border);
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            font-family: var(--vscode-font-family);
+            white-space: nowrap;
+        }
+
+        .btn-header:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+
+        /* ── Vue diff ─────────────────────────────────────────────────────── */
+        .diff-legend {
+            display: flex;
+            gap: 14px;
+            padding: 6px 16px;
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            border-bottom: 1px solid var(--vscode-panel-border);
+        }
+
+        .diff-legend .del {
+            color: var(--vscode-gitDecoration-deletedResourceForeground, #e04e4e);
+        }
+        .diff-legend .add {
+            color: var(--vscode-gitDecoration-addedResourceForeground, #4ec94e);
+        }
+
+        .diff-view {
+            font-family: var(--vscode-editor-font-family, monospace);
+            font-size: 12px;
+            line-height: 1.5;
+            padding: 4px 0;
+        }
+
+        .diff-line {
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding: 0 16px;
+        }
+
+        .diff-line.add {
+            background: rgba(78, 201, 78, 0.14);
+            color: var(--vscode-foreground);
+        }
+        .diff-line.del {
+            background: rgba(224, 78, 78, 0.14);
+            color: var(--vscode-foreground);
+        }
+        .diff-line.hunk {
+            color: var(--vscode-textLink-foreground, #4e9de0);
+            background: rgba(78, 157, 224, 0.08);
+            margin-top: 6px;
+        }
+        .diff-line.meta {
+            color: var(--vscode-descriptionForeground);
+            opacity: 0.7;
+        }
+        .diff-line.ctx {
+            color: var(--vscode-descriptionForeground);
+        }
+
+        .diff-empty {
+            padding: 16px;
+            color: var(--vscode-descriptionForeground);
+            font-style: italic;
+        }
     `;
 
     // ── Rendu ────────────────────────────────────────────────────────────────
@@ -813,6 +949,21 @@ export class YogitConflict extends LitElement {
         return this._renderHunk(section.hunk, idx);
     }
 
+    private _renderDiff() {
+        if (!this._diff) {
+            return html`<div class="diff-empty">${L.diffUnavailable}</div>`;
+        }
+        return html`
+            <div class="diff-legend">
+                <span class="del">${L.diffLegendOurs}</span>
+                <span class="add">${L.diffLegendTheirs}</span>
+            </div>
+            <div class="diff-view">
+                ${this._parseDiff(this._diff).map(l => html`<div class="diff-line ${l.kind}">${l.text || ' '}</div>`)}
+            </div>
+        `;
+    }
+
     render() {
         if (!this._file) {
             return html`<div class="state-msg">${L.loading}</div>`;
@@ -825,26 +976,37 @@ export class YogitConflict extends LitElement {
 
         return html`
             <div class="header">
-                <span class="header-title">${L.conflictsTitle(this._file.fileName)}</span>
-                ${unresolved > 0
-                    ? html`<span
-                          class="badge-unresolved"
-                          role="button"
-                          tabindex="0"
-                          title=${L.scrollToFirstHint}
-                          @click=${this._scrollToFirstUnresolved}
-                          @keydown=${(e: KeyboardEvent) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
-                                  this._scrollToFirstUnresolved();
-                              }
-                          }}
-                          >${L.unresolved(unresolved)}</span
-                      >`
-                    : html`<span class="badge-ok">${L.allResolved}</span>`}
+                <span class="header-title"
+                    >${this._showDiff ? L.diffTitle : L.conflictsTitle(this._file.fileName)}</span
+                >
+                ${this._showDiff
+                    ? nothing
+                    : unresolved > 0
+                      ? html`<span
+                            class="badge-unresolved"
+                            role="button"
+                            tabindex="0"
+                            title=${L.scrollToFirstHint}
+                            @click=${this._scrollToFirstUnresolved}
+                            @keydown=${(e: KeyboardEvent) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    this._scrollToFirstUnresolved();
+                                }
+                            }}
+                            >${L.unresolved(unresolved)}</span
+                        >`
+                      : html`<span class="badge-ok">${L.allResolved}</span>`}
+                <button class="btn-header" title=${this._showDiff ? '' : L.showDiffTitle} @click=${this._toggleDiff}>
+                    ${this._showDiff ? L.hideDiff : L.showDiff}
+                </button>
             </div>
             ${this._error ? html`<div class="error-banner">${this._error}</div>` : nothing}
-            <div class="scroll-area">${this._file.sections.map(s => this._renderSection(s, conflictIdx))}</div>
+            <div class="scroll-area">
+                ${this._showDiff
+                    ? this._renderDiff()
+                    : this._file.sections.map(s => this._renderSection(s, conflictIdx))}
+            </div>
             <div class="footer">
                 <span class="footer-hint"> ${L.footerHint(total)} </span>
                 ${this._saved ? html`<span class="saved-banner">${L.savedBanner}</span>` : nothing}

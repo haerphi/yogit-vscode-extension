@@ -85,6 +85,11 @@ export class LogPanel {
                             message: err instanceof Error ? err.message : String(err),
                         });
                     }
+                } else if (msg.type === 'copy-hash' && msg.hash && msg.shortHash) {
+                    await vscode.env.clipboard.writeText(msg.hash);
+                    vscode.window.showInformationMessage(
+                        vscode.l10n.t('Hash of commit {0} copied to the clipboard.', msg.shortHash),
+                    );
                 } else if (msg.type === 'cherry-pick' && msg.hash) {
                     try {
                         await LogPanel._spawnGit(gitApi.git.path, ['cherry-pick', msg.hash], repo.rootUri.fsPath);
