@@ -2,7 +2,7 @@
     "name": "haerphi-yogit",
     "displayName": "YoGit",
     "description": "An extension to help you using Git and have a clear visualisation of what you're doing!",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "haerphi",
     "license": "MIT",
     "packageManager": "pnpm@11.7.0",
