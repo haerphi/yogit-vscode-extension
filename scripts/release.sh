@@ -60,19 +60,20 @@ if [[ ! "$CONFIRM" =~ ^[yY]$ ]]; then
 fi
 
 # ── 2. Mise à jour de package.json ────────────────────────────────────────────
-# Remplacement ciblé (première occurrence de "version") via node pour préserver
-# le formatage exact du fichier — un JSON.parse/stringify le réindenterait.
-node -e '
-    const fs = require("fs");
-    const f = "package.json";
-    const s = fs.readFileSync(f, "utf8");
-    const next = s.replace(/("version":\s*")[^"]*(")/, `$1${process.argv[1]}$2`);
-    if (next === s) {
-        console.error("✗ Champ \"version\" introuvable dans package.json.");
-        process.exit(1);
-    }
-    fs.writeFileSync(f, next);
-' "$VERSION_NO_V"
+# Remplacement ciblé de la clé "version" de premier niveau (indentée de 4 espaces)
+# via sed, pour préserver le formatage exact du fichier. On dépend de sed plutôt
+# que de node : sed est toujours présent dans l'environnement bash, node non.
+if ! grep -qE '^    "version":[[:space:]]*"[^"]*",?$' package.json; then
+    echo "✗ Champ \"version\" de premier niveau introuvable dans package.json." >&2
+    exit 1
+fi
+sed -i -E "s/^(    \"version\":[[:space:]]*\")[^\"]*(\")/\1${VERSION_NO_V}\2/" package.json
+
+# Vérifier que le remplacement a bien eu lieu avant de committer.
+if ! grep -qE "^    \"version\":[[:space:]]*\"${VERSION_NO_V}\",?$" package.json; then
+    echo "✗ La mise à jour de la version dans package.json a échoué." >&2
+    exit 1
+fi
 
 # ── 3. Commit ─────────────────────────────────────────────────────────────────
 git add package.json
