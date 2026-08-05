@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto';
 import * as vscode from 'vscode';
 import { resolveWebviewLocale } from '../config';
 import { CommitEntry, LogRef } from '../types/log';
+import { CommitDetailPanel } from './CommitDetailPanel';
 import { ConfirmModal } from './ConfirmModal';
 import { RebasePanel } from './RebasePanel';
 
@@ -67,24 +68,8 @@ export class LogPanel {
                             message: err instanceof Error ? err.message : String(err),
                         });
                     }
-                } else if (msg.type === 'load-diff' && msg.hash) {
-                    try {
-                        const [meta, rawDiff] = await Promise.all([
-                            LogPanel._getCommitMeta(gitApi.git.path, repo.rootUri.fsPath, msg.hash),
-                            LogPanel._getCommitDiff(
-                                gitApi.git.path,
-                                repo.rootUri.fsPath,
-                                msg.hash,
-                                msg.parentHashes ?? [],
-                            ),
-                        ]);
-                        panel.webview.postMessage({ type: 'diff', hash: msg.hash, ...meta, rawDiff });
-                    } catch (err) {
-                        panel.webview.postMessage({
-                            type: 'diff-error',
-                            message: err instanceof Error ? err.message : String(err),
-                        });
-                    }
+                } else if (msg.type === 'open-commit' && msg.hash && msg.shortHash) {
+                    await CommitDetailPanel.show(context, gitApi, msg.hash, msg.shortHash, msg.parentHashes ?? []);
                 } else if (msg.type === 'copy-hash' && msg.hash && msg.shortHash) {
                     await vscode.env.clipboard.writeText(msg.hash);
                     vscode.window.showInformationMessage(
@@ -388,36 +373,6 @@ export class LogPanel {
                 );
             });
         });
-    }
-
-    private static async _getCommitMeta(
-        gitPath: string,
-        cwd: string,
-        hash: string,
-    ): Promise<{ author: string; date: string; body: string }> {
-        const raw = await LogPanel._spawnGit(gitPath, ['show', '--no-patch', `--format=%an%x00%ar%x00%B`, hash], cwd);
-        const parts = raw.split('\x00');
-        return {
-            author: parts[0]?.trim() ?? '',
-            date: parts[1]?.trim() ?? '',
-            body: parts[2]?.trim() ?? '',
-        };
-    }
-
-    private static async _getCommitDiff(
-        gitPath: string,
-        cwd: string,
-        hash: string,
-        parentHashes: string[],
-    ): Promise<string> {
-        // For commits with a parent, diff against the first parent to show exactly what this
-        // commit introduced. git show uses a "combined diff" for merges which suppresses most
-        // output; git diff always shows the full change set vs the chosen base.
-        const args =
-            parentHashes.length > 0
-                ? ['diff', '--no-color', '-p', parentHashes[0], hash]
-                : ['show', '--no-color', '--format=', '-p', hash];
-        return LogPanel._spawnGit(gitPath, args, cwd);
     }
 
     private static _parseRefs(decoration: string): LogRef[] {

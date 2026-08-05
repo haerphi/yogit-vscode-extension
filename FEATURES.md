@@ -60,7 +60,7 @@
 
 - [x] Historique des commits via `git log`
 - [x] Graphe visuel des commits
-- [x] Inspection d'un commit (diff détaillé en parallèle du graphe)
+- [x] Inspection d'un commit (diff détaillé) dans un onglet dédié par commit examiné
 - [x] Filtres : par auteur, message, SHA, date
 - [x] Copier le hash d'un commit dans le presse-papiers (menu contextuel de l'historique)
 
