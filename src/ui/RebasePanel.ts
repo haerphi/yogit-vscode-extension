@@ -132,7 +132,7 @@ export class RebasePanel {
         return new Promise((resolve, reject) => {
             const proc = spawn(
                 gitPath,
-                ['log', '--reverse', '--no-merges', `${upstream}..HEAD`, '--format=%H%x00%s%x00%ar'],
+                ['log', '--reverse', '--no-merges', `${upstream}..HEAD`, '--format=%H%x00%s%x00%ar%x00%ai'],
                 { cwd },
             );
             const out: string[] = [];
@@ -150,7 +150,7 @@ export class RebasePanel {
                     .filter(l => l.includes('\x00'));
                 resolve(
                     lines.map(line => {
-                        const [hash, message, date] = line.split('\x00');
+                        const [hash, message, date, isoDate] = line.split('\x00');
                         const h = hash.trim();
                         return {
                             action: 'pick' as const,
@@ -158,6 +158,7 @@ export class RebasePanel {
                             shortHash: h.slice(0, 7),
                             message: message?.trim() ?? '',
                             date: date?.trim() ?? '',
+                            isoDate: isoDate?.trim() ?? '',
                         };
                     }),
                 );

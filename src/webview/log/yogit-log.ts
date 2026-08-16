@@ -11,6 +11,7 @@ declare global {
 const vscode = window.acquireVsCodeApi();
 
 import { pick } from '../shared/i18n';
+import { formatFullDate } from '../shared/date';
 
 const L = pick(
     {
@@ -816,7 +817,7 @@ export class YogitLog extends LitElement {
                     <span class="message-text">${commit.message}</span>
                 </div>
                 <span class="commit-author">${commit.author}</span>
-                <span class="commit-date">${commit.date}</span>
+                <span class="commit-date" title=${formatFullDate(commit.isoDate)}>${commit.date}</span>
                 <span class="hash">${commit.shortHash}</span>
             </div>
         `;
@@ -837,7 +838,7 @@ export class YogitLog extends LitElement {
                     <span class="message-text">${row.commit.message}</span>
                 </div>
                 <span class="commit-author">${row.commit.author}</span>
-                <span class="commit-date">${row.commit.date}</span>
+                <span class="commit-date" title=${formatFullDate(row.commit.isoDate)}>${row.commit.date}</span>
                 <span class="hash">${row.commit.shortHash}</span>
             </div>
         `;

@@ -1,6 +1,7 @@
 import { LitElement, css, html } from 'lit';
 import { RebaseAction, RebaseEntry } from '../../types/rebase';
 import { pick } from '../shared/i18n';
+import { formatFullDate } from '../shared/date';
 
 declare global {
     interface Window {
@@ -856,7 +857,7 @@ export class YogitRebase extends LitElement {
                     )}
                 </select>
                 <span class="entry-hash">${entry.shortHash}</span>
-                <span class="entry-date">${entry.date}</span>
+                <span class="entry-date" title=${formatFullDate(entry.isoDate)}>${entry.date}</span>
                 ${entry.action === 'reword'
                     ? html`<input
                           class="reword-input"
