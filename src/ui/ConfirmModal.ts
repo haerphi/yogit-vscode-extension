@@ -51,7 +51,11 @@ export class ConfirmModal {
                 vscode.ViewColumn.Active,
                 {
                     enableScripts: true,
-                    retainContextWhenHidden: false,
+                    // Les valeurs saisies ne vivent que dans le DOM du webview (lues au
+                    // submit). Sans ce flag, masquer la modale — changer d'onglet, ouvrir
+                    // une autre vue — détruit son contexte : au retour le HTML est rechargé
+                    // depuis __YOGIT_OPTIONS__ et les champs sont vidés.
+                    retainContextWhenHidden: true,
                     // Restreindre les ressources chargables au dossier out/webview/
                     // pour respecter le principe de moindre privilège des webviews VS Code.
                     localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'out', 'webview')],
