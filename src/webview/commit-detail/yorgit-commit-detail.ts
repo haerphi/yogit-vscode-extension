@@ -433,12 +433,21 @@ export class YorgitCommitDetail extends LitElement {
             flex-shrink: 0;
         }
 
+        .diff-lines-scroll {
+            overflow-x: auto;
+        }
+
+        /* Largeur imposée par la ligne la plus longue pour que les fonds
+           colorés couvrent toute la zone scrollable horizontalement. */
+        .diff-lines-inner {
+            width: max-content;
+            min-width: 100%;
+        }
+
         .diff-line {
             display: block;
             padding: 0 10px;
             white-space: pre;
-            overflow: hidden;
-            text-overflow: ellipsis;
             line-height: 18px;
         }
 
@@ -552,10 +561,12 @@ export class YorgitCommitDetail extends LitElement {
                     </span>
                 </div>
                 ${!collapsed
-                    ? html`<div>
-                          ${file.lines.map(
-                              line => html` <span class="diff-line diff-${line.kind}">${line.content || ' '}</span>`,
-                          )}
+                    ? html`<div class="diff-lines-scroll">
+                          <div class="diff-lines-inner">
+                              ${file.lines.map(
+                                  line => html`<span class="diff-line diff-${line.kind}">${line.content || ' '}</span>`,
+                              )}
+                          </div>
                       </div>`
                     : ''}
             </div>

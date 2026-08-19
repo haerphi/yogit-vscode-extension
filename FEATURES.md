@@ -61,6 +61,7 @@
 - [x] Historique des commits via `git log`
 - [x] Graphe visuel des commits
 - [x] Inspection d'un commit (diff détaillé) dans un onglet dédié par commit examiné
+- [x] Scroll horizontal du diff dans l'inspection d'un commit (lignes longues visibles en entier, plus de troncature)
 - [x] Filtres : par auteur, message, SHA, date
 - [x] Copier le hash d'un commit dans le presse-papiers (menu contextuel de l'historique)
 - [x] Survol d'une date relative ("11 days ago") → tooltip avec la date et l'heure exactes du commit (historique et rebase interactif)
