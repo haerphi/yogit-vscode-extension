@@ -21,3 +21,22 @@ export function resolveWebviewLocale(): string {
 export function getRebaseDefaultOrder(): RebaseOrder {
     return vscode.workspace.getConfiguration(SECTION).get<RebaseOrder>('rebase.defaultOrder', 'oldest-first');
 }
+
+export interface BlameConfig {
+    /** Annotation en fin de ligne courante. */
+    inline: boolean;
+    /** Élément dans la barre d'état. */
+    statusBar: boolean;
+    /** Délai avant de blâmer une nouvelle ligne, en millisecondes. */
+    delay: number;
+}
+
+/** Réglages du blame (voir BlameController). */
+export function getBlameConfig(): BlameConfig {
+    const config = vscode.workspace.getConfiguration(SECTION);
+    return {
+        inline: config.get<boolean>('blame.inline', true),
+        statusBar: config.get<boolean>('blame.statusBar', true),
+        delay: config.get<number>('blame.delay', 200),
+    };
+}

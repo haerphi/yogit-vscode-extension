@@ -29,6 +29,7 @@
         "version control"
     ],
     "activationEvents": [
+        "onStartupFinished",
         "onView:commit",
         "onView:branches",
         "onView:remotes",
@@ -246,6 +247,22 @@
                 "command": "haerphi-yorgit.clear-filter-remotes",
                 "title": "%cmd.clear-filter-remotes.title%",
                 "icon": "$(search-stop)"
+            },
+            {
+                "command": "haerphi-yorgit.toggle-inline-blame",
+                "title": "%cmd.toggle-inline-blame.title%",
+                "category": "YorGit"
+            },
+            {
+                "command": "haerphi-yorgit.blame-show-commit",
+                "title": "%cmd.blame-show-commit.title%",
+                "category": "YorGit",
+                "icon": "$(git-commit)"
+            },
+            {
+                "command": "haerphi-yorgit.copy-blame-hash",
+                "title": "%cmd.copy-blame-hash.title%",
+                "category": "YorGit"
             }
         ],
         "keybindings": [
@@ -283,6 +300,14 @@
                 {
                     "command": "haerphi-yorgit.clear-filter-remotes",
                     "when": "haerphi-yorgit.remotesFiltered"
+                },
+                {
+                    "command": "haerphi-yorgit.blame-show-commit",
+                    "when": "haerphi-yorgit.hasBlame"
+                },
+                {
+                    "command": "haerphi-yorgit.copy-blame-hash",
+                    "when": "haerphi-yorgit.hasBlame"
                 }
             ],
             "view/title": [
@@ -648,6 +673,23 @@
                     ],
                     "default": "auto",
                     "description": "%config.language.description%"
+                },
+                "haerphi-yorgit.blame.inline": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%config.blame.inline.description%"
+                },
+                "haerphi-yorgit.blame.statusBar": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%config.blame.statusBar.description%"
+                },
+                "haerphi-yorgit.blame.delay": {
+                    "type": "number",
+                    "default": 200,
+                    "minimum": 0,
+                    "maximum": 5000,
+                    "description": "%config.blame.delay.description%"
                 },
                 "haerphi-yorgit.rebase.defaultOrder": {
                     "type": "string",

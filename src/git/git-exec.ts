@@ -53,6 +53,13 @@ export interface RunGitOptions {
      * commandes susceptibles de déclencher des hooks (commit, rebase, merge…).
      */
     logStdout?: boolean;
+    /**
+     * N'écrit rien dans le canal « YorGit » (défaut: false). Réservé aux lectures
+     * déclenchées par l'utilisateur sans qu'il en fasse la demande (blame de la ligne
+     * courante, relancé à chaque déplacement du curseur) : les tracer noierait le
+     * journal des vraies actions git sous des centaines de lignes.
+     */
+    quiet?: boolean;
 }
 
 /**
@@ -83,7 +90,12 @@ function buildSpawnErrorMessage(gitPath: string, err: NodeJS.ErrnoException): st
 function spawnGit(gitPath: string, args: string[], cwd: string, opts: RunGitOptions): Promise<Buffer> {
     return new Promise((resolve, reject) => {
         const channel = getGitOutputChannel();
-        channel.appendLine(`> git ${args.join(' ')}`);
+        const logLine = (text: string) => {
+            if (!opts.quiet) {
+                channel.appendLine(text);
+            }
+        };
+        logLine(`> git ${args.join(' ')}`);
 
         const proc = spawn(gitPath, args, {
             cwd,
@@ -96,28 +108,30 @@ function spawnGit(gitPath: string, args: string[], cwd: string, opts: RunGitOpti
             outChunks.push(d);
             // stdout n'est reflété que sur demande : diffs volumineux et sorties binaires
             // (cat-file) ne doivent pas polluer le canal.
-            if (opts.logStdout) {
+            if (opts.logStdout && !opts.quiet) {
                 channel.append(d.toString());
             }
         });
         // stderr est toujours reflété : c'est là qu'écrivent les hooks, warnings et erreurs git.
         proc.stderr.on('data', (d: Buffer) => {
             errChunks.push(d);
-            channel.append(d.toString());
+            if (!opts.quiet) {
+                channel.append(d.toString());
+            }
         });
 
         // Sans ce handler, un spawn en échec (git absent, cwd invalide) laisserait la
         // Promise en suspens indéfiniment — la commande resterait bloquée, sans aucun feedback.
         proc.on('error', (err: NodeJS.ErrnoException) => {
             const message = buildSpawnErrorMessage(gitPath, err);
-            channel.appendLine(`✗ ${message}`);
+            logLine(`✗ ${message}`);
             reject(new GitError(message, { args, exitCode: null, stderr: '', stdout: '' }));
         });
 
         proc.on('close', code => {
             const stdout = Buffer.concat(outChunks);
             const stderr = Buffer.concat(errChunks).toString().trim();
-            channel.appendLine(`${code === 0 ? '✓' : '✗'} git ${args[0] ?? ''} exited with code ${code}`);
+            logLine(`${code === 0 ? '✓' : '✗'} git ${args[0] ?? ''} exited with code ${code}`);
             if (code === 0) {
                 resolve(stdout);
                 return;

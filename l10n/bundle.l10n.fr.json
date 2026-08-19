@@ -216,5 +216,10 @@
     "{0} saved and staged.": "{0} sauvegardé et indexé.",
     "Save failed: {0}": "Sauvegarde échouée : {0}",
     "git {0} exited with code {1}": "git {0} s'est terminé avec le code {1}",
-    "Git executable not found: {0}": "Exécutable git introuvable : {0}"
+    "Git executable not found: {0}": "Exécutable git introuvable : {0}",
+    "You": "Vous",
+    "{0}, uncommitted changes": "{0}, modifications non commitées",
+    "Show commit": "Afficher le commit",
+    "Copy hash": "Copier le hash",
+    "This line is not committed yet.": "Cette ligne n'est pas encore commitée."
 }

@@ -2,6 +2,7 @@ import { API } from '@haerphi/vscode-git-api-types';
 import * as vscode from 'vscode';
 import { BranchesProvider } from '../git/branches-provider';
 import { StashProvider } from '../git/stash-provider';
+import { registerBlame } from './blame/blame';
 import { registerCopyBranchName } from './branch/copy-branch-name';
 import { registerCreateBranch } from './branch/create-branch';
 import { registerCreateBranchFrom } from './branch/create-branch-from';
@@ -73,5 +74,6 @@ export function registerCommands(
         registerContinueRebase(gitApi),
         ...registerRepoSetup(gitApi),
         registerAddRemote(gitApi, context),
+        ...registerBlame(gitApi, context),
     ];
 }

@@ -42,6 +42,9 @@
     "cmd.clear-filter-branches.title": "Clear Branch Search",
     "cmd.filter-remotes.title": "Search Remote Branches…",
     "cmd.clear-filter-remotes.title": "Clear Remote Branch Search",
+    "cmd.toggle-inline-blame.title": "Toggle Inline Blame",
+    "cmd.blame-show-commit.title": "Show Commit of Current Line",
+    "cmd.copy-blame-hash.title": "Copy Commit Hash of Current Line",
     "view.commit.name": "Commit",
     "view.changes.name": "Changes",
     "view.stash.name": "Stash",
@@ -62,5 +65,8 @@
     "config.language.enum.fr": "Français",
     "config.rebase.defaultOrder.description": "Default display order for the interactive rebase panel. Can always be toggled from the panel itself.",
     "config.rebase.defaultOrder.enum.oldestFirst": "Oldest commit on top (git's traditional order)",
-    "config.rebase.defaultOrder.enum.newestFirst": "Newest commit on top"
+    "config.rebase.defaultOrder.enum.newestFirst": "Newest commit on top",
+    "config.blame.inline.description": "Show the author and commit of the current line at the end of that line.",
+    "config.blame.statusBar.description": "Show the author and commit of the current line in the status bar.",
+    "config.blame.delay.description": "Delay in milliseconds before blaming a newly focused line. Higher values reduce the number of git calls while moving through a file."
 }

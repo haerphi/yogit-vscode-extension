@@ -42,6 +42,9 @@
     "cmd.clear-filter-branches.title": "Effacer la recherche de branches",
     "cmd.filter-remotes.title": "Rechercher une branche distante…",
     "cmd.clear-filter-remotes.title": "Effacer la recherche de branches distantes",
+    "cmd.toggle-inline-blame.title": "Activer/désactiver le blame en ligne",
+    "cmd.blame-show-commit.title": "Afficher le commit de la ligne courante",
+    "cmd.copy-blame-hash.title": "Copier le hash du commit de la ligne courante",
     "view.commit.name": "Commit",
     "view.changes.name": "Modifications",
     "view.stash.name": "Stash",
@@ -62,5 +65,8 @@
     "config.language.enum.fr": "Français",
     "config.rebase.defaultOrder.description": "Ordre d'affichage par défaut du panneau de rebase interactif. Modifiable à tout moment depuis le panneau lui-même.",
     "config.rebase.defaultOrder.enum.oldestFirst": "Le plus ancien commit en haut (ordre traditionnel de git)",
-    "config.rebase.defaultOrder.enum.newestFirst": "Le plus récent commit en haut"
+    "config.rebase.defaultOrder.enum.newestFirst": "Le plus récent commit en haut",
+    "config.blame.inline.description": "Affiche l'auteur et le commit de la ligne courante en fin de cette ligne.",
+    "config.blame.statusBar.description": "Affiche l'auteur et le commit de la ligne courante dans la barre d'état.",
+    "config.blame.delay.description": "Délai en millisecondes avant de blâmer une ligne nouvellement ciblée. Une valeur plus élevée réduit le nombre d'appels git lors des déplacements dans un fichier."
 }

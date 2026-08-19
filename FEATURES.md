@@ -95,6 +95,16 @@
 
 ---
 
+## Blame
+
+- [x] Blame de la ligne courante : annotation discrète en fin de ligne (auteur, date relative, sujet du commit) + entrée dans la barre d'état
+- [x] Lignes non commitées annoncées comme telles ; les lignes écrites par l'utilisateur courant affichent « Vous » (comparaison sur `user.email`)
+- [x] Blame du buffer en cours d'édition (`git blame --contents -`) : l'annotation reste juste même avant sauvegarde
+- [x] Clic sur la barre d'état → inspection du commit de la ligne dans l'onglet dédié ; tooltip avec le message complet, l'auteur, la date exacte et des liens « Afficher le commit » / « Copier le hash »
+- [x] Annotation masquée pendant une sélection ou en multi-curseur ; blame ligne par ligne + cache par version de document (coût constant quelle que soit la taille du fichier)
+
+---
+
 ## Submodules
 
 - [ ] Détection des submodules
@@ -107,6 +117,9 @@
 
 - [x] `haerphi-yorgit.language` (auto/en/fr) — langue des webviews propres à YorGit (rebase, diff, conflits, log, commit). N'affecte pas les titres de commandes/notifications (`vscode.l10n.t()`), qui suivent toujours la langue d'affichage de VS Code — limitation de la plateforme, pas de notre code.
 - [x] `haerphi-yorgit.rebase.defaultOrder` (oldest-first/newest-first) — sens d'affichage initial du rebase interactif, togglable ensuite depuis le panneau
+- [x] `haerphi-yorgit.blame.inline` (bool, défaut vrai) — annotation blame en fin de ligne courante, basculable via la commande « Activer/désactiver le blame en ligne »
+- [x] `haerphi-yorgit.blame.statusBar` (bool, défaut vrai) — blame de la ligne courante dans la barre d'état
+- [x] `haerphi-yorgit.blame.delay` (ms, défaut 200) — délai avant de blâmer une ligne nouvellement ciblée
 
 ---
 
