@@ -2,7 +2,7 @@
     "name": "haerphi-yorgit",
     "displayName": "YorGit",
     "description": "An extension to help you using Git and have a clear visualisation of what you're doing!",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "publisher": "haerphi",
     "license": "MIT",
     "packageManager": "pnpm@11.7.0",
