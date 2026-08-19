@@ -1,1 +1,1 @@
-import './yogit-rebase';
+import './yorgit-rebase';

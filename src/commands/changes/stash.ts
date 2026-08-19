@@ -23,7 +23,7 @@ export function registerStash(
     stashProvider: StashProvider,
     context: vscode.ExtensionContext,
 ): vscode.Disposable[] {
-    const stashPush = vscode.commands.registerCommand('haerphi-yogit.stash', async () => {
+    const stashPush = vscode.commands.registerCommand('haerphi-yorgit.stash', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -106,12 +106,12 @@ export function registerStash(
     });
 
     /**
-     * Aperçu du contenu d'un stash, dans la même vue diff (DiffPanel/yogit-diff) que
+     * Aperçu du contenu d'un stash, dans la même vue diff (DiffPanel/yorgit-diff) que
      * pour les changements en cours — en lecture seule, car un stash n'est pas modifiable
      * en place. `git stash show -p` peut couvrir plusieurs fichiers ; si c'est le cas,
      * un QuickPick permet de choisir lequel visualiser.
      */
-    const stashShow = vscode.commands.registerCommand('haerphi-yogit.stash-show', async (entry: StashEntry) => {
+    const stashShow = vscode.commands.registerCommand('haerphi-yorgit.stash-show', async (entry: StashEntry) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -159,7 +159,7 @@ export function registerStash(
         await DiffPanel.show(context, fileDiff, `stash:${entry.ref}:${fileDiff.filePath}`);
     });
 
-    const stashPop = vscode.commands.registerCommand('haerphi-yogit.stash-pop', async (entry: StashEntry) => {
+    const stashPop = vscode.commands.registerCommand('haerphi-yorgit.stash-pop', async (entry: StashEntry) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -175,7 +175,7 @@ export function registerStash(
         }
     });
 
-    const stashApply = vscode.commands.registerCommand('haerphi-yogit.stash-apply', async (entry: StashEntry) => {
+    const stashApply = vscode.commands.registerCommand('haerphi-yorgit.stash-apply', async (entry: StashEntry) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -190,7 +190,7 @@ export function registerStash(
         }
     });
 
-    const stashDrop = vscode.commands.registerCommand('haerphi-yogit.stash-drop', async (entry: StashEntry) => {
+    const stashDrop = vscode.commands.registerCommand('haerphi-yorgit.stash-drop', async (entry: StashEntry) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

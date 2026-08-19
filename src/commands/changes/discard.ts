@@ -9,7 +9,7 @@ import { getRepo } from '../utils';
 const UNTRACKED_STATUSES = new Set([Status.UNTRACKED, Status.INTENT_TO_ADD, Status.INTENT_TO_RENAME]);
 
 export function registerDiscard(gitApi: API): vscode.Disposable[] {
-    const discardFile = vscode.commands.registerCommand('haerphi-yogit.discard-file', async (node: ChangeLeaf) => {
+    const discardFile = vscode.commands.registerCommand('haerphi-yorgit.discard-file', async (node: ChangeLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -49,7 +49,7 @@ export function registerDiscard(gitApi: API): vscode.Disposable[] {
         }
     });
 
-    const discardAll = vscode.commands.registerCommand('haerphi-yogit.discard-all', async () => {
+    const discardAll = vscode.commands.registerCommand('haerphi-yorgit.discard-all', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -107,11 +107,11 @@ export function registerDiscard(gitApi: API): vscode.Disposable[] {
 
 /**
  * Ferme les vues diff ouvertes pour ce fichier :
- * - Le WebviewPanel "Indexer/Désindexer" (yogit-diff-panel) via DiffPanel.closeForFile
+ * - Le WebviewPanel "Indexer/Désindexer" (yorgit-diff-panel) via DiffPanel.closeForFile
  * - Les onglets TabInputTextDiff éventuels (vues diff natives VS Code)
  */
 async function _closeDiffViews(uri: vscode.Uri): Promise<void> {
-    // Panel Yogit (stage-hunk) — la clé est le chemin relatif utilisé dans DiffPanel
+    // Panel Yorgit (stage-hunk) — la clé est le chemin relatif utilisé dans DiffPanel
     DiffPanel.closeForFile(vscode.workspace.asRelativePath(uri));
 
     // Onglets diff natifs VS Code (git diff standard)

@@ -46,7 +46,7 @@ export class DiffPanel {
                 (() => {
                     const label = diff.actionLabel ?? 'Indexer';
                     const p = vscode.window.createWebviewPanel(
-                        'yogit-diff-panel',
+                        'yorgit-diff-panel',
                         `${label} : ${diff.filePath}`,
                         vscode.ViewColumn.Active,
                         {
@@ -115,7 +115,7 @@ export class DiffPanel {
     </style>
 </head>
 <body>
-    <script nonce="${nonce}">window.__YOGIT_DIFF__ = ${diffJson}; window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
+    <script nonce="${nonce}">window.__YORGIT_DIFF__ = ${diffJson}; window.__YORGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script src="${scriptUri}"></script>
 </body>
 </html>`;

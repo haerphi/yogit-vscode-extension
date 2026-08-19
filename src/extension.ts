@@ -110,12 +110,12 @@ export async function activate(context: vscode.ExtensionContext) {
             branches: {
                 provider: branchesProvider,
                 view: branchesView,
-                contextKey: 'haerphi-yogit.branchesFiltered',
+                contextKey: 'haerphi-yorgit.branchesFiltered',
             },
             remotes: {
                 provider: remotesProvider,
                 view: remotesView,
-                contextKey: 'haerphi-yogit.remotesFiltered',
+                contextKey: 'haerphi-yorgit.remotesFiltered',
             },
         }),
     );

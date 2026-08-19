@@ -18,10 +18,10 @@ export type {
  *
  * Architecture :
  *   - L'extension host génère un shell HTML minimal qui charge out/webview/modal.js
- *     (bundlé par esbuild depuis src/webview/modal/index.ts + yogit-modal.ts).
- *   - Les options sont passées via `window.__YOGIT_OPTIONS__` injecté dans le HTML
+ *     (bundlé par esbuild depuis src/webview/modal/index.ts + yorgit-modal.ts).
+ *   - Les options sont passées via `window.__YORGIT_OPTIONS__` injecté dans le HTML
  *     avant le chargement du script — aucun postMessage aller n'est nécessaire.
- *   - Le composant Lit `<yogit-modal>` gère le rendu et renvoie le résultat via postMessage.
+ *   - Le composant Lit `<yorgit-modal>` gère le rendu et renvoie le résultat via postMessage.
  *
  * Retourne null si l'utilisateur ferme le panneau sans choisir ou clique "Annuler".
  */
@@ -46,7 +46,7 @@ export class ConfirmModal {
         }
         return new Promise(resolve => {
             const panel = vscode.window.createWebviewPanel(
-                'yogit-confirm-modal',
+                'yorgit-confirm-modal',
                 options.title,
                 vscode.ViewColumn.Active,
                 {
@@ -54,7 +54,7 @@ export class ConfirmModal {
                     // Les valeurs saisies ne vivent que dans le DOM du webview (lues au
                     // submit). Sans ce flag, masquer la modale — changer d'onglet, ouvrir
                     // une autre vue — détruit son contexte : au retour le HTML est rechargé
-                    // depuis __YOGIT_OPTIONS__ et les champs sont vidés.
+                    // depuis __YORGIT_OPTIONS__ et les champs sont vidés.
                     retainContextWhenHidden: true,
                     // Restreindre les ressources chargables au dossier out/webview/
                     // pour respecter le principe de moindre privilège des webviews VS Code.
@@ -98,7 +98,7 @@ export class ConfirmModal {
      *     et le script inline portant le nonce.
      *   - Un nonce est généré aléatoirement à chaque ouverture pour le script inline
      *     qui injecte les options. Sans nonce, le script inline serait bloqué par la CSP
-     *     et `window.__YOGIT_OPTIONS__` resterait undefined → modale vide.
+     *     et `window.__YORGIT_OPTIONS__` resterait undefined → modale vide.
      *   - Les options sont échappées pour éviter toute injection via `</script>`.
      */
     private static buildHtml(webview: vscode.Webview, context: vscode.ExtensionContext, options: ModalOptions): string {
@@ -121,7 +121,7 @@ export class ConfirmModal {
     </style>
 </head>
 <body>
-    <script nonce="${nonce}">window.__YOGIT_OPTIONS__ = ${optionsJson};</script>
+    <script nonce="${nonce}">window.__YORGIT_OPTIONS__ = ${optionsJson};</script>
     <script src="${scriptUri}"></script>
 </body>
 </html>`;

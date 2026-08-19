@@ -19,8 +19,8 @@ async function gitDeleteRemoteBranch(gitPath: string, remote: string, branch: st
 
 /**
  * Enregistre les deux commandes de suppression de branche :
- *   - haerphi-yogit.delete-branch        → branche locale (contextValue: branch-local)
- *   - haerphi-yogit.delete-branch-remote → branche distante (contextValue: branch-remote)
+ *   - haerphi-yorgit.delete-branch        → branche locale (contextValue: branch-local)
+ *   - haerphi-yorgit.delete-branch-remote → branche distante (contextValue: branch-remote)
  */
 export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {
     /**
@@ -34,7 +34,7 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
      *   5. Si la checkbox était cochée, supprimer aussi la branche distante de suivi.
      *   6. repo.status() pour synchroniser l'état de vscode.git et mettre à jour la TreeView.
      */
-    const deleteLocal = vscode.commands.registerCommand('haerphi-yogit.delete-branch', async (node: BranchLeaf) => {
+    const deleteLocal = vscode.commands.registerCommand('haerphi-yorgit.delete-branch', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -164,7 +164,7 @@ export function registerDeleteBranch(gitApi: API, context: vscode.ExtensionConte
      * Ex: "origin/main" avec remote="origin" → branchName="main".
      */
     const deleteRemote = vscode.commands.registerCommand(
-        'haerphi-yogit.delete-branch-remote',
+        'haerphi-yorgit.delete-branch-remote',
         async (node: BranchLeaf) => {
             const repo = getRepo(gitApi);
             if (!repo) {

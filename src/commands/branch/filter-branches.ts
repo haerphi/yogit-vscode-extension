@@ -64,13 +64,15 @@ function promptFilter(target: FilterTarget, placeholder: string): void {
  */
 export function registerBranchFilters(targets: { branches: FilterTarget; remotes: FilterTarget }): vscode.Disposable[] {
     return [
-        vscode.commands.registerCommand('haerphi-yogit.filter-branches', () =>
+        vscode.commands.registerCommand('haerphi-yorgit.filter-branches', () =>
             promptFilter(targets.branches, vscode.l10n.t('Filter local branches…')),
         ),
-        vscode.commands.registerCommand('haerphi-yogit.clear-filter-branches', () => applyFilter(targets.branches, '')),
-        vscode.commands.registerCommand('haerphi-yogit.filter-remotes', () =>
+        vscode.commands.registerCommand('haerphi-yorgit.clear-filter-branches', () =>
+            applyFilter(targets.branches, ''),
+        ),
+        vscode.commands.registerCommand('haerphi-yorgit.filter-remotes', () =>
             promptFilter(targets.remotes, vscode.l10n.t('Filter remote branches…')),
         ),
-        vscode.commands.registerCommand('haerphi-yogit.clear-filter-remotes', () => applyFilter(targets.remotes, '')),
+        vscode.commands.registerCommand('haerphi-yorgit.clear-filter-remotes', () => applyFilter(targets.remotes, '')),
     ];
 }

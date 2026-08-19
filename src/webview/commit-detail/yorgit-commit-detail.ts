@@ -2,7 +2,7 @@ import { LitElement, css, html, svg } from 'lit';
 import { pick } from '../shared/i18n';
 
 /**
- * Données du commit injectées par l'extension host dans `window.__YOGIT_COMMIT__`
+ * Données du commit injectées par l'extension host dans `window.__YORGIT_COMMIT__`
  * (script inline nonce dans le shell HTML — voir CommitDetailPanel).
  */
 interface CommitPayload {
@@ -16,7 +16,7 @@ interface CommitPayload {
 
 declare global {
     interface Window {
-        __YOGIT_COMMIT__?: CommitPayload;
+        __YORGIT_COMMIT__?: CommitPayload;
     }
 }
 
@@ -189,7 +189,7 @@ function fileId(path: string): string {
 }
 
 // ── Lit component ─────────────────────────────────────────────────────────────
-export class YogitCommitDetail extends LitElement {
+export class YorgitCommitDetail extends LitElement {
     static properties = {
         _collapsedFiles: { state: true },
         _collapsedDirs: { state: true },
@@ -209,7 +209,7 @@ export class YogitCommitDetail extends LitElement {
         this._collapsedFiles = new Set();
         this._collapsedDirs = new Set();
         this._selectedFile = '';
-        this._payload = window.__YOGIT_COMMIT__ ?? null;
+        this._payload = window.__YORGIT_COMMIT__ ?? null;
         if (this._payload) {
             this._files = parseDiff(this._payload.rawDiff);
             this._treeNodes = buildTree(this._files);
@@ -598,4 +598,4 @@ export class YogitCommitDetail extends LitElement {
     }
 }
 
-customElements.define('yogit-commit-detail', YogitCommitDetail);
+customElements.define('yorgit-commit-detail', YorgitCommitDetail);

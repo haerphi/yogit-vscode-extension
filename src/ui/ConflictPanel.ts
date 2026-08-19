@@ -33,7 +33,7 @@ export class ConflictPanel {
         }
 
         const panel = vscode.window.createWebviewPanel(
-            'yogit-conflict',
+            'yorgit-conflict',
             vscode.l10n.t('Conflicts — {0}', fileName),
             vscode.ViewColumn.One,
             {
@@ -223,8 +223,8 @@ export class ConflictPanel {
     <style>html,body{margin:0;padding:0;height:100%;overflow:hidden;}</style>
 </head>
 <body>
-    <yogit-conflict></yogit-conflict>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
+    <yorgit-conflict></yorgit-conflict>
+    <script nonce="${nonce}">window.__YORGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

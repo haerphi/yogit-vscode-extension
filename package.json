@@ -1,13 +1,13 @@
 {
-    "name": "haerphi-yogit",
-    "displayName": "YoGit",
+    "name": "haerphi-yorgit",
+    "displayName": "YorGit",
     "description": "An extension to help you using Git and have a clear visualisation of what you're doing!",
     "version": "1.2.1",
     "publisher": "haerphi",
     "license": "MIT",
     "packageManager": "pnpm@11.7.0",
     "repository": {
-        "url": "https://github.com/haerphi/yogit-vscode-extension"
+        "url": "https://github.com/haerphi/yorgit-vscode-extension"
     },
     "engines": {
         "vscode": "^1.125.0"
@@ -43,220 +43,220 @@
     "contributes": {
         "commands": [
             {
-                "command": "haerphi-yogit.create-branch",
+                "command": "haerphi-yorgit.create-branch",
                 "title": "%cmd.create-branch.title%",
                 "icon": "$(add)"
             },
             {
-                "command": "haerphi-yogit.create-branch-from",
+                "command": "haerphi-yorgit.create-branch-from",
                 "title": "%cmd.create-branch-from.title%"
             },
             {
-                "command": "haerphi-yogit.switch",
+                "command": "haerphi-yorgit.switch",
                 "title": "%cmd.switch.title%",
                 "icon": "$(arrow-right)"
             },
             {
-                "command": "haerphi-yogit.switch-force",
+                "command": "haerphi-yorgit.switch-force",
                 "title": "%cmd.switch-force.title%"
             },
             {
-                "command": "haerphi-yogit.copy-branch-name",
+                "command": "haerphi-yorgit.copy-branch-name",
                 "title": "%cmd.copy-branch-name.title%"
             },
             {
-                "command": "haerphi-yogit.open-file",
+                "command": "haerphi-yorgit.open-file",
                 "title": "%cmd.open-file.title%"
             },
             {
-                "command": "haerphi-yogit.copy-file-name",
+                "command": "haerphi-yorgit.copy-file-name",
                 "title": "%cmd.copy-file-name.title%"
             },
             {
-                "command": "haerphi-yogit.rename-branch",
+                "command": "haerphi-yorgit.rename-branch",
                 "title": "%cmd.rename-branch.title%"
             },
             {
-                "command": "haerphi-yogit.delete-branch",
+                "command": "haerphi-yorgit.delete-branch",
                 "title": "%cmd.delete-branch.title%",
                 "icon": "$(trash)"
             },
             {
-                "command": "haerphi-yogit.delete-branch-remote",
+                "command": "haerphi-yorgit.delete-branch-remote",
                 "title": "%cmd.delete-branch-remote.title%",
                 "icon": "$(trash)"
             },
             {
-                "command": "haerphi-yogit.stage-file",
+                "command": "haerphi-yorgit.stage-file",
                 "title": "%cmd.stage-file.title%",
                 "icon": "$(add)"
             },
             {
-                "command": "haerphi-yogit.unstage-file",
+                "command": "haerphi-yorgit.unstage-file",
                 "title": "%cmd.unstage-file.title%",
                 "icon": "$(remove)"
             },
             {
-                "command": "haerphi-yogit.stage-all",
+                "command": "haerphi-yorgit.stage-all",
                 "title": "%cmd.stage-all.title%",
                 "icon": "$(add)"
             },
             {
-                "command": "haerphi-yogit.unstage-all",
+                "command": "haerphi-yorgit.unstage-all",
                 "title": "%cmd.unstage-all.title%",
                 "icon": "$(remove)"
             },
             {
-                "command": "haerphi-yogit.stage-hunks",
+                "command": "haerphi-yorgit.stage-hunks",
                 "title": "%cmd.stage-hunks.title%",
                 "icon": "$(list-selection)"
             },
             {
-                "command": "haerphi-yogit.unstage-hunks",
+                "command": "haerphi-yorgit.unstage-hunks",
                 "title": "%cmd.unstage-hunks.title%",
                 "icon": "$(list-selection)"
             },
             {
-                "command": "haerphi-yogit.stash",
+                "command": "haerphi-yorgit.stash",
                 "title": "%cmd.stash.title%",
                 "icon": "$(archive)"
             },
             {
-                "command": "haerphi-yogit.show-log",
+                "command": "haerphi-yorgit.show-log",
                 "title": "%cmd.show-log.title%",
                 "icon": "$(history)"
             },
             {
-                "command": "haerphi-yogit.fetch",
+                "command": "haerphi-yorgit.fetch",
                 "title": "%cmd.fetch.title%",
                 "icon": "$(sync)"
             },
             {
-                "command": "haerphi-yogit.pull",
+                "command": "haerphi-yorgit.pull",
                 "title": "%cmd.pull.title%",
                 "icon": "$(arrow-down)"
             },
             {
-                "command": "haerphi-yogit.push",
+                "command": "haerphi-yorgit.push",
                 "title": "%cmd.push.title%",
                 "icon": "$(arrow-up)"
             },
             {
-                "command": "haerphi-yogit.stash-show",
+                "command": "haerphi-yorgit.stash-show",
                 "title": "%cmd.stash-show.title%"
             },
             {
-                "command": "haerphi-yogit.stash-pop",
+                "command": "haerphi-yorgit.stash-pop",
                 "title": "%cmd.stash-pop.title%",
                 "icon": "$(run)"
             },
             {
-                "command": "haerphi-yogit.stash-apply",
+                "command": "haerphi-yorgit.stash-apply",
                 "title": "%cmd.stash-apply.title%"
             },
             {
-                "command": "haerphi-yogit.stash-drop",
+                "command": "haerphi-yorgit.stash-drop",
                 "title": "%cmd.stash-drop.title%",
                 "icon": "$(trash)"
             },
             {
-                "command": "haerphi-yogit.merge",
+                "command": "haerphi-yorgit.merge",
                 "title": "%cmd.merge.title%",
                 "icon": "$(git-merge)"
             },
             {
-                "command": "haerphi-yogit.rebase-onto",
+                "command": "haerphi-yorgit.rebase-onto",
                 "title": "%cmd.rebase-onto.title%",
                 "icon": "$(git-commit)"
             },
             {
-                "command": "haerphi-yogit.rebase-interactive",
+                "command": "haerphi-yorgit.rebase-interactive",
                 "title": "%cmd.rebase-interactive.title%",
                 "icon": "$(git-commit)"
             },
             {
-                "command": "haerphi-yogit.resolve-conflict",
+                "command": "haerphi-yorgit.resolve-conflict",
                 "title": "%cmd.resolve-conflict.title%",
                 "icon": "$(diff)"
             },
             {
-                "command": "haerphi-yogit.resolve-conflict-ours",
+                "command": "haerphi-yorgit.resolve-conflict-ours",
                 "title": "%cmd.resolve-conflict-ours.title%"
             },
             {
-                "command": "haerphi-yogit.resolve-conflict-theirs",
+                "command": "haerphi-yorgit.resolve-conflict-theirs",
                 "title": "%cmd.resolve-conflict-theirs.title%"
             },
             {
-                "command": "haerphi-yogit.abort-rebase",
+                "command": "haerphi-yorgit.abort-rebase",
                 "title": "%cmd.abort-rebase.title%",
                 "icon": "$(discard)"
             },
             {
-                "command": "haerphi-yogit.continue-rebase",
+                "command": "haerphi-yorgit.continue-rebase",
                 "title": "%cmd.continue-rebase.title%",
                 "icon": "$(play)"
             },
             {
-                "command": "haerphi-yogit.discard-file",
+                "command": "haerphi-yorgit.discard-file",
                 "title": "%cmd.discard-file.title%",
                 "icon": "$(discard)"
             },
             {
-                "command": "haerphi-yogit.discard-all",
+                "command": "haerphi-yorgit.discard-all",
                 "title": "%cmd.discard-all.title%",
                 "icon": "$(discard)"
             },
             {
-                "command": "haerphi-yogit.init-repo",
+                "command": "haerphi-yorgit.init-repo",
                 "title": "%cmd.init-repo.title%",
                 "icon": "$(repo-create)"
             },
             {
-                "command": "haerphi-yogit.clone-repo",
+                "command": "haerphi-yorgit.clone-repo",
                 "title": "%cmd.clone-repo.title%",
                 "icon": "$(repo-clone)"
             },
             {
-                "command": "haerphi-yogit.link-repo",
+                "command": "haerphi-yorgit.link-repo",
                 "title": "%cmd.link-repo.title%",
                 "icon": "$(link)"
             },
             {
-                "command": "haerphi-yogit.add-remote",
+                "command": "haerphi-yorgit.add-remote",
                 "title": "%cmd.add-remote.title%",
                 "icon": "$(add)"
             },
             {
-                "command": "haerphi-yogit.filter-branches",
+                "command": "haerphi-yorgit.filter-branches",
                 "title": "%cmd.filter-branches.title%",
                 "icon": "$(search)"
             },
             {
-                "command": "haerphi-yogit.clear-filter-branches",
+                "command": "haerphi-yorgit.clear-filter-branches",
                 "title": "%cmd.clear-filter-branches.title%",
                 "icon": "$(search-stop)"
             },
             {
-                "command": "haerphi-yogit.filter-remotes",
+                "command": "haerphi-yorgit.filter-remotes",
                 "title": "%cmd.filter-remotes.title%",
                 "icon": "$(search)"
             },
             {
-                "command": "haerphi-yogit.clear-filter-remotes",
+                "command": "haerphi-yorgit.clear-filter-remotes",
                 "title": "%cmd.clear-filter-remotes.title%",
                 "icon": "$(search-stop)"
             }
         ],
         "keybindings": [
             {
-                "command": "haerphi-yogit.filter-branches",
+                "command": "haerphi-yorgit.filter-branches",
                 "key": "ctrl+f",
                 "mac": "cmd+f",
                 "when": "focusedView == branches"
             },
             {
-                "command": "haerphi-yogit.filter-remotes",
+                "command": "haerphi-yorgit.filter-remotes",
                 "key": "ctrl+f",
                 "mac": "cmd+f",
                 "when": "focusedView == remotes"
@@ -265,286 +265,286 @@
         "menus": {
             "commandPalette": [
                 {
-                    "command": "haerphi-yogit.init-repo",
-                    "when": "haerphi-yogit.noRepo"
+                    "command": "haerphi-yorgit.init-repo",
+                    "when": "haerphi-yorgit.noRepo"
                 },
                 {
-                    "command": "haerphi-yogit.clone-repo",
-                    "when": "haerphi-yogit.noRepo"
+                    "command": "haerphi-yorgit.clone-repo",
+                    "when": "haerphi-yorgit.noRepo"
                 },
                 {
-                    "command": "haerphi-yogit.link-repo",
-                    "when": "haerphi-yogit.noRepo"
+                    "command": "haerphi-yorgit.link-repo",
+                    "when": "haerphi-yorgit.noRepo"
                 },
                 {
-                    "command": "haerphi-yogit.clear-filter-branches",
-                    "when": "haerphi-yogit.branchesFiltered"
+                    "command": "haerphi-yorgit.clear-filter-branches",
+                    "when": "haerphi-yorgit.branchesFiltered"
                 },
                 {
-                    "command": "haerphi-yogit.clear-filter-remotes",
-                    "when": "haerphi-yogit.remotesFiltered"
+                    "command": "haerphi-yorgit.clear-filter-remotes",
+                    "when": "haerphi-yorgit.remotesFiltered"
                 }
             ],
             "view/title": [
                 {
-                    "command": "haerphi-yogit.show-log",
+                    "command": "haerphi-yorgit.show-log",
                     "when": "view == branches",
                     "group": "navigation@1"
                 },
                 {
-                    "command": "haerphi-yogit.fetch",
+                    "command": "haerphi-yorgit.fetch",
                     "when": "view == branches",
                     "group": "navigation@2"
                 },
                 {
-                    "command": "haerphi-yogit.pull",
+                    "command": "haerphi-yorgit.pull",
                     "when": "view == branches",
                     "group": "navigation@3"
                 },
                 {
-                    "command": "haerphi-yogit.push",
+                    "command": "haerphi-yorgit.push",
                     "when": "view == branches",
                     "group": "navigation@4"
                 },
                 {
-                    "command": "haerphi-yogit.create-branch",
+                    "command": "haerphi-yorgit.create-branch",
                     "when": "view == branches",
                     "group": "navigation@5"
                 },
                 {
-                    "command": "haerphi-yogit.filter-branches",
-                    "when": "view == branches && !haerphi-yogit.branchesFiltered",
+                    "command": "haerphi-yorgit.filter-branches",
+                    "when": "view == branches && !haerphi-yorgit.branchesFiltered",
                     "group": "navigation@6"
                 },
                 {
-                    "command": "haerphi-yogit.clear-filter-branches",
-                    "when": "view == branches && haerphi-yogit.branchesFiltered",
+                    "command": "haerphi-yorgit.clear-filter-branches",
+                    "when": "view == branches && haerphi-yorgit.branchesFiltered",
                     "group": "navigation@6"
                 },
                 {
-                    "command": "haerphi-yogit.fetch",
+                    "command": "haerphi-yorgit.fetch",
                     "when": "view == remotes",
                     "group": "navigation@1"
                 },
                 {
-                    "command": "haerphi-yogit.add-remote",
+                    "command": "haerphi-yorgit.add-remote",
                     "when": "view == remotes",
                     "group": "navigation@2"
                 },
                 {
-                    "command": "haerphi-yogit.filter-remotes",
-                    "when": "view == remotes && !haerphi-yogit.remotesFiltered",
+                    "command": "haerphi-yorgit.filter-remotes",
+                    "when": "view == remotes && !haerphi-yorgit.remotesFiltered",
                     "group": "navigation@3"
                 },
                 {
-                    "command": "haerphi-yogit.clear-filter-remotes",
-                    "when": "view == remotes && haerphi-yogit.remotesFiltered",
+                    "command": "haerphi-yorgit.clear-filter-remotes",
+                    "when": "view == remotes && haerphi-yorgit.remotesFiltered",
                     "group": "navigation@3"
                 },
                 {
-                    "command": "haerphi-yogit.stash",
+                    "command": "haerphi-yorgit.stash",
                     "when": "view == changes",
                     "group": "navigation"
                 },
                 {
-                    "command": "haerphi-yogit.abort-rebase",
-                    "when": "view == changes && haerphi-yogit.rebaseInProgress",
+                    "command": "haerphi-yorgit.abort-rebase",
+                    "when": "view == changes && haerphi-yorgit.rebaseInProgress",
                     "group": "navigation"
                 }
             ],
             "view/item/context": [
                 {
-                    "command": "haerphi-yogit.switch",
+                    "command": "haerphi-yorgit.switch",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.switch",
+                    "command": "haerphi-yorgit.switch",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "1_switch@1"
                 },
                 {
-                    "command": "haerphi-yogit.switch-force",
+                    "command": "haerphi-yorgit.switch-force",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "1_switch@2"
                 },
                 {
-                    "command": "haerphi-yogit.create-branch-from",
+                    "command": "haerphi-yorgit.create-branch-from",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "2_branch@1"
                 },
                 {
-                    "command": "haerphi-yogit.rename-branch",
+                    "command": "haerphi-yorgit.rename-branch",
                     "when": "view == branches && viewItem =~ /^branch-local/",
                     "group": "2_branch@2"
                 },
                 {
-                    "command": "haerphi-yogit.merge",
+                    "command": "haerphi-yorgit.merge",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/ && viewItem != branch-local-current",
                     "group": "3_rebase@1"
                 },
                 {
-                    "command": "haerphi-yogit.rebase-onto",
+                    "command": "haerphi-yorgit.rebase-onto",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/ && viewItem != branch-local-current",
                     "group": "3_rebase@2"
                 },
                 {
-                    "command": "haerphi-yogit.rebase-interactive",
+                    "command": "haerphi-yorgit.rebase-interactive",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/ && viewItem != branch-local-current",
                     "group": "3_rebase@3"
                 },
                 {
-                    "command": "haerphi-yogit.pull",
+                    "command": "haerphi-yorgit.pull",
                     "when": "view == branches && viewItem == branch-local-current",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.push",
+                    "command": "haerphi-yorgit.push",
                     "when": "view == branches && viewItem == branch-local-current",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.pull",
+                    "command": "haerphi-yorgit.pull",
                     "when": "view == branches && viewItem == branch-local-current",
                     "group": "1_sync@1"
                 },
                 {
-                    "command": "haerphi-yogit.push",
+                    "command": "haerphi-yorgit.push",
                     "when": "view == branches && viewItem == branch-local-current",
                     "group": "1_sync@2"
                 },
                 {
-                    "command": "haerphi-yogit.delete-branch",
+                    "command": "haerphi-yorgit.delete-branch",
                     "when": "view == branches && viewItem =~ /^branch-local/",
                     "group": "4_delete"
                 },
                 {
-                    "command": "haerphi-yogit.delete-branch-remote",
+                    "command": "haerphi-yorgit.delete-branch-remote",
                     "when": "view == remotes && viewItem == branch-remote",
                     "group": "4_delete"
                 },
                 {
-                    "command": "haerphi-yogit.copy-branch-name",
+                    "command": "haerphi-yorgit.copy-branch-name",
                     "when": "(view == branches || view == remotes) && viewItem =~ /^branch/",
                     "group": "5_copy"
                 },
                 {
-                    "command": "haerphi-yogit.stage-file",
+                    "command": "haerphi-yorgit.stage-file",
                     "when": "view == changes && viewItem == change-unstaged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.stage-hunks",
+                    "command": "haerphi-yorgit.stage-hunks",
                     "when": "view == changes && viewItem == change-unstaged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.stage-file",
+                    "command": "haerphi-yorgit.stage-file",
                     "when": "view == changes && viewItem == change-unstaged",
                     "group": "1_stage@1"
                 },
                 {
-                    "command": "haerphi-yogit.stage-hunks",
+                    "command": "haerphi-yorgit.stage-hunks",
                     "when": "view == changes && viewItem == change-unstaged",
                     "group": "1_stage@2"
                 },
                 {
-                    "command": "haerphi-yogit.unstage-file",
+                    "command": "haerphi-yorgit.unstage-file",
                     "when": "view == changes && viewItem == change-staged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.unstage-hunks",
+                    "command": "haerphi-yorgit.unstage-hunks",
                     "when": "view == changes && viewItem == change-staged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.unstage-file",
+                    "command": "haerphi-yorgit.unstage-file",
                     "when": "view == changes && viewItem == change-staged",
                     "group": "1_stage@1"
                 },
                 {
-                    "command": "haerphi-yogit.unstage-hunks",
+                    "command": "haerphi-yorgit.unstage-hunks",
                     "when": "view == changes && viewItem == change-staged",
                     "group": "1_stage@2"
                 },
                 {
-                    "command": "haerphi-yogit.resolve-conflict",
+                    "command": "haerphi-yorgit.resolve-conflict",
                     "when": "view == changes && viewItem == change-conflict",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.resolve-conflict",
+                    "command": "haerphi-yorgit.resolve-conflict",
                     "when": "view == changes && viewItem == change-conflict",
                     "group": "1_resolve@1"
                 },
                 {
-                    "command": "haerphi-yogit.resolve-conflict-ours",
+                    "command": "haerphi-yorgit.resolve-conflict-ours",
                     "when": "view == changes && viewItem == change-conflict",
                     "group": "1_resolve@2"
                 },
                 {
-                    "command": "haerphi-yogit.resolve-conflict-theirs",
+                    "command": "haerphi-yorgit.resolve-conflict-theirs",
                     "when": "view == changes && viewItem == change-conflict",
                     "group": "1_resolve@3"
                 },
                 {
-                    "command": "haerphi-yogit.stage-all",
+                    "command": "haerphi-yorgit.stage-all",
                     "when": "view == changes && viewItem == group-unstaged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.discard-all",
+                    "command": "haerphi-yorgit.discard-all",
                     "when": "view == changes && viewItem == group-unstaged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.discard-all",
+                    "command": "haerphi-yorgit.discard-all",
                     "when": "view == changes && viewItem == group-unstaged",
                     "group": "1_discard"
                 },
                 {
-                    "command": "haerphi-yogit.unstage-all",
+                    "command": "haerphi-yorgit.unstage-all",
                     "when": "view == changes && viewItem == group-staged",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.discard-file",
+                    "command": "haerphi-yorgit.discard-file",
                     "when": "view == changes && viewItem == change-unstaged",
                     "group": "2_discard"
                 },
                 {
-                    "command": "haerphi-yogit.open-file",
+                    "command": "haerphi-yorgit.open-file",
                     "when": "view == changes && viewItem =~ /^change/",
                     "group": "3_file@1"
                 },
                 {
-                    "command": "haerphi-yogit.copy-file-name",
+                    "command": "haerphi-yorgit.copy-file-name",
                     "when": "view == changes && viewItem =~ /^change/",
                     "group": "3_file@2"
                 },
                 {
-                    "command": "haerphi-yogit.stash-pop",
+                    "command": "haerphi-yorgit.stash-pop",
                     "when": "view == stash && viewItem == stash-entry",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.stash-drop",
+                    "command": "haerphi-yorgit.stash-drop",
                     "when": "view == stash && viewItem == stash-entry",
                     "group": "inline"
                 },
                 {
-                    "command": "haerphi-yogit.stash-pop",
+                    "command": "haerphi-yorgit.stash-pop",
                     "when": "view == stash && viewItem == stash-entry",
                     "group": "1_apply@1"
                 },
                 {
-                    "command": "haerphi-yogit.stash-apply",
+                    "command": "haerphi-yorgit.stash-apply",
                     "when": "view == stash && viewItem == stash-entry",
                     "group": "1_apply@2"
                 },
                 {
-                    "command": "haerphi-yogit.stash-drop",
+                    "command": "haerphi-yorgit.stash-drop",
                     "when": "view == stash && viewItem == stash-entry",
                     "group": "2_delete"
                 }
@@ -553,14 +553,14 @@
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "yogit-side-panel",
-                    "title": "YoGit",
-                    "icon": "media/yogit.png"
+                    "id": "yorgit-side-panel",
+                    "title": "YorGit",
+                    "icon": "media/yorgit.png"
                 }
             ]
         },
         "views": {
-            "yogit-side-panel": [
+            "yorgit-side-panel": [
                 {
                     "id": "commit",
                     "name": "%view.commit.name%",
@@ -588,53 +588,53 @@
             {
                 "view": "branches",
                 "contents": "%welcome.branches.noRepo%",
-                "when": "haerphi-yogit.noRepo"
+                "when": "haerphi-yorgit.noRepo"
             },
             {
                 "view": "branches",
                 "contents": "%welcome.branches.filtered%",
-                "when": "!haerphi-yogit.noRepo && haerphi-yogit.branchesFiltered"
+                "when": "!haerphi-yorgit.noRepo && haerphi-yorgit.branchesFiltered"
             },
             {
                 "view": "remotes",
                 "contents": "%welcome.remotes.default%",
-                "when": "!haerphi-yogit.noRepo && !haerphi-yogit.remotesFiltered"
+                "when": "!haerphi-yorgit.noRepo && !haerphi-yorgit.remotesFiltered"
             },
             {
                 "view": "remotes",
                 "contents": "%welcome.remotes.filtered%",
-                "when": "!haerphi-yogit.noRepo && haerphi-yogit.remotesFiltered"
+                "when": "!haerphi-yorgit.noRepo && haerphi-yorgit.remotesFiltered"
             },
             {
                 "view": "remotes",
                 "contents": "%welcome.remotes.noRepo%",
-                "when": "haerphi-yogit.noRepo"
+                "when": "haerphi-yorgit.noRepo"
             },
             {
                 "view": "changes",
                 "contents": "%welcome.changes.default%",
-                "when": "!haerphi-yogit.noRepo"
+                "when": "!haerphi-yorgit.noRepo"
             },
             {
                 "view": "changes",
                 "contents": "%welcome.changes.noRepo%",
-                "when": "haerphi-yogit.noRepo"
+                "when": "haerphi-yorgit.noRepo"
             },
             {
                 "view": "stash",
                 "contents": "%welcome.stash.default%",
-                "when": "!haerphi-yogit.noRepo"
+                "when": "!haerphi-yorgit.noRepo"
             },
             {
                 "view": "stash",
                 "contents": "%welcome.stash.noRepo%",
-                "when": "haerphi-yogit.noRepo"
+                "when": "haerphi-yorgit.noRepo"
             }
         ],
         "configuration": {
-            "title": "YoGit",
+            "title": "YorGit",
             "properties": {
-                "haerphi-yogit.language": {
+                "haerphi-yorgit.language": {
                     "type": "string",
                     "enum": [
                         "auto",
@@ -649,7 +649,7 @@
                     "default": "auto",
                     "description": "%config.language.description%"
                 },
-                "haerphi-yogit.rebase.defaultOrder": {
+                "haerphi-yorgit.rebase.defaultOrder": {
                     "type": "string",
                     "enum": [
                         "oldest-first",

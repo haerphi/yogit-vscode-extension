@@ -20,7 +20,7 @@ async function gitCheckoutSide(gitPath: string, side: 'ours' | 'theirs', fsPath:
 }
 
 export function registerResolveConflict(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {
-    const resolve = vscode.commands.registerCommand('haerphi-yogit.resolve-conflict', (node: ChangeLeaf) => {
+    const resolve = vscode.commands.registerCommand('haerphi-yorgit.resolve-conflict', (node: ChangeLeaf) => {
         ConflictPanel.show(context, gitApi, node.change.uri.fsPath);
     });
 
@@ -46,8 +46,8 @@ export function registerResolveConflict(gitApi: API, context: vscode.ExtensionCo
         }
     };
 
-    const takeOurs = vscode.commands.registerCommand('haerphi-yogit.resolve-conflict-ours', takeSide('ours'));
-    const takeTheirs = vscode.commands.registerCommand('haerphi-yogit.resolve-conflict-theirs', takeSide('theirs'));
+    const takeOurs = vscode.commands.registerCommand('haerphi-yorgit.resolve-conflict-ours', takeSide('ours'));
+    const takeTheirs = vscode.commands.registerCommand('haerphi-yorgit.resolve-conflict-theirs', takeSide('theirs'));
 
     return [resolve, takeOurs, takeTheirs];
 }

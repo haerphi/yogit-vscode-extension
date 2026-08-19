@@ -8,7 +8,7 @@ import { getRepo } from '../utils';
  * de la TreeView branches.
  */
 export function registerAddRemote(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.add-remote', async () => {
+    return vscode.commands.registerCommand('haerphi-yorgit.add-remote', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

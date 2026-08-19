@@ -6,7 +6,7 @@ import { runGit } from '../../git/git-exec';
 import { getRepo } from '../utils';
 
 export function registerMerge(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {
-    const merge = vscode.commands.registerCommand('haerphi-yogit.merge', async (node: BranchLeaf) => {
+    const merge = vscode.commands.registerCommand('haerphi-yorgit.merge', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

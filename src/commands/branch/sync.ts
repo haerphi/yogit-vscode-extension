@@ -6,7 +6,7 @@ import { ConfirmModal } from '../../ui/ConfirmModal';
 import { getRepo } from '../utils';
 
 async function withProgress(title: string, task: () => Promise<void>): Promise<void> {
-    await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: `YoGit: ${title}` }, task);
+    await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: `YorGit: ${title}` }, task);
 }
 
 /**
@@ -37,7 +37,7 @@ export function registerSync(
     provider: BranchesProvider,
     context: vscode.ExtensionContext,
 ): vscode.Disposable[] {
-    const fetch = vscode.commands.registerCommand('haerphi-yogit.fetch', async () => {
+    const fetch = vscode.commands.registerCommand('haerphi-yorgit.fetch', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -52,7 +52,7 @@ export function registerSync(
         }
     });
 
-    const pull = vscode.commands.registerCommand('haerphi-yogit.pull', async () => {
+    const pull = vscode.commands.registerCommand('haerphi-yorgit.pull', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -79,7 +79,7 @@ export function registerSync(
      * --force-with-lease sont mutuellement exclusifs. Les options force portent un
      * warning affiché en bandeau orange tant qu'elles sont sélectionnées.
      */
-    const push = vscode.commands.registerCommand('haerphi-yogit.push', async () => {
+    const push = vscode.commands.registerCommand('haerphi-yorgit.push', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

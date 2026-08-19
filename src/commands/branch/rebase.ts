@@ -16,7 +16,7 @@ async function gitRebaseAbort(gitPath: string, cwd: string): Promise<void> {
 }
 
 export function registerRebase(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {
-    const rebaseOnto = vscode.commands.registerCommand('haerphi-yogit.rebase-onto', async (node: BranchLeaf) => {
+    const rebaseOnto = vscode.commands.registerCommand('haerphi-yorgit.rebase-onto', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

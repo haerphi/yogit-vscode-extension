@@ -4,7 +4,7 @@ import { runGit } from '../../git/git-exec';
 import { getRepo } from '../utils';
 
 export function registerAbortRebase(gitApi: API): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.abort-rebase', async () => {
+    return vscode.commands.registerCommand('haerphi-yorgit.abort-rebase', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

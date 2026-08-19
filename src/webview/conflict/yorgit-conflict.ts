@@ -89,7 +89,7 @@ type HostMessage =
     | { type: 'error'; message: string }
     | { type: 'saved' };
 
-export class YogitConflict extends LitElement {
+export class YorgitConflict extends LitElement {
     static properties = {
         _file: { state: true },
         _error: { state: true },
@@ -1018,4 +1018,4 @@ export class YogitConflict extends LitElement {
     }
 }
 
-customElements.define('yogit-conflict', YogitConflict);
+customElements.define('yorgit-conflict', YorgitConflict);

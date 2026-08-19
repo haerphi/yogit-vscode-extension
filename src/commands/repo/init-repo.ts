@@ -5,7 +5,7 @@ import { runGit } from '../../git/git-exec';
 /**
  * Détection de l'absence de dépôt git + commandes d'initialisation.
  *
- * Le contexte 'haerphi-yogit.noRepo' pilote les viewsWelcome déclarées dans
+ * Le contexte 'haerphi-yorgit.noRepo' pilote les viewsWelcome déclarées dans
  * package.json : quand aucun dépôt n'est détecté, les vues proposent
  * d'initialiser le dossier ou de le lier à un dépôt distant existant.
  */
@@ -14,7 +14,7 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         // Tant que vscode.git n'a pas fini son scan initial (state 'uninitialized'),
         // on ne montre pas l'écran "pas de dépôt" pour éviter un flash au démarrage.
         const noRepo = gitApi.state === 'initialized' && gitApi.repositories.length === 0;
-        vscode.commands.executeCommand('setContext', 'haerphi-yogit.noRepo', noRepo);
+        vscode.commands.executeCommand('setContext', 'haerphi-yorgit.noRepo', noRepo);
     };
     updateContext();
 
@@ -26,7 +26,7 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         return folder;
     };
 
-    const initRepo = vscode.commands.registerCommand('haerphi-yogit.init-repo', async () => {
+    const initRepo = vscode.commands.registerCommand('haerphi-yorgit.init-repo', async () => {
         const folder = getWorkspaceFolder();
         if (!folder) {
             return;
@@ -51,7 +51,7 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
             validateInput: value => (value.trim() ? undefined : vscode.l10n.t('The URL cannot be empty')),
         });
 
-    const cloneRepo = vscode.commands.registerCommand('haerphi-yogit.clone-repo', async () => {
+    const cloneRepo = vscode.commands.registerCommand('haerphi-yorgit.clone-repo', async () => {
         const folder = getWorkspaceFolder();
         if (!folder) {
             return;
@@ -89,7 +89,7 @@ export function registerRepoSetup(gitApi: API): vscode.Disposable[] {
         }
     });
 
-    const linkRepo = vscode.commands.registerCommand('haerphi-yogit.link-repo', async () => {
+    const linkRepo = vscode.commands.registerCommand('haerphi-yorgit.link-repo', async () => {
         const folder = getWorkspaceFolder();
         if (!folder) {
             return;

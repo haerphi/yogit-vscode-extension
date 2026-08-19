@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-const SECTION = 'haerphi-yogit';
+const SECTION = 'haerphi-yorgit';
 
 export type RebaseOrder = 'oldest-first' | 'newest-first';
 
@@ -17,7 +17,7 @@ export function resolveWebviewLocale(): string {
     return configured === 'auto' ? vscode.env.language : configured;
 }
 
-/** Sens d'affichage par défaut du rebase interactif au premier chargement (voir yogit-rebase.ts). */
+/** Sens d'affichage par défaut du rebase interactif au premier chargement (voir yorgit-rebase.ts). */
 export function getRebaseDefaultOrder(): RebaseOrder {
     return vscode.workspace.getConfiguration(SECTION).get<RebaseOrder>('rebase.defaultOrder', 'oldest-first');
 }

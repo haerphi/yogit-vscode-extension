@@ -7,16 +7,16 @@ declare function acquireVsCodeApi(): { postMessage(message: unknown): void };
 const vscode = acquireVsCodeApi();
 
 /**
- * Composant Lit <yogit-modal> — rendu de la modale de confirmation.
+ * Composant Lit <yorgit-modal> — rendu de la modale de confirmation.
  *
  * Les options (titre, message, boutons, checkboxes) sont passées par l'extension host
- * via `window.__YOGIT_OPTIONS__` (injecté dans le HTML avant le chargement de ce script).
+ * via `window.__YORGIT_OPTIONS__` (injecté dans le HTML avant le chargement de ce script).
  * Le composant les lit dans connectedCallback() et les stocke comme propriété réactive.
  *
  * Réponse : un clic sur un bouton envoie un message à l'extension host via postMessage().
  * L'extension host reçoit soit `{ cancel: true }` soit `{ button, checkboxes }`.
  */
-class YogitModal extends LitElement {
+class YorgitModal extends LitElement {
     static properties = {
         options: { type: Object },
         selectValues: { state: true },
@@ -245,9 +245,9 @@ class YogitModal extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         // Les options sont injectées dans window avant le chargement de ce script.
-        const w = window as typeof window & { __YOGIT_OPTIONS__?: ModalOptions };
-        if (w.__YOGIT_OPTIONS__) {
-            this.options = w.__YOGIT_OPTIONS__;
+        const w = window as typeof window & { __YORGIT_OPTIONS__?: ModalOptions };
+        if (w.__YORGIT_OPTIONS__) {
+            this.options = w.__YORGIT_OPTIONS__;
             const values: Record<string, string> = {};
             for (const select of this.options.selects ?? []) {
                 values[select.id] = select.value ?? select.options[0]?.value ?? '';
@@ -421,4 +421,4 @@ class YogitModal extends LitElement {
     }
 }
 
-customElements.define('yogit-modal', YogitModal);
+customElements.define('yorgit-modal', YorgitModal);

@@ -11,7 +11,7 @@ import { getRepo, validateBranchName } from '../utils';
  * toujours repo.state.onDidChange de manière fiable.
  */
 export function registerCreateBranch(gitApi: API, provider: BranchesProvider): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.create-branch', async () => {
+    return vscode.commands.registerCommand('haerphi-yorgit.create-branch', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

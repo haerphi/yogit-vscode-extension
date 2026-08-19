@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { LogPanel } from '../../ui/LogPanel';
 
 export function registerShowLog(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.show-log', () => {
+    return vscode.commands.registerCommand('haerphi-yorgit.show-log', () => {
         LogPanel.show(context, gitApi);
     });
 }

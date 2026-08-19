@@ -185,7 +185,7 @@ interface CtxMenu {
     y: number;
 }
 
-export class YogitLog extends LitElement {
+export class YorgitLog extends LitElement {
     static properties = {
         commits: { type: Array },
         selectedHash: { type: String },
@@ -904,4 +904,4 @@ export class YogitLog extends LitElement {
     }
 }
 
-customElements.define('yogit-log', YogitLog);
+customElements.define('yorgit-log', YorgitLog);

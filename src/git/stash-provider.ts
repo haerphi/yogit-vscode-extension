@@ -60,7 +60,7 @@ export class StashProvider implements TreeDataProvider<StashEntry> {
         item.iconPath = new ThemeIcon('archive');
         // Clic gauche → aperçu du contenu du stash, dans la même vue diff que "Changes".
         item.command = {
-            command: 'haerphi-yogit.stash-show',
+            command: 'haerphi-yorgit.stash-show',
             title: l10n.t('View Changes…'),
             arguments: [entry],
         };

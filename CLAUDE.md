@@ -66,7 +66,7 @@ src/
 │   └── ConfirmModal.ts       ← shell HTML + orchestration WebviewPanel
 ├── webview/
 │   └── modal/
-│       ├── yogit-modal.ts    ← composant Lit <yogit-modal>
+│       ├── yorgit-modal.ts    ← composant Lit <yorgit-modal>
 │       └── index.ts          ← entry point esbuild
 └── extension.ts              ← activate() minimal : init git API + enregistre tout
 ```
@@ -80,7 +80,7 @@ Le code sous `src/` (hors `webview/`) est compilé par **tsc** et tourne dans No
 
 ### Flux de données webview
 
-1. L'extension host crée un `WebviewPanel` et injecte les options dans `window.__YOGIT_OPTIONS__` via un `<script>` inline.
+1. L'extension host crée un `WebviewPanel` et injecte les options dans `window.__YORGIT_OPTIONS__` via un `<script>` inline.
 2. Le bundle `out/webview/modal.js` est chargé via une URI webview (`webview.asWebviewUri()`).
 3. Le composant Lit lit les options dans `connectedCallback()` et rend l'UI.
 4. Un clic de bouton envoie le résultat à l'extension host via `vscode.postMessage()`.
@@ -143,7 +143,7 @@ L'extension est multi-langue (anglais par défaut, français). La langue suit ce
 
 - **`package.json` (contributes)** : jamais de texte en dur — utiliser des clés `%cmd.<id>.title%`, `%view.<id>.name%`, `%welcome.<vue>.<contexte>%`. Anglais dans `package.nls.json` (défaut), français dans `package.nls.fr.json`. Toute nouvelle commande/vue doit ajouter ses clés dans les DEUX fichiers.
 - **Extension host** (`src/` hors webview) : `vscode.l10n.t('English source string', arg0, …)` avec placeholders `{0}`. La chaîne source est en **anglais** ; la traduction française va dans `l10n/bundle.l10n.fr.json` (clé = chaîne anglaise exacte). Pour comparer le bouton cliqué d'un `showWarningMessage`, stocker le label dans une variable (`const label = vscode.l10n.t(…)`) — jamais de comparaison avec un littéral.
-- **Webviews** (`src/webview/`) : `vscode.l10n` n'y est pas disponible. L'extension host injecte `window.__YOGIT_LOCALE__` (script inline nonce dans le shell HTML — obligatoire pour tout nouveau panel). Chaque composant définit `const L = pick({ …en… }, { …fr… })` via `src/webview/shared/i18n.ts` et utilise `${L.clé}` dans les templates. Les pluriels/interpolations sont des fonctions dans le dictionnaire.
+- **Webviews** (`src/webview/`) : `vscode.l10n` n'y est pas disponible. L'extension host injecte `window.__YORGIT_LOCALE__` (script inline nonce dans le shell HTML — obligatoire pour tout nouveau panel). Chaque composant définit `const L = pick({ …en… }, { …fr… })` via `src/webview/shared/i18n.ts` et utilise `${L.clé}` dans les templates. Les pluriels/interpolations sont des fonctions dans le dictionnaire.
 
 ## Règles de code
 

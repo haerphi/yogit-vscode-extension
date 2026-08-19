@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# release.sh — automatise une release de l'extension YoGit.
+# release.sh — automatise une release de l'extension YorGit.
 #
 # Étapes :
 #   1. Demande la nouvelle version à l'utilisateur (format attendu : vX.X.X)

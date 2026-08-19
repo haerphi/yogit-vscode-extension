@@ -1,1 +1,1 @@
-import './yogit-commit-detail';
+import './yorgit-commit-detail';

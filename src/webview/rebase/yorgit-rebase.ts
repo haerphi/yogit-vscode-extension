@@ -6,7 +6,7 @@ import { formatFullDate } from '../shared/date';
 declare global {
     interface Window {
         acquireVsCodeApi: () => { postMessage: (msg: unknown) => void };
-        __YOGIT_REBASE_DEFAULT_ORDER__?: 'oldest-first' | 'newest-first';
+        __YORGIT_REBASE_DEFAULT_ORDER__?: 'oldest-first' | 'newest-first';
     }
 }
 
@@ -164,7 +164,7 @@ function computeFinalCommits(entries: RebaseEntry[]): FinalCommit[] {
     return result;
 }
 
-export class YogitRebase extends LitElement {
+export class YorgitRebase extends LitElement {
     static properties = {
         _entries: { state: true },
         _upstreamLabel: { state: true },
@@ -211,10 +211,10 @@ export class YogitRebase extends LitElement {
         this._rebaseError = '';
         this._draggingIdx = null;
         this._dragOverIdx = null;
-        // Préférence utilisateur (haerphi-yogit.rebase.defaultOrder), injectée par
+        // Préférence utilisateur (haerphi-yorgit.rebase.defaultOrder), injectée par
         // RebasePanel — seul le sens d'affichage initial en dépend, le bouton reste
         // libre de basculer à tout moment.
-        this._reversed = window.__YOGIT_REBASE_DEFAULT_ORDER__ === 'newest-first';
+        this._reversed = window.__YORGIT_REBASE_DEFAULT_ORDER__ === 'newest-first';
         this._showPreview = false;
     }
 
@@ -977,4 +977,4 @@ export class YogitRebase extends LitElement {
     }
 }
 
-customElements.define('yogit-rebase', YogitRebase);
+customElements.define('yorgit-rebase', YorgitRebase);

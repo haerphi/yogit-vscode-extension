@@ -69,15 +69,15 @@ export class CommitView implements vscode.WebviewViewProvider {
             } else if (msg.type === 'commit') {
                 await this._doCommit(msg.title, msg.description, msg.amend);
             } else if (msg.type === 'create-branch') {
-                vscode.commands.executeCommand('haerphi-yogit.create-branch');
+                vscode.commands.executeCommand('haerphi-yorgit.create-branch');
             } else if (msg.type === 'abort-rebase') {
-                vscode.commands.executeCommand('haerphi-yogit.abort-rebase');
+                vscode.commands.executeCommand('haerphi-yorgit.abort-rebase');
             } else if (msg.type === 'continue-rebase') {
-                vscode.commands.executeCommand('haerphi-yogit.continue-rebase');
+                vscode.commands.executeCommand('haerphi-yorgit.continue-rebase');
             } else if (msg.type === 'push') {
-                vscode.commands.executeCommand('haerphi-yogit.push');
+                vscode.commands.executeCommand('haerphi-yorgit.push');
             } else if (msg.type === 'pull') {
-                vscode.commands.executeCommand('haerphi-yogit.pull');
+                vscode.commands.executeCommand('haerphi-yorgit.pull');
             }
         });
     }
@@ -157,7 +157,7 @@ export class CommitView implements vscode.WebviewViewProvider {
 
     /**
      * Commit exécuté via child_process (et non repo.commit()) pour capturer la sortie
-     * des hooks pre-commit/commit-msg (husky, lint-staged…) dans le canal "YoGit".
+     * des hooks pre-commit/commit-msg (husky, lint-staged…) dans le canal "YorGit".
      * L'API vscode.git avale cette sortie ; en cas de refus par un hook, l'utilisateur
      * ne verrait sinon aucune raison. Le commit est purement local — aucune authentification
      * réseau n'est requise, contrairement à push/pull qui restent sur l'API (askpass).
@@ -196,8 +196,8 @@ export class CommitView implements vscode.WebviewViewProvider {
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';" />
 </head>
 <body>
-    <yogit-commit></yogit-commit>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
+    <yorgit-commit></yorgit-commit>
+    <script nonce="${nonce}">window.__YORGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

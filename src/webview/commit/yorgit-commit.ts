@@ -80,7 +80,7 @@ type ProviderMessage =
     | { type: 'committed' }
     | { type: 'error'; message: string };
 
-export class YogitCommit extends LitElement {
+export class YorgitCommit extends LitElement {
     static properties = {
         title: { type: String },
         description: { type: String },
@@ -558,4 +558,4 @@ export class YogitCommit extends LitElement {
     }
 }
 
-customElements.define('yogit-commit', YogitCommit);
+customElements.define('yorgit-commit', YorgitCommit);

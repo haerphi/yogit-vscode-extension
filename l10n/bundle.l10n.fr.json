@@ -202,7 +202,7 @@
     "Mark as Safe": "Marquer comme sûr",
     "Git refuses to access this repository (dubious folder ownership).": "Git refuse d'accéder à ce dépôt (propriétaire du dossier suspect).",
     "The path \"{0}\" is not considered safe by git.\n\nThis happens with WSL repositories opened from Windows via \\\\wsl.localhost\\...": "Le chemin « {0} » n'est pas considéré comme sûr par git.\n\nCela arrive sur les dépôts WSL ouverts depuis Windows via \\\\wsl.localhost\\...",
-    "Repository marked as safe. Reload the window to activate YoGit.": "Dépôt marqué comme sûr. Rechargez la fenêtre pour activer YoGit.",
+    "Repository marked as safe. Reload the window to activate YorGit.": "Dépôt marqué comme sûr. Rechargez la fenêtre pour activer YorGit.",
     "Reload": "Recharger",
     "Resolve Conflicts": "Résoudre les conflits",
     "Resolve Conflict…": "Résoudre le conflit…",

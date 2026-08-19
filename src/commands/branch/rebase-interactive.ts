@@ -5,7 +5,7 @@ import { RebasePanel } from '../../ui/RebasePanel';
 import { getRepo } from '../utils';
 
 export function registerRebaseInteractive(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.rebase-interactive', async (node: BranchLeaf) => {
+    return vscode.commands.registerCommand('haerphi-yorgit.rebase-interactive', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

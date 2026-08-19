@@ -8,17 +8,17 @@ import { getRepo } from '../utils';
 /**
  * Enregistre les quatre commandes de staging/unstaging :
  *
- *   - haerphi-yogit.stage-file    → stage un fichier individuel (contextValue: change-unstaged)
- *   - haerphi-yogit.unstage-file  → unstage un fichier individuel (contextValue: change-staged)
- *   - haerphi-yogit.stage-all     → stage tous les fichiers non stagés
- *   - haerphi-yogit.unstage-all   → unstage tous les fichiers stagés
+ *   - haerphi-yorgit.stage-file    → stage un fichier individuel (contextValue: change-unstaged)
+ *   - haerphi-yorgit.unstage-file  → unstage un fichier individuel (contextValue: change-staged)
+ *   - haerphi-yorgit.stage-all     → stage tous les fichiers non stagés
+ *   - haerphi-yorgit.unstage-all   → unstage tous les fichiers stagés
  *
  * repo.add() et repo.revert() de l'API vscode.git opèrent sur des chemins fsPath.
  * repo.status() est appelé après chaque opération car ces commandes passent par
  * child_process/API interne — onDidChange ne se déclenche pas automatiquement sur WSL UNC.
  */
 export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
-    const stageFile = vscode.commands.registerCommand('haerphi-yogit.stage-file', async (node: ChangeLeaf) => {
+    const stageFile = vscode.commands.registerCommand('haerphi-yorgit.stage-file', async (node: ChangeLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -36,7 +36,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
         }
     });
 
-    const unstageFile = vscode.commands.registerCommand('haerphi-yogit.unstage-file', async (node: ChangeLeaf) => {
+    const unstageFile = vscode.commands.registerCommand('haerphi-yorgit.unstage-file', async (node: ChangeLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -54,7 +54,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
         }
     });
 
-    const stageAll = vscode.commands.registerCommand('haerphi-yogit.stage-all', async () => {
+    const stageAll = vscode.commands.registerCommand('haerphi-yorgit.stage-all', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -76,7 +76,7 @@ export function registerStageUnstage(gitApi: API): vscode.Disposable[] {
         }
     });
 
-    const unstageAll = vscode.commands.registerCommand('haerphi-yogit.unstage-all', async () => {
+    const unstageAll = vscode.commands.registerCommand('haerphi-yorgit.unstage-all', async () => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

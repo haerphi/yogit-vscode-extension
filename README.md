@@ -1,4 +1,4 @@
-# YoGit
+# YorGit
 
 Extension VS Code offrant une interface Git visuelle : claire, compacte, orientée action.
 
@@ -43,7 +43,7 @@ pnpm run compile
 vsce package --no-dependencies
 
 # 3. Installer dans VS Code
-code --install-extension haerphi-yogit-*.vsix
+code --install-extension haerphi-yorgit-*.vsix
 ```
 
 Ou depuis VS Code : **Extensions → ⋯ → Installer depuis un fichier VSIX…** et sélectionner le `.vsix` généré.

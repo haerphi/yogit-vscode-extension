@@ -1,5 +1,5 @@
 /**
- * Types partagés entre l'extension host (ConfirmModal.ts) et le webview (yogit-modal.ts).
+ * Types partagés entre l'extension host (ConfirmModal.ts) et le webview (yorgit-modal.ts).
  * Ce fichier ne doit importer ni `vscode` ni aucun module Node.js — il doit rester
  * importable des deux côtés de la frontière extension host / webview.
  */

@@ -51,7 +51,7 @@ export function registerSwitch(gitApi: API): vscode.Disposable[] {
      * Sans cela, repo.state.HEAD reste sur l'ancienne branche et la TreeView ne se met
      * pas à jour malgré le changement réel dans git.
      */
-    const switchTo = vscode.commands.registerCommand('haerphi-yogit.switch', async (node: BranchLeaf) => {
+    const switchTo = vscode.commands.registerCommand('haerphi-yorgit.switch', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;
@@ -88,7 +88,7 @@ export function registerSwitch(gitApi: API): vscode.Disposable[] {
      * Après l'opération (faite hors API via child_process), repo.status() est appelé
      * pour synchroniser l'état de vscode.git avec le nouveau HEAD.
      */
-    const switchForce = vscode.commands.registerCommand('haerphi-yogit.switch-force', async (node: BranchLeaf) => {
+    const switchForce = vscode.commands.registerCommand('haerphi-yorgit.switch-force', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

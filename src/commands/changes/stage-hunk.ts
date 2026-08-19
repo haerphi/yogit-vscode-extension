@@ -200,7 +200,7 @@ function advanceHeadIdx(hunk: Hunk, startIdx: number, mode: 'stage' | 'unstage')
 // ─── Commande principale ──────────────────────────────────────────────────────
 
 /**
- * Enregistre la commande haerphi-yogit.stage-hunks.
+ * Enregistre la commande haerphi-yorgit.stage-hunks.
  *
  * Déclenchée sur un fichier non stagé (contextValue: change-unstaged).
  * Flux :
@@ -212,10 +212,10 @@ function advanceHeadIdx(hunk: Hunk, startIdx: number, mode: 'stage' | 'unstage')
  *   6. `repo.status()` pour rafraîchir la TreeView
  */
 export function registerStageHunk(gitApi: API, context: vscode.ExtensionContext): vscode.Disposable[] {
-    const stageHunks = vscode.commands.registerCommand('haerphi-yogit.stage-hunks', (node: ChangeLeaf) =>
+    const stageHunks = vscode.commands.registerCommand('haerphi-yorgit.stage-hunks', (node: ChangeLeaf) =>
         runHunkCommand(gitApi, context, node, false),
     );
-    const unstageHunks = vscode.commands.registerCommand('haerphi-yogit.unstage-hunks', (node: ChangeLeaf) =>
+    const unstageHunks = vscode.commands.registerCommand('haerphi-yorgit.unstage-hunks', (node: ChangeLeaf) =>
         runHunkCommand(gitApi, context, node, true),
     );
     return [stageHunks, unstageHunks];

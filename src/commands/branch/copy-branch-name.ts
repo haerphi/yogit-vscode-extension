@@ -7,7 +7,7 @@ import { BranchLeaf } from '../../git/branches-provider';
  * préfixé du remote pour une branche distante ("origin/foo").
  */
 export function registerCopyBranchName(): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.copy-branch-name', async (node: BranchLeaf) => {
+    return vscode.commands.registerCommand('haerphi-yorgit.copy-branch-name', async (node: BranchLeaf) => {
         const branchName = node.branch.name;
         if (!branchName) {
             return;

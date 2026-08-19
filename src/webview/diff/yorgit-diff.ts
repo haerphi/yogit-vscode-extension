@@ -4,7 +4,7 @@ import { pick } from '../shared/i18n';
 
 declare global {
     interface Window {
-        __YOGIT_DIFF__: FileDiff;
+        __YORGIT_DIFF__: FileDiff;
         acquireVsCodeApi: () => { postMessage: (msg: unknown) => void };
     }
 }
@@ -94,7 +94,7 @@ function buildRenderItems(total: number, isContext: (i: number) => boolean, expa
 /**
  * Composant Lit pour la sélection de hunks/lignes avant staging.
  *
- * Données : window.__YOGIT_DIFF__ (FileDiff) injectées avant le chargement du script.
+ * Données : window.__YORGIT_DIFF__ (FileDiff) injectées avant le chargement du script.
  * Résultat : postMessage({ selection: HunkSelection }) ou postMessage({ cancel: true }).
  *
  * Convention de sélection (par défaut, tout est sélectionné à l'ouverture) :
@@ -102,7 +102,7 @@ function buildRenderItems(total: number, isContext: (i: number) => boolean, expa
  *   - Checkbox de ligne cochée → sélection ligne par ligne
  *   - Si toutes les lignes d'un hunk sont cochées → passe à 'all' automatiquement
  */
-export class YogitDiff extends LitElement {
+export class YorgitDiff extends LitElement {
     static properties = {
         diff: { type: Object },
         selection: { type: Object },
@@ -308,7 +308,7 @@ export class YogitDiff extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this.diff = window.__YOGIT_DIFF__;
+        this.diff = window.__YORGIT_DIFF__;
         // En lecture seule (ex: contenu d'un stash), la sélection n'a pas de sens —
         // il n'y a pas d'action de staging à effectuer.
         if (this.diff && !this.diff.readOnly) {
@@ -555,4 +555,4 @@ export class YogitDiff extends LitElement {
     }
 }
 
-customElements.define('yogit-diff', YogitDiff);
+customElements.define('yorgit-diff', YorgitDiff);

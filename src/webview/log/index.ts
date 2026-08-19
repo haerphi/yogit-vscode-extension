@@ -1,1 +1,1 @@
-import './yogit-log';
+import './yorgit-log';

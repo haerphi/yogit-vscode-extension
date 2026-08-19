@@ -1,1 +1,1 @@
-import './yogit-conflict';
+import './yorgit-conflict';

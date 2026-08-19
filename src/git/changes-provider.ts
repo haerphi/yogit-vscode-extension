@@ -75,7 +75,7 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         }
         const rebaseHead = path.join(this.gitRepository.rootUri.fsPath, '.git', 'REBASE_HEAD');
         const inProgress = fs.existsSync(rebaseHead);
-        commands.executeCommand('setContext', 'haerphi-yogit.rebaseInProgress', inProgress);
+        commands.executeCommand('setContext', 'haerphi-yorgit.rebaseInProgress', inProgress);
     }
 
     getTreeItem(node: ChangeNode): TreeItem {
@@ -107,19 +107,19 @@ export class ChangesProvider implements TreeDataProvider<ChangeNode> {
         item.description = this.relativeDir(change.uri.fsPath);
         if (isConflict) {
             item.command = {
-                command: 'haerphi-yogit.resolve-conflict',
+                command: 'haerphi-yorgit.resolve-conflict',
                 title: l10n.t('Resolve Conflict…'),
                 arguments: [node],
             };
         } else if (resourceGroup === 'unstaged') {
             item.command = {
-                command: 'haerphi-yogit.stage-hunks',
+                command: 'haerphi-yorgit.stage-hunks',
                 title: l10n.t('Stage by Hunks/Lines…'),
                 arguments: [node],
             };
         } else if (resourceGroup === 'staged') {
             item.command = {
-                command: 'haerphi-yogit.unstage-hunks',
+                command: 'haerphi-yorgit.unstage-hunks',
                 title: l10n.t('Unstage by Hunks/Lines…'),
                 arguments: [node],
             };

@@ -25,7 +25,7 @@ async function gitRenameBranch(gitPath: string, oldName: string, newName: string
  * synchronise l'état vscode.git via repo.status() et on force un refresh de la vue.
  */
 export function registerRenameBranch(gitApi: API, provider: BranchesProvider): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.rename-branch', async (node: BranchLeaf) => {
+    return vscode.commands.registerCommand('haerphi-yorgit.rename-branch', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

@@ -47,7 +47,7 @@ export async function checkSafeDirectory(gitPath: string): Promise<void> {
     const reloadLabel = vscode.l10n.t('Reload');
     vscode.window
         .showInformationMessage(
-            vscode.l10n.t('Repository marked as safe. Reload the window to activate YoGit.'),
+            vscode.l10n.t('Repository marked as safe. Reload the window to activate YorGit.'),
             reloadLabel,
         )
         .then(btn => {

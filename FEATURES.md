@@ -1,4 +1,4 @@
-# YoGit — Roadmap
+# YorGit — Roadmap
 
 ## Fondations
 
@@ -104,8 +104,8 @@
 
 ## Préférences configurables
 
-- [x] `haerphi-yogit.language` (auto/en/fr) — langue des webviews propres à YoGit (rebase, diff, conflits, log, commit). N'affecte pas les titres de commandes/notifications (`vscode.l10n.t()`), qui suivent toujours la langue d'affichage de VS Code — limitation de la plateforme, pas de notre code.
-- [x] `haerphi-yogit.rebase.defaultOrder` (oldest-first/newest-first) — sens d'affichage initial du rebase interactif, togglable ensuite depuis le panneau
+- [x] `haerphi-yorgit.language` (auto/en/fr) — langue des webviews propres à YorGit (rebase, diff, conflits, log, commit). N'affecte pas les titres de commandes/notifications (`vscode.l10n.t()`), qui suivent toujours la langue d'affichage de VS Code — limitation de la plateforme, pas de notre code.
+- [x] `haerphi-yorgit.rebase.defaultOrder` (oldest-first/newest-first) — sens d'affichage initial du rebase interactif, togglable ensuite depuis le panneau
 
 ---
 
@@ -115,7 +115,7 @@
 
 - [x] Exécution git centralisée : helper `src/git/git-exec.ts` (`runGit`/`runGitBuffer`/`GitError`) — un seul point de spawn pour toutes les commandes d'action. Gère l'échec de démarrage du process (binaire introuvable, cwd invalide) et garantit un message d'erreur toujours non vide (stderr → stdout → code de sortie) pour un feedback exploitable
 
-- [x] Canal de sortie « YoGit » : chaque commande git et sa sortie (stderr toujours, stdout à la demande) sont tracées. Le commit passe par child_process (au lieu de `repo.commit()`) pour capturer la sortie des hooks pre-commit/commit-msg (husky, lint-staged…) ; le canal est révélé automatiquement si un hook refuse le commit
+- [x] Canal de sortie « YorGit » : chaque commande git et sa sortie (stderr toujours, stdout à la demande) sont tracées. Le commit passe par child_process (au lieu de `repo.commit()`) pour capturer la sortie des hooks pre-commit/commit-msg (husky, lint-staged…) ; le canal est révélé automatiquement si un hook refuse le commit
 
 - [x] CI GitHub Actions : lint + compile + packaging `.vsix` sur chaque push/PR vers `main`
 - [x] Release automatique : push d'un tag `vX.Y.Z` → build + release GitHub avec le `.vsix` en pièce jointe

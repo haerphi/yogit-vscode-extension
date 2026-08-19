@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import * as vscode from 'vscode';
 
 /**
- * Canal de sortie "YoGit" partagé — trace chaque commande git et sa sortie.
+ * Canal de sortie "YorGit" partagé — trace chaque commande git et sa sortie.
  *
  * Sert notamment à rendre visibles les logs des hooks (husky, lint-staged, …) qui
  * s'exécutent pendant un commit/rebase : sans cela, leur sortie stdout/stderr est
@@ -12,7 +12,7 @@ import * as vscode from 'vscode';
 let _channel: vscode.OutputChannel | undefined;
 export function getGitOutputChannel(): vscode.OutputChannel {
     if (!_channel) {
-        _channel = vscode.window.createOutputChannel('YoGit');
+        _channel = vscode.window.createOutputChannel('YorGit');
     }
     return _channel;
 }
@@ -47,7 +47,7 @@ export interface RunGitOptions {
     /** Variables d'environnement supplémentaires, fusionnées avec process.env. */
     env?: NodeJS.ProcessEnv;
     /**
-     * Écrit aussi stdout dans le canal de logs "YoGit" (défaut: false). La ligne de
+     * Écrit aussi stdout dans le canal de logs "YorGit" (défaut: false). La ligne de
      * commande et stderr y sont toujours écrits ; stdout ne l'est qu'à la demande car
      * il peut être volumineux (diffs) ou binaire (cat-file). À activer pour les
      * commandes susceptibles de déclencher des hooks (commit, rebase, merge…).

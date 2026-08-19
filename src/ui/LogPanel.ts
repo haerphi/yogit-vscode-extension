@@ -25,7 +25,7 @@ export class LogPanel {
             return;
         }
 
-        const panel = vscode.window.createWebviewPanel('yogit-log', vscode.l10n.t('History'), vscode.ViewColumn.One, {
+        const panel = vscode.window.createWebviewPanel('yorgit-log', vscode.l10n.t('History'), vscode.ViewColumn.One, {
             enableScripts: true,
             retainContextWhenHidden: true,
             localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'out', 'webview')],
@@ -411,8 +411,8 @@ export class LogPanel {
     <style>html,body{margin:0;padding:0;height:100%;overflow:hidden;}</style>
 </head>
 <body>
-    <yogit-log></yogit-log>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
+    <yorgit-log></yorgit-log>
+    <script nonce="${nonce}">window.__YORGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

@@ -11,7 +11,7 @@ import { getRepo, validateBranchName } from '../utils';
  * y compris une branche distante (ex: origin/main) sans avoir à la checkout au préalable.
  */
 export function registerCreateBranchFrom(gitApi: API, provider: BranchesProvider): vscode.Disposable {
-    return vscode.commands.registerCommand('haerphi-yogit.create-branch-from', async (node: BranchLeaf) => {
+    return vscode.commands.registerCommand('haerphi-yorgit.create-branch-from', async (node: BranchLeaf) => {
         const repo = getRepo(gitApi);
         if (!repo) {
             return;

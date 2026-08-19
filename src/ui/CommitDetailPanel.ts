@@ -66,7 +66,7 @@ export class CommitDetailPanel {
 
         const subject = meta.body.split('\n')[0]?.trim() ?? '';
         const panel = vscode.window.createWebviewPanel(
-            'yogit-commit-detail',
+            'yorgit-commit-detail',
             subject ? `${shortHash} · ${subject}` : shortHash,
             vscode.ViewColumn.Active,
             {
@@ -129,8 +129,8 @@ export class CommitDetailPanel {
     <style>html,body{margin:0;padding:0;height:100%;overflow:hidden;}</style>
 </head>
 <body>
-    <yogit-commit-detail></yogit-commit-detail>
-    <script nonce="${nonce}">window.__YOGIT_COMMIT__ = ${commitJson}; window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
+    <yorgit-commit-detail></yorgit-commit-detail>
+    <script nonce="${nonce}">window.__YORGIT_COMMIT__ = ${commitJson}; window.__YORGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

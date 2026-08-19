@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 /**
  * Retourne le premier dépôt git détecté par vscode.git.
  *
- * On prend toujours repositories[0] car YoGit ne gère qu'un seul dépôt à la fois.
+ * On prend toujours repositories[0] car YorGit ne gère qu'un seul dépôt à la fois.
  * Si aucun dépôt n'est ouvert (workspace vide ou git non initialisé), on affiche
  * un message d'erreur et on retourne undefined — l'appelant doit vérifier et sortir.
  */

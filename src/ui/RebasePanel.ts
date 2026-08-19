@@ -37,7 +37,7 @@ export class RebasePanel {
         }
 
         const panel = vscode.window.createWebviewPanel(
-            'yogit-rebase',
+            'yorgit-rebase',
             vscode.l10n.t('Interactive Rebase → {0}', upstreamLabel),
             vscode.ViewColumn.One,
             {
@@ -173,7 +173,7 @@ export class RebasePanel {
      *
      * Pourquoi GIT_SEQUENCE_EDITOR = `cp "<our-todo>"` ?
      *   git exécute : sh -c "$GIT_SEQUENCE_EDITOR $REBASE_TODO_FILE"
-     *   → sh -c `cp "/tmp/yogit-todo" /path/to/.git/rebase-merge/git-rebase-todo`
+     *   → sh -c `cp "/tmp/yorgit-todo" /path/to/.git/rebase-merge/git-rebase-todo`
      *   Le chemin destination est concaténé directement à notre commande.
      *   Sur git-for-windows, git utilise son sh MINGW, donc `cp` est disponible.
      *
@@ -201,7 +201,7 @@ export class RebasePanel {
 
         for (const e of entries) {
             if (e.action === 'reword') {
-                const msgPath = path.join(tmpDir, `yogit-reword-${rewordFiles.length}-${token}.txt`);
+                const msgPath = path.join(tmpDir, `yorgit-reword-${rewordFiles.length}-${token}.txt`);
                 fs.writeFileSync(msgPath, (e.newMessage ?? e.message).trim() + '\n', 'utf8');
                 rewordFiles.push(msgPath);
                 todoLines.push(`pick ${e.hash} ${e.message}`);
@@ -211,7 +211,7 @@ export class RebasePanel {
             }
         }
 
-        const todoPath = path.join(tmpDir, `yogit-rebase-todo-${token}`);
+        const todoPath = path.join(tmpDir, `yorgit-rebase-todo-${token}`);
         fs.writeFileSync(todoPath, todoLines.join('\n') + '\n', 'utf8');
 
         const seqEditor = `cp "${RebasePanel._toGitShellPath(todoPath)}"`;
@@ -283,8 +283,8 @@ export class RebasePanel {
     <style>html,body{margin:0;padding:0;height:100%;overflow:hidden;}</style>
 </head>
 <body>
-    <yogit-rebase></yogit-rebase>
-    <script nonce="${nonce}">window.__YOGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())}; window.__YOGIT_REBASE_DEFAULT_ORDER__ = ${JSON.stringify(getRebaseDefaultOrder())};</script>
+    <yorgit-rebase></yorgit-rebase>
+    <script nonce="${nonce}">window.__YORGIT_LOCALE__ = ${JSON.stringify(resolveWebviewLocale())}; window.__YORGIT_REBASE_DEFAULT_ORDER__ = ${JSON.stringify(getRebaseDefaultOrder())};</script>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
