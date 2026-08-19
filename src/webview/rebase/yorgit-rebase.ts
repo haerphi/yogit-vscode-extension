@@ -263,6 +263,17 @@ export class YorgitRebase extends LitElement {
     }
 
     /**
+     * Chromium décide au premier mousemove si le geste est un drag, en remontant aux
+     * ancêtres draggable — tant que la ligne l'est, glisser la souris dans le champ
+     * reword démarre un drag au lieu de sélectionner le texte. On bascule donc
+     * `draggable` de façon synchrone au mousedown, avant que la décision soit prise.
+     */
+    private _onRowMouseDown(e: MouseEvent) {
+        const row = e.currentTarget as HTMLElement;
+        row.draggable = !(e.target as HTMLElement).closest('select, input');
+    }
+
+    /**
      * Annule le drag s'il démarre depuis un contrôle interactif (select/input) — sans
      * ce garde, saisir le texte du champ reword ou ouvrir le select d'action ferait
      * partir un drag de toute la ligne au lieu de l'interaction attendue.
@@ -822,6 +833,7 @@ export class YorgitRebase extends LitElement {
                 class=${rowClasses}
                 style=${accent ? `--accent: ${accent}` : ''}
                 draggable="true"
+                @mousedown=${(e: MouseEvent) => this._onRowMouseDown(e)}
                 @dragstart=${(e: DragEvent) => this._onDragStart(e, realIdx)}
                 @dragover=${(e: DragEvent) => this._onDragOver(e, realIdx)}
                 @drop=${(e: DragEvent) => this._onDrop(e, realIdx)}

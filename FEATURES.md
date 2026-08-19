@@ -76,6 +76,7 @@
 - [x] Rebase interactif (réordonner, squash/fixup, drop) _(WebviewPanel)_
 - [x] Code couleur par action dans le rebase interactif (bordure gauche + fond teinté par ligne : orange=reword, bleu=squash, violet=fixup, rouge+barré=drop, neutre=pick)
 - [x] Glisser-déposer pour réordonner les commits du rebase interactif (en plus des flèches Haut/Bas, conservées pour l'accessibilité clavier)
+- [x] Glisser-déposer désactivé sur la ligne quand le geste part d'un contrôle (champ reword, select d'action) — permet de sélectionner le texte du message à la souris
 - [x] Bouton pour inverser l'ordre d'affichage du rebase interactif (plus récent en haut) — vue seulement, l'ordre envoyé à git reste toujours plus ancien en premier
 - [x] Volet "Aperçu" rétractable montrant le résultat final du rebase (squash/fixup fondus, drop exclus, reword avec le nouveau message) avant de cliquer sur "Lancer le rebase"
 - [x] Ajouter un tag sur un commit (depuis l'historique, avec push optionnel)
